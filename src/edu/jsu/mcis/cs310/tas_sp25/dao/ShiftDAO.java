@@ -39,9 +39,6 @@ public class ShiftDAO {
 
                     while (rs.next()) {
 
-                        String description = rs.getString("description");
-                        badge = new Badge(id, description);
-
                     }
 
                 }

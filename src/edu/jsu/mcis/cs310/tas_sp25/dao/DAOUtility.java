@@ -14,5 +14,5 @@ import com.github.cliftonlabs.json_simple.*;
  * 
  */
 public final class DAOUtility {
-
+    
 }
