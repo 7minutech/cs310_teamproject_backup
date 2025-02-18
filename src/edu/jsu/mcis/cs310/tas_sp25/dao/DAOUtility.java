@@ -5,6 +5,8 @@ import java.util.*;
 import java.time.temporal.ChronoUnit;
 import java.time.format.DateTimeFormatter;
 import com.github.cliftonlabs.json_simple.*;
+import java.sql.ResultSet;
+import java.sql.ResultSetMetaData;
 
 /**
  * 
@@ -13,6 +15,51 @@ import com.github.cliftonlabs.json_simple.*;
  * individual static methods.
  * 
  */
-public final class DAOUtility {
+public class DAOUtility {
+    public static String getResultSetAsJson(ResultSet rs) {
+        JsonArray records = new JsonArray(); // declare an empty array. if we were to find nothing, it will be returned
+
+        try {
+            if (rs != null) {
+                ResultSetMetaData metaData = rs.getMetaData();
+                int columnCount = metaData.getColumnCount();
+
+                while (rs.next()) { // repeat until we don't have any "next" data
+                    JsonObject rowObject = new JsonObject();
+                    for (int i = 1; i <= columnCount; i++) {
+                        String columnName = metaData.getColumnName(i);
+                        String value = rs.getObject(i).toString();
+                        rowObject.put(columnName, value);
+                    }
+                    records.add(rowObject);
+                }
+            }
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return Jsoner.serialize(records);
+    }
     
+    public static HashMap<String, String> getResultsSetAsParameters(ResultSet rs) { 
+        HashMap<String, String> map = new HashMap<>();
+        try {
+            if (rs != null) {
+                ResultSetMetaData metaData = rs.getMetaData();
+                int columnCount = metaData.getColumnCount();
+                
+                while (rs.next()) {
+                    for (int i = 1; i <= columnCount; i++) {
+                        String columnName = metaData.getColumnName(i);
+                        String value = rs.getString(i);
+                        map.put(columnName, value);
+                    }
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return map;
+    }
 }
