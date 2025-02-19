@@ -1,6 +1,7 @@
 package edu.jsu.mcis.cs310.tas_sp25;
 
-import java.time.LocalDateTime;
+import java.time.*;
+import java.time.format.DateTimeFormatter;
 
 public class Punch {
     private final Integer id;
@@ -70,7 +71,7 @@ public class Punch {
         StringBuilder s = new StringBuilder();
 
         s.append('#').append(badge.getId()).append(' ');
-        s.append(punchtype).append(": ").append(originalTimestamp);
+        s.append(punchtype).append(": ").append(formatTimestamp(originalTimestamp));
 
         return s.toString();
     }
@@ -79,7 +80,7 @@ public class Punch {
         StringBuilder s = new StringBuilder();
 
         s.append('#').append(badge.getId()).append(' ');
-        s.append(punchtype).append(": ").append(originalTimestamp);
+        s.append(punchtype).append(": ").append(formatTimestamp(originalTimestamp));
 
         if (adjustedTimestamp != null) {
             s.append(" -> ").append(adjustedTimestamp);
@@ -87,4 +88,25 @@ public class Punch {
 
         return s.toString();
     }
+    
+    public String formatTimestamp(LocalDateTime timestamp){
+        StringBuilder s = new StringBuilder();
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MM/dd/yyyy");
+        String formatedDate = timestamp.format(formatter);
+        DayOfWeek dayOfWeek = timestamp.getDayOfWeek();
+        LocalTime time = timestamp.toLocalTime();
+        int second = time.getSecond();
+        String dayAbbr = (dayOfWeek.toString()).substring(0, 3);
+        s.append(dayAbbr.substring(0,3)).append(" ");
+        s.append(formatedDate);
+        s.append(" ");
+        if(second == 0){
+            s.append(time).append(":00");
+        }
+        else{
+            s.append(time);
+        }
+        return s.toString();
+    }
+            
 }
