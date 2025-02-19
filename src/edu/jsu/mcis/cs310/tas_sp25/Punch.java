@@ -1,4 +1,3 @@
-
 package edu.jsu.mcis.cs310.tas_sp25;
 
 import java.time.LocalDateTime;
@@ -32,6 +31,34 @@ public class Punch {
         this.adjustmenttype = null;
     }
 
+    // Getters
+    public Integer getId() {
+        return id;
+    }
+
+    public int getTerminalId() {
+        return terminalid;
+    }
+
+    public Badge getBadge() {
+        return badge;
+    }
+
+    public EventType getPunchType() {
+        return punchtype;
+    }
+
+    public LocalDateTime getOriginalTimestamp() {
+        return originalTimestamp;
+    }
+
+    public LocalDateTime getAdjustedTimestamp() {
+        return adjustedTimestamp;
+    }
+
+    public PunchAdjustmentType getAdjustmentType() {
+        return adjustmenttype;
+    }
 
     @Override
     public String toString() {
@@ -39,25 +66,25 @@ public class Punch {
     }
     
     public String printOriginal(){
-        //"#D2C39273 CLOCK IN: WED 09/05/2018 07:00:07"
+        // "#D2C39273 CLOCK IN: WED 09/05/2018 07:00:07"
         StringBuilder s = new StringBuilder();
 
         s.append('#').append(badge.getId()).append(' ');
-        s.append(EventType.CLOCK_IN).append(":").append(' ');
-        s.append(originalTimestamp);
-        return s.toString();
+        s.append(punchtype).append(": ").append(originalTimestamp);
 
+        return s.toString();
     }
     
     public String printAdjusted(){
         StringBuilder s = new StringBuilder();
 
-         s.append('#').append(badge.getId()).append(' ');
-        s.append(EventType.CLOCK_IN).append(":").append(' ');
-        s.append(originalTimestamp);
-        s.append(adjustedTimestamp);
+        s.append('#').append(badge.getId()).append(' ');
+        s.append(punchtype).append(": ").append(originalTimestamp);
+
+        if (adjustedTimestamp != null) {
+            s.append(" -> ").append(adjustedTimestamp);
+        }
+
         return s.toString();
-
     }
-
 }
