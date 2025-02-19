@@ -16,10 +16,10 @@ public class Shift {
     private final LocalTime shiftstop;
     private final LocalTime lunchstart;
     private final LocalTime lunchstop;
-    public final int roundinterval;
-    public final int graceperiod;
-    public final int dockpenalty;
-    public final int lunchthreshold;
+    private final int roundinterval;
+    private final int graceperiod;
+    private final int dockpenalty;
+    private final int lunchthreshold;
     
     public Shift(String id, HashMap<String, String> parameters) {
         this.id = id;
@@ -36,7 +36,31 @@ public class Shift {
         this.lunchthreshold = Integer.parseInt(parameters.get("lunchthreshold"));
     }
     
-    // Getters to make life easy
+    // Getters
+    public int getRoundInterval() {
+        return this.roundinterval;
+    }
+    public int getGracePeriod() {
+        return this.graceperiod;
+    }
+    public int getDockPenalty() {
+        return this.dockpenalty;
+    }
+    public int getLunchThreshold() {
+        return this.lunchthreshold;
+    }
+    public LocalTime getShiftStart() {
+        return this.shiftstart;
+    }
+    public LocalTime getShiftStop() {
+        return this.shiftstop;
+    }
+    public LocalTime getLunchStart() {
+        return this.lunchstart;
+    }
+    public LocalTime getLunchStop() {
+        return this.lunchstop;
+    }
     public int getLunchDuration() {
         return (int) java.time.Duration.between(lunchstart, lunchstop).toMinutes();
     }
