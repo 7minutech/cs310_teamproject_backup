@@ -85,10 +85,9 @@ public class PunchFindTest {
         Punch p12 = punchDAO.find(717.0);
 
         /* Compare to Expected Values */
-
-        assertEquals(null, p10.printOriginal());
-        assertEquals(null, p11.printOriginal());
-        assertEquals(null, p12.printOriginal());
+        assertNull(p10.printOriginal());
+        assertNull(p11.printOriginal());
+        assertNull(p12.printOriginal());
 
     }
     
