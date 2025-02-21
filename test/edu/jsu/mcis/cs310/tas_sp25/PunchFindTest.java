@@ -73,21 +73,17 @@ public class PunchFindTest {
         assertEquals("#67637925 TIME OUT: TUE 08/07/2018 23:12:34", p9.printOriginal());
 
     }
-    
+    @Test
     public void testFindPunches4() {
 
         PunchDAO punchDAO = daoFactory.getPunchDAO();
 
         /* Retrieve Punches from Database */
 
-        Punch p10 = punchDAO.find(true);
-        Punch p11 = punchDAO.find("717");
-        Punch p12 = punchDAO.find(717.0);
+        Punch p10 = punchDAO.find(-717);
 
         /* Compare to Expected Values */
-        assertNull(p10.printOriginal());
-        assertNull(p11.printOriginal());
-        assertNull(p12.printOriginal());
+        assertNull(p10);
 
     }
     
