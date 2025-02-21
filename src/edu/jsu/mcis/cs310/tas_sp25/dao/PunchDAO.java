@@ -50,7 +50,7 @@ public class PunchDAO {
                         punch = new Punch(id, terminalid, badge, originalTimestamp, punchtype);
                     }
                 }
-}
+            }
 
         }
 
