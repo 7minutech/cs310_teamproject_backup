@@ -87,4 +87,22 @@ public class PunchFindTest {
 
     }
     
+     @Test
+    public void testFindPunches5() {
+
+        PunchDAO punchDAO = daoFactory.getPunchDAO();
+
+        /* Retrieve Punches from Database */
+
+        Punch p11 = punchDAO.find(212);
+
+        /* Compare to Expected Values */
+        int id = p11.getId();
+        int terminalId = p11.getTerminalId();
+        String badgeId = p11.getBadge().getId();
+        assertEquals(212, id);
+        assertEquals(101, terminalId);
+        assertEquals("B09A75D7", badgeId);
+    }
+    
 }
