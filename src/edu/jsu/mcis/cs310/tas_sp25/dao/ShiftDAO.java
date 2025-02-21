@@ -15,6 +15,9 @@ public class ShiftDAO {
     }
     
     public Shift find(Badge badge) { // find via badge
+        if (badge == null) { // Return null without trying if badge is invalid.
+            return null;
+        }
         final String QUERY_FIND_EMPLOYEE = "SELECT * FROM employee WHERE badgeid = ?"; // find the employee with this badge
         Shift shift = null;
 
