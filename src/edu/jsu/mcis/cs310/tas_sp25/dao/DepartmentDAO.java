@@ -16,11 +16,11 @@ public class DepartmentDAO {
         Department department = null;
         
         try (Connection conn = daoFactory.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(QUERY_FIND)) {
+             PreparedStatement ps = conn.prepareStatement(QUERY_FIND)) {
             
-            stmt.setInt(1, id);
+            ps.setInt(1, id);
             
-            try (ResultSet rs = stmt.executeQuery()) {
+            try (ResultSet rs = ps.executeQuery()) {
                 if (rs.next()) {
                     department = new Department(
                         rs.getInt("id"),

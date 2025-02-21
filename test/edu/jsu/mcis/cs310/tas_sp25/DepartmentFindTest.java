@@ -59,5 +59,37 @@ public class DepartmentFindTest {
         assertEquals("#8 (Shipping), Terminal ID: 107", d3.toString());
 
     }
+    
+    @Test
+    public void testFindDepartment4() {
+
+        DepartmentDAO departmentDAO = daoFactory.getDepartmentDAO();
+
+        /* Retrieve Department from Database */
+        
+        Department d4 = departmentDAO.find(3);
+
+        /* Compare to Expected Values */
+        
+        assertEquals("#3 (Warehouse), Terminal ID: 106", d4.toString());
+
+    }
+    
+    @Test
+    public void testFindDepartment5() {
+
+        DepartmentDAO departmentDAO = daoFactory.getDepartmentDAO();
+
+        /* Retrieve Department from Database */
+        
+        Department d5 = departmentDAO.find(10);
+
+
+        /* Compare to Expected Values */
+        
+        assertEquals("#10 (Maintenance), Terminal ID: 104", d5.toString());
+
+
+    }
 
 }
