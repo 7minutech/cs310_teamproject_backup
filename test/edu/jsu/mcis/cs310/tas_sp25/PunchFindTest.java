@@ -14,6 +14,8 @@ public class PunchFindTest {
         daoFactory = new DAOFactory("tas.jdbc");
 
     }
+    
+    
 
     @Test
     public void testFindPunches1() {
@@ -69,6 +71,24 @@ public class PunchFindTest {
         assertEquals("#618072EA TIME OUT: FRI 08/10/2018 00:12:35", p7.printOriginal());
         assertEquals("#0886BF12 TIME OUT: THU 08/02/2018 06:06:38", p8.printOriginal());
         assertEquals("#67637925 TIME OUT: TUE 08/07/2018 23:12:34", p9.printOriginal());
+
+    }
+    
+    public void testFindPunches4() {
+
+        PunchDAO punchDAO = daoFactory.getPunchDAO();
+
+        /* Retrieve Punches from Database */
+
+        Punch p10 = punchDAO.find(true);
+        Punch p11 = punchDAO.find("717");
+        Punch p12 = punchDAO.find(717.0);
+
+        /* Compare to Expected Values */
+
+        assertEquals(null, p10.printOriginal());
+        assertEquals(null, p11.printOriginal());
+        assertEquals(null, p12.printOriginal());
 
     }
     
