@@ -111,6 +111,8 @@ public class Punch {
         LocalTime time = timestamp.toLocalTime();
         int second = time.getSecond();
         s.append(time);
+        //Need to forcefully append :00
+        //otherwise nothing is appended
         if(second == 0){
             s.append(":00");
         }
