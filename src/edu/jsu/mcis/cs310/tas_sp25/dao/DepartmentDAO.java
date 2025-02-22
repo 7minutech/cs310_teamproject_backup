@@ -15,6 +15,7 @@ public class DepartmentDAO {
    public Department find(int id) {
 
         Department department = null;
+
         PreparedStatement ps = null;
         ResultSet rs = null;
 
@@ -50,13 +51,23 @@ public class DepartmentDAO {
 
             throw new DAOException(e.getMessage());
 
-        } 
-        
-        finally {
-            
-            if (rs != null) { try { rs.close(); } catch (Exception e) { e.printStackTrace(); } }
-            if (ps != null) { try { ps.close(); } catch (Exception e) { e.printStackTrace(); } }
-            
+        } finally {
+
+            if (rs != null) {
+                try {
+                    rs.close();
+                } catch (SQLException e) {
+                    throw new DAOException(e.getMessage());
+                }
+            }
+            if (ps != null) {
+                try {
+                    ps.close();
+                } catch (SQLException e) {
+                    throw new DAOException(e.getMessage());
+                }
+            }
+
         }
 
         return department;
