@@ -1,6 +1,8 @@
 package edu.jsu.mcis.cs310.tas_sp25;
 
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+
 
 /**
  *
@@ -62,13 +64,20 @@ public class Employee {
 
     @Override
     public String toString() {
+        // Expected format: ID #14: Donaldson, Kathleen C (#229324A4), Type: Full-Time, Department: Press, Active: 02/02/2017
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MM/dd/yyyy");
         StringBuilder sb = new StringBuilder();
-        sb.append("#").append(id).append(" (");
-        sb.append(badge.getId()).append(", ");
-        sb.append(lastname).append(", ").append(firstname).append(" ").append(middlename).append(", ");
-        sb.append(employeeType).append(", ");
-        sb.append(department.getDescription()).append(", ");
-        sb.append(active).append(")");
+        sb.append("ID #").append(id).append(": ");
+        sb.append(lastname).append(", ").append(firstname).append(" ");
+        
+        if (middlename != null && !middlename.isEmpty()) {
+            sb.append(middlename).append(" ");
+        }
+        
+        sb.append("(#").append(badge.getId()).append("), ");
+        sb.append("Type: ").append(employeeType).append(", ");
+        sb.append("Department: ").append(department.getDescription()).append(", ");
+        sb.append("Active: ").append(active.format(formatter));
         return sb.toString();
     }
 
