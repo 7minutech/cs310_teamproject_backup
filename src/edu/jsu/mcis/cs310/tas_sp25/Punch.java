@@ -91,20 +91,30 @@ public class Punch {
     
     public String formatTimestamp(LocalDateTime timestamp){
         StringBuilder s = new StringBuilder();
+        s.append(formattedDate(timestamp));
+        s.append(" ");
+        s.append(formattedTime(timestamp));
+        return s.toString();
+    }
+    public String formattedDate(LocalDateTime timestamp){
+        StringBuilder s = new StringBuilder();
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MM/dd/yyyy");
-        String formatedDate = timestamp.format(formatter);
+        String formattedDate = timestamp.format(formatter);
         DayOfWeek dayOfWeek = timestamp.getDayOfWeek();
+        String dayAbbr = (dayOfWeek.toString()).substring(0, 3);
+        s.append(dayAbbr).append(" ").append(formattedDate);
+        return s.toString();
+    }
+    
+    public String formattedTime(LocalDateTime timestamp){
+        StringBuilder s = new StringBuilder();
         LocalTime time = timestamp.toLocalTime();
         int second = time.getSecond();
-        String dayAbbr = (dayOfWeek.toString()).substring(0, 3);
-        s.append(dayAbbr.substring(0,3)).append(" ");
-        s.append(formatedDate);
-        s.append(" ");
+        s.append(time);
+        //Need to forcefully append :00
+        //otherwise nothing is appended
         if(second == 0){
-            s.append(time).append(":00");
-        }
-        else{
-            s.append(time);
+            s.append(":00");
         }
         return s.toString();
     }

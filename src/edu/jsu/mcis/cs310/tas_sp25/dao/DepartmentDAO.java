@@ -12,28 +12,65 @@ public class DepartmentDAO {
         this.daoFactory = daoFactory;
     }
     
-    public Department find(int id) {
+   public Department find(int id) {
+
         Department department = null;
-        
-        try (Connection conn = daoFactory.getConnection();
-             PreparedStatement ps = conn.prepareStatement(QUERY_FIND)) {
-            
-            ps.setInt(1, id);
-            
-            try (ResultSet rs = ps.executeQuery()) {
-                if (rs.next()) {
-                    department = new Department(
-                        rs.getInt("id"),
-                        rs.getString("description"),
-                        rs.getInt("terminalid")
-                    );
+
+        PreparedStatement ps = null;
+        ResultSet rs = null;
+
+        try {
+
+            Connection conn = daoFactory.getConnection();
+
+            if (conn.isValid(0)) {
+
+                ps = conn.prepareStatement(QUERY_FIND);
+                ps.setInt(1, id);
+
+                boolean hasresults = ps.execute();
+
+                if (hasresults) {
+
+                    rs = ps.getResultSet();
+
+                    while (rs.next()) {
+
+                        department = new Department(
+                            rs.getInt("id"),
+                            rs.getString("description"),
+                            rs.getInt("terminalid")
+                        );
+                    }
+
+                    }
+
+                }
+
+            }catch (SQLException e) {
+
+            throw new DAOException(e.getMessage());
+
+        } finally {
+
+            if (rs != null) {
+                try {
+                    rs.close();
+                } catch (SQLException e) {
+                    throw new DAOException(e.getMessage());
                 }
             }
-            
-        } catch (SQLException e) {
-            throw new DAOException("Error finding department: " + e.getMessage());
+            if (ps != null) {
+                try {
+                    ps.close();
+                } catch (SQLException e) {
+                    throw new DAOException(e.getMessage());
+                }
+            }
+
         }
-        
+
         return department;
+
     }
 }

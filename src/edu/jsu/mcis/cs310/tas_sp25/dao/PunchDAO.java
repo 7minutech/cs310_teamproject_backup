@@ -13,7 +13,7 @@ public class PunchDAO {
 
     PunchDAO(DAOFactory daoFactory) {
         this.daoFactory = daoFactory;
-        this.badgeDAO = new BadgeDAO(daoFactory);  // Initialize BadgeDAO
+        this.badgeDAO = this.daoFactory.getBadgeDAO();
     }
 
    public Punch find(Integer id) {
