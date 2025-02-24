@@ -72,7 +72,7 @@ public class PunchDAO {
    
    //list method
     public List<Punch> list(Badge badge, LocalDate date) {
-        List<Punch> punches = new ArrayList<>();
+        ArrayList<Punch> punches = new ArrayList<>();
         PreparedStatement ps = null;
         ResultSet rs = null;
 
@@ -80,7 +80,7 @@ public class PunchDAO {
             Connection conn = daoFactory.getConnection();
 
             if (conn.isValid(0)) {
-                ps = conn.prepareStatement(QUERY_FIND_BY_DAY);
+                ps = conn.prepareStatement(QUERY_FIND);
                 ps.setString(1, badge.getId());  
                 ps.setDate(2, Date.valueOf(date)); 
                 rs = ps.executeQuery();
@@ -105,7 +105,7 @@ public class PunchDAO {
                 ps.close(); 
                 rs.close();  
 
-                ps = conn.prepareStatement(QUERY_FIND_NEXT_DAY_PUNCH);
+                ps = conn.prepareStatement(QUERY_FIND);
                 ps.setString(1, badge.getId());
                 ps.setDate(2, Date.valueOf(date.plusDays(1)));
                 rs = ps.executeQuery();
