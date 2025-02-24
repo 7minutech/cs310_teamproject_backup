@@ -40,7 +40,6 @@ public class PunchDAO {
                     String badgeId = rs.getString("badgeid");
                     int eventTypeId = rs.getInt("eventtypeid");
                     LocalDateTime originalTimestamp = rs.getTimestamp("timestamp").toLocalDateTime();
-                    originalTimestamp = originalTimestamp;
 
                     Badge badge = badgeDAO.find(badgeId);
 
