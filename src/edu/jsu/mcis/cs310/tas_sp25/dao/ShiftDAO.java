@@ -99,9 +99,7 @@ public class ShiftDAO {
 
                     rs = ps.getResultSet();
 
-                    HashMap<String, String> parameters = getResultsSetAsParameters(rs);
-                    System.out.println(parameters);
-                    
+                    HashMap<String, String> parameters = getResultsSetAsParameters(rs);                    
                     shift = new Shift(Integer.toString(id), parameters);
 
                 }
