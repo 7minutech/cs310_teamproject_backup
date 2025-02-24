@@ -9,6 +9,7 @@ import java.util.List;
 public class PunchDAO {
 
     private static final String QUERY_FIND = "SELECT * FROM event WHERE id = ?";
+    private static final String QUERY_FIND_TODAY = "SELECT * FROM event WHERE badgeid = ? AND DATEDIFF(?, timestamp) = 0";
 
     private final DAOFactory daoFactory;
     private final BadgeDAO badgeDAO;
@@ -42,7 +43,6 @@ public class PunchDAO {
                     String badgeId = rs.getString("badgeid");
                     int eventTypeId = rs.getInt("eventtypeid");
                     LocalDateTime originalTimestamp = rs.getTimestamp("timestamp").toLocalDateTime();
-                    originalTimestamp = originalTimestamp;
 
                     Badge badge = badgeDAO.find(badgeId);
 
@@ -71,7 +71,7 @@ public class PunchDAO {
     }
    
    //list method
-    public List<Punch> list(Badge badge, LocalDate date) {
+    public ArrayList<Punch> list(Badge badge, LocalDate date) {
         ArrayList<Punch> punches = new ArrayList<>();
         PreparedStatement ps = null;
         ResultSet rs = null;
@@ -80,7 +80,7 @@ public class PunchDAO {
             Connection conn = daoFactory.getConnection();
 
             if (conn.isValid(0)) {
-                ps = conn.prepareStatement(QUERY_FIND);
+                ps = conn.prepareStatement(QUERY_FIND_TODAY);
                 ps.setString(1, badge.getId());  
                 ps.setDate(2, Date.valueOf(date)); 
                 rs = ps.executeQuery();
@@ -105,9 +105,9 @@ public class PunchDAO {
                 ps.close(); 
                 rs.close();  
 
-                ps = conn.prepareStatement(QUERY_FIND);
+                ps = conn.prepareStatement(QUERY_FIND_TODAY);
                 ps.setString(1, badge.getId());
-                ps.setDate(2, Date.valueOf(date.plusDays(1)));
+                ps.setDate(2, Date.valueOf(date.plusDays(1))); // but add one day.
                 rs = ps.executeQuery();
 
                 if (rs.next()) {
