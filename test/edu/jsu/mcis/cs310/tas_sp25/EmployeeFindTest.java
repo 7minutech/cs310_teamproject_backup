@@ -79,4 +79,38 @@ public class EmployeeFindTest {
 
     }
     
+    // added another 3 more tests 
+    
+    @Test
+    public void testFindEmployee5() {
+        EmployeeDAO employeeDAO = daoFactory.getEmployeeDAO();
+        
+        Employee e5 = employeeDAO.find(67);
+        
+        assertEquals("ID #67: Adams, Cruz C (#9186E711), Type: Temporary / Part-Time, Department: Cleaning, Active: 01/17/2016", e5.toString());
+        
+    }
+    
+    @Test
+    public void testFindEmployee6() {
+        EmployeeDAO employeeDAO = daoFactory.getEmployeeDAO();
+        BadgeDAO badgeDAO = daoFactory.getBadgeDAO();
+        
+        Badge b = badgeDAO.find("BEAFDB2F");
+        Employee e6 = employeeDAO.find(b);
+        
+        assertEquals("ID #91: Clark, Joy R (#BEAFDB2F), Type: Full-Time, Department: Hafting, Active: 10/04/2015", e6.toString());
+        
+    }
+    
+    @Test
+    public void testFindEmployee7() {
+        EmployeeDAO employeeDAO = daoFactory.getEmployeeDAO();
+                
+        Employee e7 = employeeDAO.find(111);
+                
+        assertEquals("ID #111: Ellis, Misty F (#D4A2072B), Type: Temporary / Part-Time, Department: Grinding, Active: 10/11/2015", e7.toString());
+    
+    }
+    
 }
