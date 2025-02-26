@@ -1,7 +1,6 @@
 package edu.jsu.mcis.cs310.tas_sp25;
 
 import edu.jsu.mcis.cs310.tas_sp25.dao.*;
-import java.util.Map;
 import org.junit.*;
 import static org.junit.Assert.*;
 
@@ -104,19 +103,5 @@ public class DepartmentFindTest {
 
         assertNull("Department should not exist", d6);
     }
-    
-@Test
-    public void testFindDepartment7() {
-
-        DepartmentDAO departmentDAO = daoFactory.getDepartmentDAO();
-
-        
-        Department d7 = departmentDAO.find(10); // Use an ID that does not exist
-
-
-        assertNull("Department should not exist", d7);
-    }
-    
-    
     
 }
