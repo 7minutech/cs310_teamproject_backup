@@ -7,6 +7,8 @@ import java.util.HashMap;
 
 public class ShiftDAO {
     private final DAOFactory daoFactory;
+    private final String QUERY_FIND_EMPLOYEE = "SELECT * FROM employee WHERE badgeid = ?"; // find the employee with this badge
+    private final String QUERY_FIND = "SELECT * FROM shift WHERE id = ?";
 
     ShiftDAO(DAOFactory daoFactory) {
 
@@ -18,7 +20,6 @@ public class ShiftDAO {
         if (badge == null) { // Return null without trying if badge is invalid.
             return null;
         }
-        final String QUERY_FIND_EMPLOYEE = "SELECT * FROM employee WHERE badgeid = ?"; // find the employee with this badge
         Shift shift = null;
 
         PreparedStatement ps = null;
@@ -78,7 +79,6 @@ public class ShiftDAO {
 
 
     public Shift find(int id) {
-        final String QUERY_FIND = "SELECT * FROM shift WHERE id = ?";
         Shift shift = null;
 
         PreparedStatement ps = null;
