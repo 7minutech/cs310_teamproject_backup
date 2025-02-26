@@ -98,7 +98,7 @@ public class PunchFindTest {
 
         /* Compare to Expected Values */
         int id = p11.getId();
-        int terminalId = p11.getTerminalId();
+        int terminalId = p11.getTerminalid();
         String badgeId = p11.getBadge().getId();
         assertEquals(212, id);
         assertEquals(101, terminalId);
