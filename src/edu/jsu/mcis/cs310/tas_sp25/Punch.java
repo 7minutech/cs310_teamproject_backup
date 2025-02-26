@@ -37,7 +37,7 @@ public class Punch {
         return id;
     }
 
-    public int getTerminalId() {
+    public int getTerminalid() {
         return terminalid;
     }
 
@@ -45,15 +45,15 @@ public class Punch {
         return badge;
     }
 
-    public EventType getPunchType() {
+    public EventType getPunchtype() {
         return punchtype;
     }
 
-    public LocalDateTime getOriginalTimestamp() {
+    public LocalDateTime getOriginaltimestamp() {
         return originalTimestamp;
     }
 
-    public LocalDateTime getAdjustedTimestamp() {
+    public LocalDateTime getAdjustedtimestamp() {
         return adjustedTimestamp;
     }
 
