@@ -10,6 +10,8 @@ public class PunchDAO {
 
     private static final String QUERY_FIND = "SELECT * FROM event WHERE id = ?";
     private static final String QUERY_FIND_TODAY = "SELECT * FROM event WHERE badgeid = ? AND DATEDIFF(?, timestamp) = 0";
+    private static final String QUERY_CREATE = "INSERT INTO event (terminalid, badgeid, eventtypeid) VALUES (?, ?, ?)";
+
 
     private final DAOFactory daoFactory;
     private final BadgeDAO badgeDAO;
@@ -139,6 +141,53 @@ public class PunchDAO {
         }
 
         return punches;
+    }
+    
+    public int create(Punch punch) {
+        
+        int result = 0;
+        
+        PreparedStatement ps = null;
+        ResultSet rs = null;
+        
+        try {
+            
+            Connection conn = daoFactory.getConnection();
+            
+            if (conn.isValid(0)) {
+                
+                ps = conn.prepareStatement(QUERY_CREATE, Statement.RETURN_GENERATED_KEYS);
+                ps.setInt(1, punch.getTerminalid());
+                ps.setString(2, punch.getBadge().getId());
+                ps.setInt(3, punch.getPunchtype().getId());
+                
+                int updateCount = ps.executeUpdate();
+                
+                if (updateCount > 0) {
+            
+                    rs = ps.getGeneratedKeys();
+
+                    if (rs.next()) {
+                        result = rs.getInt(1);
+                    }
+
+                }
+                
+            }
+            
+        }
+        
+        catch (Exception e) { e.printStackTrace(); }
+        
+        finally {
+            
+            if (rs != null) { try { rs.close(); } catch (Exception e) { e.printStackTrace(); } }
+            if (ps != null) { try { ps.close(); } catch (Exception e) { e.printStackTrace(); } }
+            
+        }
+        
+        return result;
+        
     }
 }
 
