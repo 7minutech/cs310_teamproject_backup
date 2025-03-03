@@ -5,6 +5,7 @@ import java.util.*;
 import java.time.temporal.ChronoUnit;
 import java.time.format.DateTimeFormatter;
 import com.github.cliftonlabs.json_simple.*;
+import edu.jsu.mcis.cs310.tas_sp25.Punch;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 
@@ -62,4 +63,31 @@ public class DAOUtility {
         }
         return map;
     }
+    
+    public static String getPunchListAsJSON(ArrayList<Punch> dailypunchlist) {
+        String json = ""; // create a default value.
+        ArrayList<HashMap<String, String>> jsonData = new ArrayList<HashMap<String, String>>();
+        
+        // construct each punch.
+        for (Punch punch : dailypunchlist) {
+            HashMap<String, String> punchData = new HashMap<>(); // new map object
+            
+            // add all fields
+            punchData.put("id", String.valueOf((int)punch.getId())); 
+            punchData.put("terminalid", String.valueOf(punch.getTerminalid())); 
+            punchData.put("punchtype", punch.getPunchtype().toString()); 
+            punchData.put("adjustmenttype", punch.getAdjustmentType().toString()); 
+            punchData.put("originaltimestamp", punch.printOriginal()); 
+            punchData.put("adjustedtimestamp", punch.printAdjusted()); 
+            
+            jsonData.add(punchData);
+        }
+        
+        // serialize it.
+        json = Jsoner.serialize(jsonData);
+        
+        return json;
+    }
+    
+    
 }
