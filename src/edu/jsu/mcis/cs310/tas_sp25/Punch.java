@@ -109,6 +109,9 @@ public class Punch {
     }
     
     private boolean shiftStartRule(LocalTime shiftStart, int roundInterval){
+        if (isWeekend()){
+            return false;
+        }
         LocalDateTime clockIn = originalTimestamp;
         long elapsedMinutes = Duration.between(shiftStart, clockIn).toMinutes();
         long difference = Math.abs(elapsedMinutes);
@@ -118,6 +121,9 @@ public class Punch {
         return false;
     }
     private boolean shiftStopRule(LocalTime shiftStop, int roundInterval){
+        if (isWeekend()){
+            return false;
+        }
         LocalDateTime clockOut = originalTimestamp;
         long elapsedMinutes = Duration.between(shiftStop, clockOut).toMinutes();
         long difference = Math.abs(elapsedMinutes);
