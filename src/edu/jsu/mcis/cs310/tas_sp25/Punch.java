@@ -113,9 +113,11 @@ public class Punch {
             return false;
         }
         LocalDateTime clockIn = originalTimestamp;
+        /*Early shift start will be negative*/
         long elapsedMinutes = Duration.between(shiftStart, clockIn).toMinutes();
-        long difference = Math.abs(elapsedMinutes);
-        if (punchtype == EventType.CLOCK_IN && difference <= roundInterval){
+        /*Only Early shift start will be positive after flipping*/
+        elapsedMinutes *= -1;
+        if (punchtype == EventType.CLOCK_IN && isBetween(1,15, elapsedMinutes)){
             return true;
         }
         return false;
@@ -126,13 +128,20 @@ public class Punch {
         }
         LocalDateTime clockOut = originalTimestamp;
         long elapsedMinutes = Duration.between(shiftStop, clockOut).toMinutes();
-        long difference = Math.abs(elapsedMinutes);
-
-        if (punchtype == EventType.CLOCK_OUT && difference <= roundInterval){
+        System.out.println(elapsedMinutes);
+        /*Only Late shift start will be positive*/
+        if (punchtype == EventType.CLOCK_OUT && isBetween(1,15,elapsedMinutes)){
             return true;
         }
         return false;
         
+    }
+    
+    private boolean isBetween(int lowerbound, int upperbound, long value){
+        if ((value >= lowerbound) && (value <= upperbound)){
+            return true;
+        }
+        return false;
     }
    
    
