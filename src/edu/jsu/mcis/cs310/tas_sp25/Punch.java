@@ -111,7 +111,6 @@ public class Punch {
     private boolean shiftStartRule(LocalTime shiftStart, int roundInterval){
         LocalDateTime clockIn = originalTimestamp;
         long elapsedMinutes = Duration.between(shiftStart, clockIn).toMinutes();
-        System.out.println(elapsedMinutes);
         long difference = Math.abs(elapsedMinutes);
         if (punchtype == EventType.CLOCK_IN && difference <= roundInterval){
             return true;
@@ -132,6 +131,12 @@ public class Punch {
    
     private boolean isWeekend(String day){
         return Arrays.asList(Punch.WeekendDays).contains(day);
+    }
+    
+    private String getDayAbbreviation(LocalDateTime timestamp){
+        DayOfWeek dayOfWeek = timestamp.getDayOfWeek();
+        String dayAbbr = (dayOfWeek.toString()).substring(0, 3);
+        return dayAbbr;
     }
     public String formatTimestamp(LocalDateTime timestamp){
         StringBuilder s = new StringBuilder();
