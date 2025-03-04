@@ -129,6 +129,10 @@ public class Punch {
         return false;
         
     }
+   
+    private boolean isWeekend(String day){
+        return Arrays.asList(Punch.WeekendDays).contains(day);
+    }
     public String formatTimestamp(LocalDateTime timestamp){
         StringBuilder s = new StringBuilder();
         s.append(formattedDate(timestamp));
