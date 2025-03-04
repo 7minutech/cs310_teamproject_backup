@@ -109,7 +109,7 @@ public class Punch {
     }
     
     private boolean shiftStartRule(LocalTime shiftStart, int roundInterval){
-        if (isWeekend()){
+        if (isWeekend() && !(punchtype == EventType.CLOCK_IN)){
             return false;
         }
         LocalDateTime clockIn = originalTimestamp;
@@ -117,19 +117,19 @@ public class Punch {
         long elapsedMinutes = Duration.between(shiftStart, clockIn).toMinutes();
         /*Only Early shift start will be positive after flipping*/
         elapsedMinutes *= -1;
-        if (punchtype == EventType.CLOCK_IN && isBetween(0,15, elapsedMinutes)){
+        if (isBetween(0,15, elapsedMinutes)){
             return true;
         }
         return false;
     }
     private boolean shiftStopRule(LocalTime shiftStop, int roundInterval){
-        if (isWeekend()){
+        if (isWeekend() && !(punchtype == EventType.CLOCK_OUT)){
             return false;
         }
         LocalDateTime clockOut = originalTimestamp;
         long elapsedMinutes = Duration.between(shiftStop, clockOut).toMinutes();
         /*Only Late shift start will be positive*/
-        if (punchtype == EventType.CLOCK_OUT && isBetween(0,15,elapsedMinutes)){
+        if (isBetween(0,15,elapsedMinutes)){
             return true;
         }
         return false;
