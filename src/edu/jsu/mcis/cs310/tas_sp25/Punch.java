@@ -2,6 +2,8 @@ package edu.jsu.mcis.cs310.tas_sp25;
 
 import java.time.*;
 import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoUnit;
+import java.util.Arrays;
 
 public class Punch {
     private final Integer id;
@@ -9,8 +11,9 @@ public class Punch {
     private final Badge badge;
     private final EventType punchtype;
     private final LocalDateTime originalTimestamp;
-    private final LocalDateTime adjustedTimestamp;
-    private final PunchAdjustmentType adjustmenttype;
+    private LocalDateTime adjustedTimestamp;
+    private PunchAdjustmentType adjustmenttype;
+    private static final String[] WeekendDays = {"SAT","SUN"};
     
     public Punch(int terminalid, Badge badge, EventType punchtype) {
         this.terminalid = terminalid;
@@ -78,17 +81,54 @@ public class Punch {
     
     public String printAdjusted(){
         StringBuilder s = new StringBuilder();
-
-        s.append('#').append(badge.getId()).append(' ');
-        s.append(punchtype).append(": ").append(formatTimestamp(originalTimestamp));
-
-        if (adjustedTimestamp != null) {
-            s.append(" -> ").append(adjustedTimestamp);
+        if (adjustedTimestamp != null){
+            s.append('#').append(badge.getId()).append(' ');
+            s.append(punchtype).append(": ").append(formatTimestamp(adjustedTimestamp));
+            s.append(" ");
+            s.append("(").append(adjustmenttype).append(")");
         }
 
         return s.toString();
     }
+    /*
+            assertEquals("#28DC3FB8 CLOCK IN: FRI 09/07/2018 06:50:35", p1.printOriginal());
+            assertEquals("#28DC3FB8 CLOCK IN: FRI 09/07/2018 07:00:00 (Shift Start)", p1.printAdjusted());
+            */
+    public void adjust(Shift s){
+        if (shiftStartRule(s.getShiftStart(), s.getRoundInterval())){
+            LocalDate date = originalTimestamp.toLocalDate();
+            adjustedTimestamp = LocalDateTime.of(date, s.getShiftStart());
+            adjustmenttype = PunchAdjustmentType.SHIFT_START;
+        }
+        if (shiftStopRule(s.getShiftStop(), s.getRoundInterval())){
+            LocalDate date = originalTimestamp.toLocalDate();
+            adjustedTimestamp = LocalDateTime.of(date, s.getShiftStop());
+            adjustmenttype = PunchAdjustmentType.SHIFT_STOP;
+
+        }
+    }
     
+    private boolean shiftStartRule(LocalTime shiftStart, int roundInterval){
+        LocalDateTime clockIn = originalTimestamp;
+        long elapsedMinutes = Duration.between(shiftStart, clockIn).toMinutes();
+        System.out.println(elapsedMinutes);
+        long difference = Math.abs(elapsedMinutes);
+        if (punchtype == EventType.CLOCK_IN && difference <= roundInterval){
+            return true;
+        }
+        return false;
+    }
+    private boolean shiftStopRule(LocalTime shiftStop, int roundInterval){
+        LocalDateTime clockOut = originalTimestamp;
+        long elapsedMinutes = Duration.between(shiftStop, clockOut).toMinutes();
+        long difference = Math.abs(elapsedMinutes);
+
+        if (punchtype == EventType.CLOCK_OUT && difference <= roundInterval){
+            return true;
+        }
+        return false;
+        
+    }
     public String formatTimestamp(LocalDateTime timestamp){
         StringBuilder s = new StringBuilder();
         s.append(formattedDate(timestamp));
