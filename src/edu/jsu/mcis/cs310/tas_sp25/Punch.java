@@ -129,8 +129,10 @@ public class Punch {
         
     }
    
-    private boolean isWeekend(String day){
-        return Arrays.asList(Punch.WeekendDays).contains(day);
+   
+    private boolean isWeekend(){
+        String dayAbbr = getDayAbbreviation(originalTimestamp);
+        return Arrays.asList(Punch.WeekendDays).contains(dayAbbr);
     }
     
     private String getDayAbbreviation(LocalDateTime timestamp){
