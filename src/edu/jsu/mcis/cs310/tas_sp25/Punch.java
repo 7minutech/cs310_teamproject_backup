@@ -14,6 +14,7 @@ public class Punch {
     private LocalDateTime adjustedTimestamp;
     private PunchAdjustmentType adjustmenttype;
     private static final String[] WeekendDays = {"SAT","SUN"};
+    private static final int MIN_ELAPSED_MINUTES = 0;
     
     public Punch(int terminalid, Badge badge, EventType punchtype) {
         this.terminalid = terminalid;
@@ -117,7 +118,7 @@ public class Punch {
         long elapsedMinutes = Duration.between(shiftStart, clockIn).toMinutes();
         /*Only Early shift start will be positive after flipping*/
         elapsedMinutes *= -1;
-        if (isBetween(0,15, elapsedMinutes)){
+        if (isBetween(Punch.MIN_ELAPSED_MINUTES,roundInterval, elapsedMinutes)){
             return true;
         }
         return false;
@@ -129,13 +130,13 @@ public class Punch {
         LocalDateTime clockOut = originalTimestamp;
         long elapsedMinutes = Duration.between(shiftStop, clockOut).toMinutes();
         /*Only Late shift start will be positive*/
-        if (isBetween(0,15,elapsedMinutes)){
+        if (isBetween(Punch.MIN_ELAPSED_MINUTES,roundInterval,elapsedMinutes)){
             return true;
         }
         return false;
         
     }
-    
+
     private boolean isBetween(int lowerbound, int upperbound, long value){
         if ((value >= lowerbound) && (value <= upperbound)){
             return true;
