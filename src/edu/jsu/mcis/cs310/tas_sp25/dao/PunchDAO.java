@@ -72,7 +72,7 @@ public class PunchDAO {
     return punch;
     }
    
-   //list method
+   //list method daily
     public ArrayList<Punch> list(Badge badge, LocalDate date) {
         ArrayList<Punch> punches = new ArrayList<>();
         PreparedStatement ps = null;
@@ -188,6 +188,79 @@ public class PunchDAO {
         
         return result;
         
+    }
+    //list method range
+     public ArrayList<Punch> list(Badge badge, LocalDate begin, LocalDate end) {
+        ArrayList<Punch> punches = new ArrayList<>();
+        PreparedStatement ps = null;
+        ResultSet rs = null;
+
+        try {
+            Connection conn = daoFactory.getConnection();
+
+            if (conn.isValid(0)) {
+                ps = conn.prepareStatement(QUERY_FIND_TODAY);
+                ps.setString(1, badge.getId());  
+                ps.setDate(2, Date.valueOf(begin)); 
+                ps.setDate(3, Date.valueOf(end));
+                rs = ps.executeQuery();
+
+                while (rs.next()) {
+                    Integer id = rs.getInt("id");
+                    Integer terminalid = rs.getInt("terminalid");
+                    String badgeId = rs.getString("badgeid");
+                    int eventTypeId = rs.getInt("eventtypeid");
+                    LocalDateTime originalTimestamp = rs.getTimestamp("timestamp").toLocalDateTime();
+
+                    Badge badgeFromDb = badgeDAO.find(badgeId);
+                    EventType punchtype = EventType.findById(eventTypeId);
+
+                    if (badgeFromDb != null) {
+                        Punch punch = new Punch(id, terminalid, badgeFromDb, originalTimestamp, punchtype);
+                        punches.add(punch);
+                    }
+                }
+
+
+                ps.close(); 
+                rs.close();  
+
+                ps = conn.prepareStatement(QUERY_FIND_TODAY);
+                ps.setString(1, badge.getId());
+                ps.setDate(2, Date.valueOf(begin.plusDays(1))); // but add one day.
+                ps.setDate(3, Date.valueOf(end.plusDays(1))); // but add one day.
+
+                rs = ps.executeQuery();
+
+                if (rs.next()) {
+                    Integer id = rs.getInt("id");
+                    Integer terminalid = rs.getInt("terminalid");
+                    String badgeId = rs.getString("badgeid");
+                    int eventTypeId = rs.getInt("eventtypeid");
+                    LocalDateTime originalTimestamp = rs.getTimestamp("timestamp").toLocalDateTime();
+
+                    Badge badgeFromDb = badgeDAO.find(badgeId);
+                    EventType punchtype = EventType.findById(eventTypeId);
+
+                    if (badgeFromDb != null && (punchtype == EventType.CLOCK_OUT || punchtype == EventType.TIME_OUT)) {
+                        Punch punch = new Punch(id, terminalid, badgeFromDb, originalTimestamp, punchtype);
+                        punches.add(punch);
+                    }
+                }
+            }
+
+        } catch (SQLException e) {
+            throw new DAOException(e.getMessage());
+        } finally {
+            try {
+                if (rs != null) rs.close();
+                if (ps != null) ps.close();
+            } catch (SQLException e) {
+                throw new DAOException(e.getMessage());
+            }
+        }
+
+        return punches;
     }
 }
 
