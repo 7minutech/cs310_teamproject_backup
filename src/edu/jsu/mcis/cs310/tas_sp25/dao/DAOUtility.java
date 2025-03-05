@@ -65,7 +65,7 @@ public class DAOUtility {
     }
     
     public static String getPunchListAsJSON(ArrayList<Punch> dailypunchlist) {
-        String json = ""; // create a default value.
+        String json = ""; // create a default value 
         ArrayList<HashMap<String, String>> jsonData = new ArrayList<HashMap<String, String>>();
         
         // construct each punch.
