@@ -86,8 +86,6 @@ public class DAOUtility {
             // The adjustment type is also include in parenthesis. We must remove everything after the opening parenthesis.
             delimiterIndex = adjustedTimestamp.indexOf(" (");
             adjustedTimestamp = adjustedTimestamp.substring(0, delimiterIndex);
-            
-            
             punchData.put("adjustedtimestamp", adjustedTimestamp);
 
             jsonData.add(punchData);
