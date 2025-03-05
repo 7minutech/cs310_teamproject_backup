@@ -107,30 +107,6 @@ public class Punch {
             adjustmenttype = PunchAdjustmentType.SHIFT_STOP;
 
         }
-        else if (roundIntervalRule(s.getRoundInterval())){
-            int interval = s.getRoundInterval();
-            LocalDate date = originalTimestamp.toLocalDate();
-            LocalTime punchTime = originalTimestamp.toLocalTime();
-            int minute = punchTime.getMinute(); 
-            int nearestIntervalMinute = getNearestInterval(interval, minute);
-            LocalTime adjustedTime = punchTime;
-            if (nearestIntervalMinute == 60){
-                int hour = punchTime.getHour(); 
-                int adjustedHour = hour += 1;
-                adjustedTime = adjustedTime.withHour(adjustedHour).withMinute(0);
-            }
-            else{
-                adjustedTime = adjustedTime.withMinute(nearestIntervalMinute);
-            }
-            adjustedTime = adjustedTime.withSecond(0).withNano(0);
-            adjustedTimestamp = LocalDateTime.of(date, adjustedTime);
-            adjustmenttype = PunchAdjustmentType.INTERVAL_ROUND;
-            
-        }
-        else if (noneRule(s.getRoundInterval())){
-            adjustedTimestamp = originalTimestamp.withSecond(0).withNano(0);
-            adjustmenttype = PunchAdjustmentType.NONE;
-        }
         
         // Lunch Adjustments
         else if (lunchStartRule(s.getLunchStart(), s.getLunchStop())) {
@@ -171,6 +147,30 @@ public class Punch {
             }
             
             adjustmenttype = PunchAdjustmentType.DOCK_PENALTY;
+        }
+        else if (roundIntervalRule(s.getRoundInterval())){
+            int interval = s.getRoundInterval();
+            LocalDate date = originalTimestamp.toLocalDate();
+            LocalTime punchTime = originalTimestamp.toLocalTime();
+            int minute = punchTime.getMinute(); 
+            int nearestIntervalMinute = getNearestInterval(interval, minute);
+            LocalTime adjustedTime = punchTime;
+            if (nearestIntervalMinute == 60){
+                int hour = punchTime.getHour(); 
+                int adjustedHour = hour += 1;
+                adjustedTime = adjustedTime.withHour(adjustedHour).withMinute(0);
+            }
+            else{
+                adjustedTime = adjustedTime.withMinute(nearestIntervalMinute);
+            }
+            adjustedTime = adjustedTime.withSecond(0).withNano(0);
+            adjustedTimestamp = LocalDateTime.of(date, adjustedTime);
+            adjustmenttype = PunchAdjustmentType.INTERVAL_ROUND;
+            
+        }
+        else if (noneRule(s.getRoundInterval())){
+            adjustedTimestamp = originalTimestamp.withSecond(0).withNano(0);
+            adjustmenttype = PunchAdjustmentType.NONE;
         }
 
     }
