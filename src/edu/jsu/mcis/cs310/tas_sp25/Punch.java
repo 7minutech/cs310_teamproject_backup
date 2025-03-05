@@ -127,6 +127,10 @@ public class Punch {
             adjustmenttype = PunchAdjustmentType.INTERVAL_ROUND;
             
         }
+        else if (noneRule(s.getRoundInterval())){
+            adjustedTimestamp = originalTimestamp.withSecond(0).withNano(0);
+            adjustmenttype = PunchAdjustmentType.NONE;
+        }
     }
     
     private boolean shiftStartRule(LocalTime shiftStart, int roundInterval){
@@ -161,6 +165,15 @@ public class Punch {
         LocalTime punchTime = originalTimestamp.toLocalTime();
         int minute = punchTime.getMinute(); 
         if (minute % roundInterval != 0){
+            return true;
+        }
+        return false;
+    }
+    
+    private boolean noneRule(int roundInterval){
+        LocalTime punchTime = originalTimestamp.toLocalTime();
+        int minute = punchTime.getMinute(); 
+        if (minute % roundInterval == 0){
             return true;
         }
         return false;
