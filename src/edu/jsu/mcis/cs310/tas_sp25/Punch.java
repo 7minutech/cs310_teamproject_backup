@@ -131,6 +131,48 @@ public class Punch {
             adjustedTimestamp = originalTimestamp.withSecond(0).withNano(0);
             adjustmenttype = PunchAdjustmentType.NONE;
         }
+        
+        // Lunch Adjustments
+        else if (lunchStartRule(s.getLunchStart(), s.getLunchStop())) {
+            LocalDate date = originalTimestamp.toLocalDate();
+            adjustedTimestamp = LocalDateTime.of(date, s.getLunchStart());
+            adjustmenttype = PunchAdjustmentType.LUNCH_START;
+        }
+        
+        else if (lunchStopRule(s.getLunchStart(), s.getLunchStop())) {
+            LocalDate date = originalTimestamp.toLocalDate();
+            adjustedTimestamp = LocalDateTime.of(date, s.getLunchStop());
+            adjustmenttype = PunchAdjustmentType.LUNCH_STOP;
+        }
+
+        // Grace Period Adjustments
+        else if (gracePeriodRule(s.getShiftStart(), s.getShiftStop(), s.getGracePeriod())) {
+            LocalDate date = originalTimestamp.toLocalDate();
+            
+            if (punchtype == EventType.CLOCK_IN) {
+                adjustedTimestamp = LocalDateTime.of(date, s.getShiftStart());
+            }
+            else {
+                adjustedTimestamp = LocalDateTime.of(date, s.getShiftStop());
+            }
+            
+            adjustmenttype = PunchAdjustmentType.GRACE_PERIOD;
+        }
+
+        // Dock Penalty Adjustments
+        else if (dockPenaltyRule(s.getShiftStart(), s.getShiftStop(), s.getGracePeriod(), s.getDockPenalty())) {
+            LocalDate date = originalTimestamp.toLocalDate();
+            
+            if (punchtype == EventType.CLOCK_IN) {
+                adjustedTimestamp = LocalDateTime.of(date, s.getShiftStart().plusMinutes(s.getDockPenalty()));
+            }
+            else {
+                adjustedTimestamp = LocalDateTime.of(date, s.getShiftStop().minusMinutes(s.getDockPenalty()));
+            }
+            
+            adjustmenttype = PunchAdjustmentType.DOCK_PENALTY;
+        }
+
     }
     
     private boolean shiftStartRule(LocalTime shiftStart, int roundInterval){
@@ -175,6 +217,63 @@ public class Punch {
         int minute = punchTime.getMinute(); 
         if (minute % roundInterval == 0){
             return true;
+        }
+        return false;
+    }
+    
+    private boolean lunchStartRule(LocalTime lunchStart, LocalTime lunchStop) {
+        LocalDateTime clockOut = originalTimestamp;
+        long elapsedMinutes = Duration.between(lunchStart, clockOut).toMinutes();
+        /* Only Lunch Start punches should be positive */
+        return isBetween(Punch.MIN_ELAPSED_MINUTES, (int) Duration.between(lunchStart, lunchStop).toMinutes(), elapsedMinutes);
+    }
+
+
+    private boolean lunchStopRule(LocalTime lunchStart, LocalTime lunchStop) {
+        LocalDateTime clockIn = originalTimestamp;
+        long elapsedMinutes = Duration.between(lunchStop, clockIn).toMinutes();
+        /* Only Lunch Stop punches should be positive */
+        return isBetween(Punch.MIN_ELAPSED_MINUTES, (int) Duration.between(lunchStart, lunchStop).toMinutes(), elapsedMinutes);
+    }
+
+    private boolean gracePeriodRule(LocalTime shiftStart, LocalTime shiftStop, int gracePeriod) {
+        LocalTime punchTime = originalTimestamp.toLocalTime();
+        long elapsedMinutes;
+
+        if (punchtype == EventType.CLOCK_IN) {
+            elapsedMinutes = Duration.between(shiftStart, punchTime).toMinutes();
+            /* Only late Clock In punches should be positive */
+            if (isBetween(Punch.MIN_ELAPSED_MINUTES, gracePeriod, elapsedMinutes)) {
+                return true;
+            }
+        }
+        else if (punchtype == EventType.CLOCK_OUT) {
+            elapsedMinutes = Duration.between(punchTime, shiftStop).toMinutes();
+            /* Only early Clock Out punches should be positive */
+            if (isBetween(Punch.MIN_ELAPSED_MINUTES, gracePeriod, elapsedMinutes)) {
+                return true;
+            }
+        }
+        return false;
+    }
+    
+    private boolean dockPenaltyRule(LocalTime shiftStart, LocalTime shiftStop, int gracePeriod, int dockPenalty) {
+        LocalDateTime punchTime = originalTimestamp;
+        long elapsedMinutes;
+
+        if (punchtype == EventType.CLOCK_IN) {
+            elapsedMinutes = Duration.between(shiftStart.plusMinutes(gracePeriod), punchTime).toMinutes();
+            /* Only late Clock In punches outside grace period but within dock penalty should be positive */
+            if (isBetween(Punch.MIN_ELAPSED_MINUTES, dockPenalty, elapsedMinutes)) {
+                return true;
+            }
+        }
+        else if (punchtype == EventType.CLOCK_OUT) {
+            elapsedMinutes = Duration.between(punchTime, shiftStop.minusMinutes(gracePeriod)).toMinutes();
+            /* Only early Clock Out punches outside grace period but within dock penalty should be positive */
+            if (isBetween(Punch.MIN_ELAPSED_MINUTES, dockPenalty, elapsedMinutes)) {
+                return true;
+            }
         }
         return false;
     }
