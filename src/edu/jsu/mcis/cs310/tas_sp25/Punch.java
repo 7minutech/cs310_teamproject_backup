@@ -101,11 +101,31 @@ public class Punch {
             adjustedTimestamp = LocalDateTime.of(date, s.getShiftStart());
             adjustmenttype = PunchAdjustmentType.SHIFT_START;
         }
-        if (shiftStopRule(s.getShiftStop(), s.getRoundInterval())){
+        else if (shiftStopRule(s.getShiftStop(), s.getRoundInterval())){
             LocalDate date = originalTimestamp.toLocalDate();
             adjustedTimestamp = LocalDateTime.of(date, s.getShiftStop());
             adjustmenttype = PunchAdjustmentType.SHIFT_STOP;
 
+        }
+        else if (roundIntervalRule(s.getRoundInterval())){
+            int interval = s.getRoundInterval();
+            LocalDate date = originalTimestamp.toLocalDate();
+            LocalTime punchTime = originalTimestamp.toLocalTime();
+            int minute = punchTime.getMinute(); 
+            int nearestIntervalMinute = getNearestInterval(interval, minute);
+            LocalTime adjustedTime = punchTime;
+            if (nearestIntervalMinute == 60){
+                int hour = punchTime.getHour(); 
+                int adjustedHour = hour += 1;
+                adjustedTime = adjustedTime.withHour(adjustedHour).withMinute(0);
+            }
+            else{
+                adjustedTime = adjustedTime.withMinute(nearestIntervalMinute);
+            }
+            adjustedTime = adjustedTime.withSecond(0).withNano(0);
+            adjustedTimestamp = LocalDateTime.of(date, adjustedTime);
+            adjustmenttype = PunchAdjustmentType.INTERVAL_ROUND;
+            
         }
     }
     
@@ -134,6 +154,29 @@ public class Punch {
             return true;
         }
         return false;
+        
+    }
+    
+    private boolean roundIntervalRule(int roundInterval){
+        LocalTime punchTime = originalTimestamp.toLocalTime();
+        int minute = punchTime.getMinute(); 
+        if (minute % roundInterval != 0){
+            return true;
+        }
+        return false;
+    }
+    
+    private int getNearestInterval(int interval, int value){
+        if (value < interval){
+            int middle = interval / 2;
+            if (value >= middle){
+                return interval;
+            }
+        }
+        float result = (float) value / interval;
+        int rounded_remainder = Math.round(result);
+        int nearestInterval = rounded_remainder * interval;
+        return nearestInterval;
         
     }
 
