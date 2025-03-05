@@ -279,17 +279,7 @@ public class Punch {
     }
     
     private int getNearestInterval(int interval, int value){
-        if (value < interval){
-            int middle = interval / 2;
-            if (value >= middle){
-                return interval;
-            }
-        }
-        float result = (float) value / interval;
-        int rounded_remainder = Math.round(result);
-        int nearestInterval = rounded_remainder * interval;
-        return nearestInterval;
-        
+        return (int) (Math.round((double)value / interval) * interval);
     }
 
     private boolean isBetween(int lowerbound, int upperbound, long value){
