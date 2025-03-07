@@ -8,6 +8,8 @@ public enum PunchAdjustmentType {
     SHIFT_DOCK("Shift Dock"),
     LUNCH_START("Lunch Start"),
     LUNCH_STOP("Lunch Stop"),
+    GRACE_PERIOD("Grace Period"),
+    DOCK_PENALTY("Dock Penalty"),
     INTERVAL_ROUND("Interval Round");
 
     private final String description;
