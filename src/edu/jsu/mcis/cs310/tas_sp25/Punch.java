@@ -213,7 +213,7 @@ public class Punch {
     }
     
     private boolean lunchStartRule(LocalTime lunchStart, LocalTime lunchStop) {
-        if (isWeekend() || !(punchtype == EventType.CLOCK_OUT)){
+        if (isWeekend() || !(punchtype == EventType.CLOCK_OUT)) {
             return false;
         }
         LocalTime clockOut = originalTimestamp.toLocalTime();
@@ -222,7 +222,7 @@ public class Punch {
 
 
     private boolean lunchStopRule(LocalTime lunchStart, LocalTime lunchStop) {
-        if (isWeekend() || !(punchtype == EventType.CLOCK_IN)){
+        if (isWeekend() || !(punchtype == EventType.CLOCK_IN)) {
             return false;
         }
         LocalTime clockIn = originalTimestamp.toLocalTime();
@@ -230,27 +230,32 @@ public class Punch {
     }
 
     private boolean gracePeriodRule(LocalTime shiftStart, LocalTime shiftStop, int gracePeriod) {
+        if (isWeekend()) {
+            return false;
+        }
+        
         LocalTime punchTime = originalTimestamp.toLocalTime();
         long elapsedMinutes;
 
         if (punchtype == EventType.CLOCK_IN) {
             elapsedMinutes = Duration.between(shiftStart, punchTime).toMinutes();
             /* Only late Clock In punches should be positive */
-            if (isBetween(Punch.MIN_ELAPSED_MINUTES, gracePeriod, elapsedMinutes)) {
-                return true;
+            return isBetween(Punch.MIN_ELAPSED_MINUTES, gracePeriod, elapsedMinutes);
             }
-        }
+        
         else if (punchtype == EventType.CLOCK_OUT) {
             elapsedMinutes = Duration.between(punchTime, shiftStop).toMinutes();
             /* Only early Clock Out punches should be positive */
-            if (isBetween(Punch.MIN_ELAPSED_MINUTES, gracePeriod, elapsedMinutes)) {
-                return true;
-            }
+            return isBetween(Punch.MIN_ELAPSED_MINUTES, gracePeriod, elapsedMinutes);
         }
         return false;
     }
     
     private boolean dockPenaltyRule(LocalTime shiftStart, LocalTime shiftStop, int gracePeriod, int dockPenalty) {
+        if (isWeekend()) {
+            return false;
+        }
+        
         LocalDate date = originalTimestamp.toLocalDate();
         LocalDateTime shiftStartDateTime = LocalDateTime.of(date, shiftStart);
         LocalDateTime shiftStopDateTime = LocalDateTime.of(date, shiftStop);

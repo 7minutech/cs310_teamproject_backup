@@ -175,7 +175,7 @@ public class PunchAdjustTest {
         //Should be Grace Period not Shift Start?
 
         assertEquals("#8E5F0240 CLOCK IN: MON 08/27/2018 07:08:57", p3.printOriginal());
-        assertEquals("#8E5F0240 CLOCK IN: MON 08/27/2018 07:15:00 (Dock Penalty)", p3.printAdjusted());
+        assertEquals("#8E5F0240 CLOCK IN: MON 08/27/2018 07:15:00 (Shift Dock)", p3.printAdjusted());
         //Differnce b/w shift dock and dock penalty 
         // Should be Dock Penalty not Shift dock?
 
@@ -187,7 +187,7 @@ public class PunchAdjustTest {
         // Should be Grace Period not Shift Stop?
 
         assertEquals("#1B2052DE CLOCK OUT: TUE 08/14/2018 15:15:00", p6.printOriginal());
-        assertEquals("#1B2052DE CLOCK OUT: TUE 08/14/2018 15:15:00 (Dock Penalty)", p6.printAdjusted());
+        assertEquals("#1B2052DE CLOCK OUT: TUE 08/14/2018 15:15:00 (Shift Dock)", p6.printAdjusted());
         // Should be Dock Penalty not Shift dock?
 
         assertEquals("#ADD650A8 CLOCK OUT: TUE 09/11/2018 15:37:12", p7.printOriginal());
