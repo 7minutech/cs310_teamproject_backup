@@ -116,11 +116,12 @@ public class Punch {
             adjustmenttype = PunchAdjustmentType.LUNCH_STOP;
         }
 
-        // Grace Period Adjustments
-        else if (gracePeriodRule(s.getShiftStart(), s.getShiftStop(), s.getGracePeriod())) {            
+        // Grace Period Adjustments 
+        else if (gracePeriodRule(s.getShiftStart(), s.getShiftStop(), s.getGracePeriod())) {
             if (punchtype == EventType.CLOCK_IN) {
                 adjustedTimestamp = LocalDateTime.of(date, s.getShiftStart());
             }
+            
             else {
                 adjustedTimestamp = LocalDateTime.of(date, s.getShiftStop());
             }
