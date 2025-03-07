@@ -120,13 +120,15 @@ public class Punch {
         else if (gracePeriodRule(s.getShiftStart(), s.getShiftStop(), s.getGracePeriod())) {
             if (punchtype == EventType.CLOCK_IN) {
                 adjustedTimestamp = LocalDateTime.of(date, s.getShiftStart());
+                adjustmenttype = PunchAdjustmentType.SHIFT_START;
             }
             
             else {
                 adjustedTimestamp = LocalDateTime.of(date, s.getShiftStop());
+                adjustmenttype = PunchAdjustmentType.SHIFT_STOP;
             }
             
-            adjustmenttype = PunchAdjustmentType.GRACE_PERIOD;
+            
         }
 
         // Dock Penalty Adjustments
