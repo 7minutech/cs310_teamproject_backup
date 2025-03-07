@@ -88,7 +88,6 @@ public class Punch {
             s.append(" ");
             s.append("(").append(adjustmenttype).append(")");
         }
-
         return s.toString();
     }
     /*
@@ -143,8 +142,7 @@ public class Punch {
         else if (roundIntervalRule(s.getRoundInterval())){
             int interval = s.getRoundInterval();
             LocalTime punchTime = originalTimestamp.toLocalTime();
-            int minute = punchTime.getMinute(); 
-            int nearestIntervalMinute = getNearestInterval(interval, minute);
+            int nearestIntervalMinute = getNearestInterval(interval, punchTime);
             LocalTime adjustedTime = punchTime;
             if (nearestIntervalMinute == 60){
                 int hour = punchTime.getHour(); 
@@ -167,9 +165,10 @@ public class Punch {
     }
     
     private boolean shiftStartRule(LocalTime shiftStart, int roundInterval){
-        if (isWeekend() && !(punchtype == EventType.CLOCK_IN)){
+        if (isWeekend() || !(punchtype == EventType.CLOCK_IN)){
             return false;
         }
+        
         LocalDateTime clockIn = originalTimestamp;
         /*Early shift start will be negative*/
         long elapsedMinutes = Duration.between(shiftStart, clockIn).toMinutes();
@@ -181,11 +180,12 @@ public class Punch {
         return false;
     }
     private boolean shiftStopRule(LocalTime shiftStop, int roundInterval){
-        if (isWeekend() && !(punchtype == EventType.CLOCK_OUT)){
+        if (isWeekend() || !(punchtype == EventType.CLOCK_OUT)){
             return false;
         }
         LocalDateTime clockOut = originalTimestamp;
         long elapsedMinutes = Duration.between(shiftStop, clockOut).toMinutes();
+
         /*Only Late shift start will be positive*/
         if (isBetween(Punch.MIN_ELAPSED_MINUTES,roundInterval,elapsedMinutes)){
             return true;
@@ -213,18 +213,20 @@ public class Punch {
     }
     
     private boolean lunchStartRule(LocalTime lunchStart, LocalTime lunchStop) {
-        LocalDateTime clockOut = originalTimestamp;
-        long elapsedMinutes = Duration.between(lunchStart, clockOut).toMinutes();
-        /* Only Lunch Start punches should be positive */
-        return isBetween(Punch.MIN_ELAPSED_MINUTES, (int) Duration.between(lunchStart, lunchStop).toMinutes(), elapsedMinutes);
+        if (isWeekend() || !(punchtype == EventType.CLOCK_OUT)){
+            return false;
+        }
+        LocalTime clockOut = originalTimestamp.toLocalTime();
+        return  clockOut.isAfter(lunchStart) && clockOut.isBefore(lunchStop);
     }
 
 
     private boolean lunchStopRule(LocalTime lunchStart, LocalTime lunchStop) {
-        LocalDateTime clockIn = originalTimestamp;
-        long elapsedMinutes = Duration.between(lunchStop, clockIn).toMinutes();
-        /* Only Lunch Stop punches should be positive */
-        return isBetween(Punch.MIN_ELAPSED_MINUTES, (int) Duration.between(lunchStart, lunchStop).toMinutes(), elapsedMinutes);
+        if (isWeekend() || !(punchtype == EventType.CLOCK_IN)){
+            return false;
+        }
+        LocalTime clockIn = originalTimestamp.toLocalTime();
+        return  clockIn.isAfter(lunchStart) && clockIn.isBefore(lunchStop);
     }
 
     private boolean gracePeriodRule(LocalTime shiftStart, LocalTime shiftStop, int gracePeriod) {
@@ -267,8 +269,11 @@ public class Punch {
     }
 
     
-    private int getNearestInterval(int interval, int value){
-        return (int) (Math.round((double)value / interval) * interval);
+    private int getNearestInterval(int interval, LocalTime time){
+        float minutes = time.getMinute();
+        float seconds = time.getSecond();
+        minutes += seconds / 60;
+        return (int) (Math.round(minutes / interval) * interval);
     }
 
     private boolean isBetween(int lowerbound, int upperbound, long value){
