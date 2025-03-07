@@ -137,7 +137,7 @@ public class Punch {
                 adjustedTimestamp = LocalDateTime.of(date, s.getShiftStop().minusMinutes(s.getDockPenalty()));
             }
             
-            adjustmenttype = PunchAdjustmentType.DOCK_PENALTY;
+            adjustmenttype = PunchAdjustmentType.SHIFT_DOCK;
         }
         else if (roundIntervalRule(s.getRoundInterval())){
             int interval = s.getRoundInterval();
