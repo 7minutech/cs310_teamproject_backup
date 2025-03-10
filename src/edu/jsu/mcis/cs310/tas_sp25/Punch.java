@@ -133,21 +133,11 @@ public class Punch {
         }
         if (adjustedTimestamp == null){
             if (roundIntervalRule(s.getRoundInterval())){
-                int interval = s.getRoundInterval();
                 LocalTime punchTime = originalTimestamp.toLocalTime();
-                int nearestIntervalMinute = getNearestInterval(interval, punchTime);
-                LocalTime adjustedTime;
-                if (nearestIntervalMinute == 60){
-                    int adjustedHour = punchTime.getHour() + 1;
-                    adjustedTime = punchTime.withHour(adjustedHour).withMinute(0);
-                }
-                else{
-                    adjustedTime = punchTime.withMinute(nearestIntervalMinute);
-                }
-                adjustedTime = adjustedTime.withSecond(0).withNano(0);
+                int nearesetInterval = getNearestInterval(s.getRoundInterval(), punchTime);
+                LocalTime adjustedTime = getRoundIntervalTime(punchTime, nearesetInterval);
                 adjustedTimestamp = LocalDateTime.of(date, adjustedTime);
                 adjustmenttype = PunchAdjustmentType.INTERVAL_ROUND;
-
             }
             if (noneRule(s.getRoundInterval())){
                 adjustedTimestamp = originalTimestamp.withSecond(0).withNano(0);
@@ -225,6 +215,19 @@ public class Punch {
             return isBetween(Punch.MIN_ELAPSED_MINUTES, gracePeriod, elapsedMinutes);
         }
         return false;
+    }
+    
+    private LocalTime getRoundIntervalTime(LocalTime punchTime, int nearestInterval){
+        LocalTime adjustedTime;
+        if (nearestInterval == 60){
+            int adjustedHour = punchTime.getHour() + 1;
+            adjustedTime = punchTime.withHour(adjustedHour).withMinute(0);
+        }
+        else{
+            adjustedTime = punchTime.withMinute(nearestInterval);
+        }
+        adjustedTime = adjustedTime.withSecond(0).withNano(0);
+        return adjustedTime;
     }
     
     private boolean dockPenaltyRuleStart(LocalTime shiftStart, LocalTime shiftStop, int gracePeriod, int dockPenalty) {
