@@ -93,7 +93,7 @@ public class Punch {
         LocalDate date = originalTimestamp.toLocalDate();
         if (!(isWeekend())){
             switch (punchtype){
-                case CLOCK_IN:
+                case CLOCK_IN -> {
                     if (shiftStartRule(s.getShiftStart(), s.getRoundInterval())){
                         adjustedTimestamp = LocalDateTime.of(date, s.getShiftStart());
                         adjustmenttype = PunchAdjustmentType.SHIFT_START;
@@ -110,8 +110,8 @@ public class Punch {
                         adjustedTimestamp = LocalDateTime.of(date, s.getShiftStart().plusMinutes(s.getDockPenalty()));
                         adjustmenttype = PunchAdjustmentType.SHIFT_DOCK;
                     }
-                    break;
-                case CLOCK_OUT:
+                }
+                case CLOCK_OUT ->{
                     if (shiftStopRule(s.getShiftStop(), s.getRoundInterval())){
                         adjustedTimestamp = LocalDateTime.of(date, s.getShiftStop());
                         adjustmenttype = PunchAdjustmentType.SHIFT_STOP;
@@ -128,7 +128,7 @@ public class Punch {
                         adjustedTimestamp = LocalDateTime.of(date, s.getShiftStop().minusMinutes(s.getDockPenalty()));
                         adjustmenttype = PunchAdjustmentType.SHIFT_DOCK;
                     }
-                    break;
+                }
             }
         }
         if (adjustedTimestamp == null){
