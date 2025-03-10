@@ -184,8 +184,8 @@ public class PunchAdjustTest {
         assertEquals("#D2C39273 CLOCK OUT: MON 09/10/2018 15:07:52", p4.printOriginal());
         assertEquals("#D2C39273 CLOCK OUT: MON 09/10/2018 15:15:00 (Interval Round)", p4.printAdjusted());
 
-        assertEquals("#408B195F CLOCK OUT: TUE 08/21/2018 15:28:13", p5.printOriginal());
-        assertEquals("#408B195F CLOCK OUT: TUE 08/21/2018 15:30:00 (Shift Stop)", p5.printAdjusted());
+       assertEquals("#408B195F CLOCK OUT: TUE 08/21/2018 15:28:13", p5.printOriginal());
+       assertEquals("#408B195F CLOCK OUT: TUE 08/21/2018 15:30:00 (Shift Stop)", p5.printAdjusted());
 
         assertEquals("#1B2052DE CLOCK OUT: TUE 08/14/2018 15:15:00", p6.printOriginal());
         assertEquals("#1B2052DE CLOCK OUT: TUE 08/14/2018 15:15:00 (Shift Dock)", p6.printAdjusted());

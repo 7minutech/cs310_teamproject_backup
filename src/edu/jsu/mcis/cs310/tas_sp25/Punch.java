@@ -157,7 +157,7 @@ public class Punch {
     private boolean shiftStartRule(LocalTime shiftStart, int roundInterval){
         LocalTime clockIn = originalTimestamp.toLocalTime();
         long elapsedMinutes = Duration.between(clockIn, shiftStart).toMinutes();
-        if (isWeekend() || punchtype != EventType.CLOCK_IN || elapsedMinutes == 0){
+        if (isWeekend() || elapsedMinutes == 0){
             return false;
         }
         if (isBetween(Punch.MIN_ELAPSED_MINUTES,roundInterval, elapsedMinutes)){
@@ -169,7 +169,7 @@ public class Punch {
     private boolean shiftStopRule(LocalTime shiftStop, int roundInterval){
         LocalTime clockOut = originalTimestamp.toLocalTime();
         long elapsedMinutes = Duration.between(shiftStop, clockOut).toMinutes();
-        if (isWeekend() || punchtype != EventType.CLOCK_OUT || elapsedMinutes == 0){
+        if (isWeekend() || elapsedMinutes == 0){
             return false;
         }
         /*Only Late shift start will be positive*/
@@ -199,7 +199,7 @@ public class Punch {
     }
     
     private boolean lunchStartRule(LocalTime lunchStart, LocalTime lunchStop) {
-        if (isWeekend() || !(punchtype == EventType.CLOCK_OUT)) {
+        if (isWeekend()) {
             return false;
         }
         LocalTime clockOut = originalTimestamp.toLocalTime();
@@ -207,7 +207,7 @@ public class Punch {
     }
 
     private boolean lunchStopRule(LocalTime lunchStart, LocalTime lunchStop) {
-        if (isWeekend() || !(punchtype == EventType.CLOCK_IN)) {
+        if (isWeekend()) {
             return false;
         }
         LocalTime clockIn = originalTimestamp.toLocalTime();
@@ -222,13 +222,13 @@ public class Punch {
         LocalTime punchTime = originalTimestamp.toLocalTime();
         long elapsedMinutes;
 
-        if (punchtype == EventType.CLOCK_IN && !(shiftStart).equals(punchTime)) {
+        if (!(shiftStart).equals(punchTime) && punchtype == EventType.CLOCK_IN) {
             elapsedMinutes = Duration.between(shiftStart, punchTime).toMinutes();
             /* Only late Clock In punches should be positive */
             return isBetween(Punch.MIN_ELAPSED_MINUTES, gracePeriod, elapsedMinutes);
             }
         
-        else if (punchtype == EventType.CLOCK_OUT && !(shiftStop).equals(punchTime)) {
+        if (!(shiftStop).equals(punchTime) && punchtype == EventType.CLOCK_OUT) {
             elapsedMinutes = Duration.between(punchTime, shiftStop).toMinutes();
             /* Only early Clock Out punches should be positive */
             return isBetween(Punch.MIN_ELAPSED_MINUTES, gracePeriod, elapsedMinutes);
