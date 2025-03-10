@@ -195,6 +195,8 @@ public class PunchAdjustTest {
 
     }
     
+    // katty wip
+    
     @Test
     public void testAdjustPunchesShift2SpecialCases() {
 
