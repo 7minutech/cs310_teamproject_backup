@@ -171,24 +171,19 @@ public class PunchAdjustTest {
         assertEquals("#BE51FA92 CLOCK IN: WED 08/01/2018 07:00:00 (Shift Start)", p1.printAdjusted());
 
         assertEquals("#3DA8B226 CLOCK IN: FRI 08/24/2018 07:02:23", p2.printOriginal());
-        assertEquals("#3DA8B226 CLOCK IN: FRI 08/24/2018 07:00:00 (Grace Period)", p2.printAdjusted()); 
-        //Should be Grace Period not Shift Start?
+        assertEquals("#3DA8B226 CLOCK IN: FRI 08/24/2018 07:00:00 (Shift Start)", p2.printAdjusted()); 
 
         assertEquals("#8E5F0240 CLOCK IN: MON 08/27/2018 07:08:57", p3.printOriginal());
-        assertEquals("#8E5F0240 CLOCK IN: MON 08/27/2018 07:15:00 (Dock Penalty)", p3.printAdjusted());
-        //Differnce b/w shift dock and dock penalty 
-        // Should be Dock Penalty not Shift dock?
+        assertEquals("#8E5F0240 CLOCK IN: MON 08/27/2018 07:15:00 (Shift Dock)", p3.printAdjusted());
 
         assertEquals("#D2C39273 CLOCK OUT: MON 09/10/2018 15:07:52", p4.printOriginal());
         assertEquals("#D2C39273 CLOCK OUT: MON 09/10/2018 15:15:00 (Interval Round)", p4.printAdjusted());
 
         assertEquals("#408B195F CLOCK OUT: TUE 08/21/2018 15:28:13", p5.printOriginal());
-        assertEquals("#408B195F CLOCK OUT: TUE 08/21/2018 15:30:00 (Grace Period)", p5.printAdjusted());
-        // Should be Grace Period not Shift Stop?
+        assertEquals("#408B195F CLOCK OUT: TUE 08/21/2018 15:30:00 (Shift Stop)", p5.printAdjusted());
 
         assertEquals("#1B2052DE CLOCK OUT: TUE 08/14/2018 15:15:00", p6.printOriginal());
-        assertEquals("#1B2052DE CLOCK OUT: TUE 08/14/2018 15:15:00 (Dock Penalty)", p6.printAdjusted());
-        // Should be Dock Penalty not Shift dock?
+        assertEquals("#1B2052DE CLOCK OUT: TUE 08/14/2018 15:15:00 (Shift Dock)", p6.printAdjusted());
 
         assertEquals("#ADD650A8 CLOCK OUT: TUE 09/11/2018 15:37:12", p7.printOriginal());
         assertEquals("#ADD650A8 CLOCK OUT: TUE 09/11/2018 15:30:00 (Shift Stop)", p7.printAdjusted());
