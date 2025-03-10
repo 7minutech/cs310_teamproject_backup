@@ -154,6 +154,7 @@ public class PunchAdjustTest {
         Punch p5 = punchDAO.find(2079); // Grace Period (Out)
         Punch p6 = punchDAO.find(1358); // Shift Dock (Out)
         Punch p7 = punchDAO.find(4119); // Interval Adjustment After Shift (Out)
+        Punch p8 = punchDAO.find(200);  // 
 
         /* Adjust Punches According to Shift Ruleset */
         
@@ -164,6 +165,7 @@ public class PunchAdjustTest {
         p5.adjust(s1);
         p6.adjust(s1);
         p7.adjust(s1);
+        p8.adjust(s1);
 
         /* Compare Adjusted Timestamps to Expected Values */
         
@@ -172,6 +174,9 @@ public class PunchAdjustTest {
 
         assertEquals("#3DA8B226 CLOCK IN: FRI 08/24/2018 07:02:23", p2.printOriginal());
         assertEquals("#3DA8B226 CLOCK IN: FRI 08/24/2018 07:00:00 (Shift Start)", p2.printAdjusted()); 
+        
+        assertEquals("#76118CDC CLOCK IN: WED 08/01/2018 07:00:58", p8.printOriginal());
+        assertEquals("#76118CDC CLOCK IN: WED 08/01/2018 07:00:00 (Shift Start)", p8.printAdjusted());
 
         assertEquals("#8E5F0240 CLOCK IN: MON 08/27/2018 07:08:57", p3.printOriginal());
         assertEquals("#8E5F0240 CLOCK IN: MON 08/27/2018 07:15:00 (Shift Dock)", p3.printAdjusted());
