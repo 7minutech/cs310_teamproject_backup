@@ -115,8 +115,8 @@ public class Punch {
                     adjustedTimestamp = LocalDateTime.of(date, s.getShiftStop());
                     adjustmenttype = PunchAdjustmentType.SHIFT_STOP;
                 }
-                if (lunchStartRule(s.getLunchStart(), s.getLunchStart())) {
-                    adjustedTimestamp = LocalDateTime.of(date, s.getLunchStop());
+                if (lunchStartRule(s.getLunchStart(), s.getLunchStop())) {
+                    adjustedTimestamp = LocalDateTime.of(date, s.getLunchStart());
                     adjustmenttype = PunchAdjustmentType.LUNCH_START;
                 }
                 if (gracePeriodRule(s.getShiftStart(), s.getShiftStop(), s.getGracePeriod())) {
