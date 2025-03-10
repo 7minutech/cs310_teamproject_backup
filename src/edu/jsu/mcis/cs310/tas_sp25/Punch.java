@@ -160,15 +160,12 @@ public class Punch {
     }
     
     private boolean shiftStartRule(LocalTime shiftStart, int roundInterval){
-        if (isWeekend() || !(punchtype == EventType.CLOCK_IN)){
+        if (isWeekend() || punchtype != EventType.CLOCK_IN){
             return false;
         }
-        
-        LocalDateTime clockIn = originalTimestamp;
-        /*Early shift start will be negative*/
-        long elapsedMinutes = Duration.between(shiftStart, clockIn).toMinutes();
-        /*Only Early shift start will be positive after flipping*/
-        elapsedMinutes *= -1;
+        LocalTime clockIn = originalTimestamp.toLocalTime();
+        long elapsedMinutes = Duration.between(clockIn, shiftStart).toMinutes();
+        System.out.println(elapsedMinutes);
         if (isBetween(Punch.MIN_ELAPSED_MINUTES,roundInterval, elapsedMinutes)){
             return true;
         }
@@ -176,7 +173,7 @@ public class Punch {
     }
     
     private boolean shiftStopRule(LocalTime shiftStop, int roundInterval){
-        if (isWeekend() || !(punchtype == EventType.CLOCK_OUT)){
+        if (isWeekend() || punchtype != EventType.CLOCK_OUT){
             return false;
         }
         LocalDateTime clockOut = originalTimestamp;
