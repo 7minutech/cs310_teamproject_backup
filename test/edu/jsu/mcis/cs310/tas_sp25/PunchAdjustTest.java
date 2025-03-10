@@ -194,5 +194,43 @@ public class PunchAdjustTest {
         assertEquals("#ADD650A8 CLOCK OUT: TUE 09/11/2018 15:30:00 (Shift Stop)", p7.printAdjusted());
 
     }
+    
+    // katty wip
+    
+    @Test
+    public void testAdjustPunchesShift2SpecialCases() {
 
+        /* Get Shift Ruleset and Punch Data */
+
+        PunchDAO punchDAO = daoFactory.getPunchDAO();
+        ShiftDAO shiftDAO = daoFactory.getShiftDAO();
+
+        Shift s1 = shiftDAO.find(1);
+
+        Punch p1 = punchDAO.find(4396);  // Shift Dock (In) 8D9E5710
+        Punch p2 = punchDAO.find(4251);  // Shift Dock (In) C8E646D8
+        Punch p3 = punchDAO.find(4317);  // Shift Dock (Out) 8D9E5710
+        Punch p4 = punchDAO.find(4252);  // Shift Dock (Out) C8E646D8
+
+        /* Adjust Punches According to Shift Ruleset */
+
+        p1.adjust(s1);
+        p2.adjust(s1);
+        p3.adjust(s1);
+        p4.adjust(s1);
+
+        /* Compare Adjusted Timestamps to Expected Values */
+
+        assertEquals("#ADD650A8 CLOCK IN: THU 09/13/2018 07:15:36", p1.printOriginal());
+        assertEquals("#ADD650A8 CLOCK IN: THU 09/13/2018 07:15:00 (Shift Dock)", p1.printAdjusted());
+
+        assertEquals("#C8E646D8 CLOCK IN: WED 09/12/2018 07:15:00", p2.printOriginal());
+        assertEquals("#C8E646D8 CLOCK IN: WED 09/12/2018 07:15:00 (Shift Dock)", p2.printAdjusted());
+
+        assertEquals("#8D9E5710 CLOCK OUT: WED 09/12/2018 17:34:29", p3.printOriginal());
+        assertEquals("#8D9E5710 CLOCK OUT: WED 09/12/2018 17:30:00 (Interval Round)", p3.printAdjusted());
+
+        assertEquals("#C8E646D8 CLOCK OUT: TUE 09/11/2018 17:30:00", p4.printOriginal());
+        assertEquals("#C8E646D8 CLOCK OUT: TUE 09/11/2018 17:30:00 (None)", p4.printAdjusted());
+    }
 }
