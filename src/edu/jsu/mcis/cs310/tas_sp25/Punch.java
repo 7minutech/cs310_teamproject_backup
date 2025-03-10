@@ -2,7 +2,6 @@ package edu.jsu.mcis.cs310.tas_sp25;
 
 import java.time.*;
 import java.time.format.DateTimeFormatter;
-import java.time.temporal.ChronoUnit;
 import java.util.Arrays;
 
 public class Punch {
@@ -36,7 +35,6 @@ public class Punch {
         this.adjustmenttype = null;
     }
 
-    // Getters
     public Integer getId() {
         return id;
     }
@@ -90,10 +88,7 @@ public class Punch {
         }
         return s.toString();
     }
-    /*
-            assertEquals("#28DC3FB8 CLOCK IN: FRI 09/07/2018 06:50:35", p1.printOriginal());
-            assertEquals("#28DC3FB8 CLOCK IN: FRI 09/07/2018 07:00:00 (Shift Start)", p1.printAdjusted());
-            */
+    
     public void adjust(Shift s){
         LocalDate date = originalTimestamp.toLocalDate();
         if (shiftStartRule(s.getShiftStart(), s.getRoundInterval())){
@@ -179,6 +174,7 @@ public class Punch {
         }
         return false;
     }
+    
     private boolean shiftStopRule(LocalTime shiftStop, int roundInterval){
         if (isWeekend() || !(punchtype == EventType.CLOCK_OUT)){
             return false;
@@ -219,7 +215,6 @@ public class Punch {
         LocalTime clockOut = originalTimestamp.toLocalTime();
         return  clockOut.isAfter(lunchStart) && clockOut.isBefore(lunchStop);
     }
-
 
     private boolean lunchStopRule(LocalTime lunchStart, LocalTime lunchStop) {
         if (isWeekend() || !(punchtype == EventType.CLOCK_IN)){
@@ -268,7 +263,6 @@ public class Punch {
         return false;
     }
 
-    
     private int getNearestInterval(int interval, LocalTime time){
         float minutes = time.getMinute();
         float seconds = time.getSecond();
@@ -283,7 +277,6 @@ public class Punch {
         return false;
     }
    
-   
     private boolean isWeekend(){
         String dayAbbr = getDayAbbreviation(originalTimestamp);
         return Arrays.asList(Punch.WeekendDays).contains(dayAbbr);
@@ -294,6 +287,7 @@ public class Punch {
         String dayAbbr = (dayOfWeek.toString()).substring(0, 3);
         return dayAbbr;
     }
+    
     public String formatTimestamp(LocalDateTime timestamp){
         StringBuilder s = new StringBuilder();
         s.append(formattedDate(timestamp));
@@ -301,6 +295,7 @@ public class Punch {
         s.append(formattedTime(timestamp));
         return s.toString();
     }
+    
     public String formattedDate(LocalDateTime timestamp){
         StringBuilder s = new StringBuilder();
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MM/dd/yyyy");
