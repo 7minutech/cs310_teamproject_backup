@@ -2,7 +2,6 @@ package edu.jsu.mcis.cs310.tas_sp25;
 
 import java.time.*;
 import java.time.format.DateTimeFormatter;
-import java.time.temporal.ChronoUnit;
 import java.util.Arrays;
 
 public class Punch {
@@ -36,7 +35,6 @@ public class Punch {
         this.adjustmenttype = null;
     }
 
-    // Getters
     public Integer getId() {
         return id;
     }
@@ -90,104 +88,78 @@ public class Punch {
         }
         return s.toString();
     }
-    /*
-            assertEquals("#28DC3FB8 CLOCK IN: FRI 09/07/2018 06:50:35", p1.printOriginal());
-            assertEquals("#28DC3FB8 CLOCK IN: FRI 09/07/2018 07:00:00 (Shift Start)", p1.printAdjusted());
-            */
+    
     public void adjust(Shift s){
         LocalDate date = originalTimestamp.toLocalDate();
-        if (shiftStartRule(s.getShiftStart(), s.getRoundInterval())){
-            adjustedTimestamp = LocalDateTime.of(date, s.getShiftStart());
-            adjustmenttype = PunchAdjustmentType.SHIFT_START;
-        }
-        else if (shiftStopRule(s.getShiftStop(), s.getRoundInterval())){
-            adjustedTimestamp = LocalDateTime.of(date, s.getShiftStop());
-            adjustmenttype = PunchAdjustmentType.SHIFT_STOP;
-
-        }
-        // Lunch Adjustments
-        else if (lunchStartRule(s.getLunchStart(), s.getLunchStop())) {
-            adjustedTimestamp = LocalDateTime.of(date, s.getLunchStart());
-            adjustmenttype = PunchAdjustmentType.LUNCH_START;
-        }
-        
-        else if (lunchStopRule(s.getLunchStart(), s.getLunchStop())) {
-            adjustedTimestamp = LocalDateTime.of(date, s.getLunchStop());
-            adjustmenttype = PunchAdjustmentType.LUNCH_STOP;
-        }
-
-        // Grace Period Adjustments
-        else if (gracePeriodRule(s.getShiftStart(), s.getShiftStop(), s.getGracePeriod())) {            
-            if (punchtype == EventType.CLOCK_IN) {
-                adjustedTimestamp = LocalDateTime.of(date, s.getShiftStart());
+        if (!(isWeekend())){
+            switch (punchtype){
+                case CLOCK_IN -> {
+                    if (shiftStartRule(s.getShiftStart(), s.getRoundInterval())){
+                        adjustedTimestamp = LocalDateTime.of(date, s.getShiftStart());
+                        adjustmenttype = PunchAdjustmentType.SHIFT_START;
+                    }
+                    if (lunchStopRule(s.getLunchStart(), s.getLunchStop())) {
+                        adjustedTimestamp = LocalDateTime.of(date, s.getLunchStop());
+                        adjustmenttype = PunchAdjustmentType.LUNCH_STOP;
+                    }
+                    if (gracePeriodRuleStart(s.getShiftStart(), s.getGracePeriod())) {
+                        adjustedTimestamp = LocalDateTime.of(date, s.getShiftStart());
+                        adjustmenttype = PunchAdjustmentType.SHIFT_START;
+                    }
+                    if (dockPenaltyRuleStart(s.getShiftStart(), s.getShiftStop(), s.getGracePeriod(), s.getDockPenalty())) {            
+                        adjustedTimestamp = LocalDateTime.of(date, s.getShiftStart().plusMinutes(s.getDockPenalty()));
+                        adjustmenttype = PunchAdjustmentType.SHIFT_DOCK;
+                    }
+                }
+                case CLOCK_OUT ->{
+                    if (shiftStopRule(s.getShiftStop(), s.getRoundInterval())){
+                        adjustedTimestamp = LocalDateTime.of(date, s.getShiftStop());
+                        adjustmenttype = PunchAdjustmentType.SHIFT_STOP;
+                    }
+                    if (lunchStartRule(s.getLunchStart(), s.getLunchStop())) {
+                        adjustedTimestamp = LocalDateTime.of(date, s.getLunchStart());
+                        adjustmenttype = PunchAdjustmentType.LUNCH_START;
+                    }
+                    if (gracePeriodRuleStop(s.getShiftStop(), s.getGracePeriod())) {
+                        adjustedTimestamp = LocalDateTime.of(date, s.getShiftStop());
+                        adjustmenttype = PunchAdjustmentType.SHIFT_STOP;
+                    }
+                    if (dockPenaltyRuleStop(s.getShiftStart(), s.getShiftStop(), s.getGracePeriod(), s.getDockPenalty())) {            
+                        adjustedTimestamp = LocalDateTime.of(date, s.getShiftStop().minusMinutes(s.getDockPenalty()));
+                        adjustmenttype = PunchAdjustmentType.SHIFT_DOCK;
+                    }
+                }
             }
-            else {
-                adjustedTimestamp = LocalDateTime.of(date, s.getShiftStop());
-            }
-            
-            adjustmenttype = PunchAdjustmentType.GRACE_PERIOD;
         }
-
-        // Dock Penalty Adjustments
-        else if (dockPenaltyRule(s.getShiftStart(), s.getShiftStop(), s.getGracePeriod(), s.getDockPenalty())) {            
-            if (punchtype == EventType.CLOCK_IN) {
-                adjustedTimestamp = LocalDateTime.of(date, s.getShiftStart().plusMinutes(s.getDockPenalty()));
+        if (adjustedTimestamp == null){
+            if (roundIntervalRule(s.getRoundInterval())){
+                LocalTime punchTime = originalTimestamp.toLocalTime();
+                int nearesetInterval = getNearestInterval(s.getRoundInterval(), punchTime);
+                LocalTime adjustedTime = getRoundIntervalTime(punchTime, nearesetInterval);
+                adjustedTimestamp = LocalDateTime.of(date, adjustedTime);
+                adjustmenttype = PunchAdjustmentType.INTERVAL_ROUND;
             }
-            else {
-                adjustedTimestamp = LocalDateTime.of(date, s.getShiftStop().minusMinutes(s.getDockPenalty()));
+            if (noneRule(s.getRoundInterval())){
+                adjustedTimestamp = originalTimestamp.withSecond(0).withNano(0);
+                adjustmenttype = PunchAdjustmentType.NONE;
             }
-            
-            adjustmenttype = PunchAdjustmentType.DOCK_PENALTY;
         }
-        else if (roundIntervalRule(s.getRoundInterval())){
-            int interval = s.getRoundInterval();
-            LocalTime punchTime = originalTimestamp.toLocalTime();
-            int nearestIntervalMinute = getNearestInterval(interval, punchTime);
-            LocalTime adjustedTime = punchTime;
-            if (nearestIntervalMinute == 60){
-                int hour = punchTime.getHour(); 
-                int adjustedHour = hour += 1;
-                adjustedTime = adjustedTime.withHour(adjustedHour).withMinute(0);
-            }
-            else{
-                adjustedTime = adjustedTime.withMinute(nearestIntervalMinute);
-            }
-            adjustedTime = adjustedTime.withSecond(0).withNano(0);
-            adjustedTimestamp = LocalDateTime.of(date, adjustedTime);
-            adjustmenttype = PunchAdjustmentType.INTERVAL_ROUND;
-            
-        }
-        else if (noneRule(s.getRoundInterval())){
-            adjustedTimestamp = originalTimestamp.withSecond(0).withNano(0);
-            adjustmenttype = PunchAdjustmentType.NONE;
-        }
-
     }
     
     private boolean shiftStartRule(LocalTime shiftStart, int roundInterval){
-        if (isWeekend() || !(punchtype == EventType.CLOCK_IN)){
-            return false;
-        }
-        
-        LocalDateTime clockIn = originalTimestamp;
-        /*Early shift start will be negative*/
-        long elapsedMinutes = Duration.between(shiftStart, clockIn).toMinutes();
-        /*Only Early shift start will be positive after flipping*/
-        elapsedMinutes *= -1;
-        if (isBetween(Punch.MIN_ELAPSED_MINUTES,roundInterval, elapsedMinutes)){
+        LocalTime clockIn = originalTimestamp.toLocalTime();
+        long elapsedMinutes = Duration.between(clockIn, shiftStart).toMinutes();
+        if (isBetween(Punch.MIN_ELAPSED_MINUTES + 1,roundInterval, elapsedMinutes)){
             return true;
         }
         return false;
     }
+    
     private boolean shiftStopRule(LocalTime shiftStop, int roundInterval){
-        if (isWeekend() || !(punchtype == EventType.CLOCK_OUT)){
-            return false;
-        }
-        LocalDateTime clockOut = originalTimestamp;
+        LocalTime clockOut = originalTimestamp.toLocalTime();
         long elapsedMinutes = Duration.between(shiftStop, clockOut).toMinutes();
-
         /*Only Late shift start will be positive*/
-        if (isBetween(Punch.MIN_ELAPSED_MINUTES,roundInterval,elapsedMinutes)){
+        if (isBetween(Punch.MIN_ELAPSED_MINUTES + 1,roundInterval,elapsedMinutes)){
             return true;
         }
         return false;
@@ -213,62 +185,65 @@ public class Punch {
     }
     
     private boolean lunchStartRule(LocalTime lunchStart, LocalTime lunchStop) {
-        if (isWeekend() || !(punchtype == EventType.CLOCK_OUT)){
-            return false;
-        }
         LocalTime clockOut = originalTimestamp.toLocalTime();
         return  clockOut.isAfter(lunchStart) && clockOut.isBefore(lunchStop);
     }
 
-
     private boolean lunchStopRule(LocalTime lunchStart, LocalTime lunchStop) {
-        if (isWeekend() || !(punchtype == EventType.CLOCK_IN)){
-            return false;
-        }
         LocalTime clockIn = originalTimestamp.toLocalTime();
         return  clockIn.isAfter(lunchStart) && clockIn.isBefore(lunchStop);
     }
 
-    private boolean gracePeriodRule(LocalTime shiftStart, LocalTime shiftStop, int gracePeriod) {
+    private boolean gracePeriodRuleStart(LocalTime shiftStart, int gracePeriod) {
         LocalTime punchTime = originalTimestamp.toLocalTime();
         long elapsedMinutes;
 
-        if (punchtype == EventType.CLOCK_IN) {
+        if (!(shiftStart).equals(punchTime)) {
             elapsedMinutes = Duration.between(shiftStart, punchTime).toMinutes();
             /* Only late Clock In punches should be positive */
-            if (isBetween(Punch.MIN_ELAPSED_MINUTES, gracePeriod, elapsedMinutes)) {
-                return true;
+            return isBetween(Punch.MIN_ELAPSED_MINUTES, gracePeriod, elapsedMinutes);
             }
-        }
-        else if (punchtype == EventType.CLOCK_OUT) {
+        return false;
+    }
+    
+    private boolean gracePeriodRuleStop(LocalTime shiftStop, int gracePeriod){
+        LocalTime punchTime = originalTimestamp.toLocalTime();
+        long elapsedMinutes;
+        if (!(shiftStop).equals(punchTime)) {
             elapsedMinutes = Duration.between(punchTime, shiftStop).toMinutes();
             /* Only early Clock Out punches should be positive */
-            if (isBetween(Punch.MIN_ELAPSED_MINUTES, gracePeriod, elapsedMinutes)) {
-                return true;
-            }
+            return isBetween(Punch.MIN_ELAPSED_MINUTES, gracePeriod, elapsedMinutes);
         }
         return false;
     }
     
-    private boolean dockPenaltyRule(LocalTime shiftStart, LocalTime shiftStop, int gracePeriod, int dockPenalty) {
+    private LocalTime getRoundIntervalTime(LocalTime punchTime, int nearestInterval){
+        LocalTime adjustedTime;
+        if (nearestInterval == 60){
+            int adjustedHour = punchTime.getHour() + 1;
+            adjustedTime = punchTime.withHour(adjustedHour).withMinute(0);
+        }
+        else{
+            adjustedTime = punchTime.withMinute(nearestInterval);
+        }
+        adjustedTime = adjustedTime.withSecond(0).withNano(0);
+        return adjustedTime;
+    }
+    
+    private boolean dockPenaltyRuleStart(LocalTime shiftStart, LocalTime shiftStop, int gracePeriod, int dockPenalty) {
         LocalDate date = originalTimestamp.toLocalDate();
         LocalDateTime shiftStartDateTime = LocalDateTime.of(date, shiftStart);
+        long elapsedMinutes = Duration.between(shiftStartDateTime.plusMinutes(gracePeriod), originalTimestamp).toMinutes();
+        /* Only late Clock In punches outside grace period but within dock penalty should be positive */
+        return isBetween(Punch.MIN_ELAPSED_MINUTES, dockPenalty, elapsedMinutes);
+    }
+    private boolean dockPenaltyRuleStop(LocalTime shiftStart, LocalTime shiftStop, int gracePeriod, int dockPenalty){
+        LocalDate date = originalTimestamp.toLocalDate();
         LocalDateTime shiftStopDateTime = LocalDateTime.of(date, shiftStop);
-        long elapsedMinutes;
-        if (punchtype == EventType.CLOCK_IN) {
-            elapsedMinutes = Duration.between(shiftStartDateTime.plusMinutes(gracePeriod), originalTimestamp).toMinutes();
-            /* Only late Clock In punches outside grace period but within dock penalty should be positive */
-            return isBetween(Punch.MIN_ELAPSED_MINUTES, dockPenalty, elapsedMinutes);
-        }
-        else if (punchtype == EventType.CLOCK_OUT) {
-            elapsedMinutes = Duration.between(originalTimestamp, shiftStopDateTime.minusMinutes(gracePeriod)).toMinutes();
-            /* Only early Clock Out punches outside grace period but within dock penalty should be positive */
-            return isBetween(Punch.MIN_ELAPSED_MINUTES, dockPenalty, elapsedMinutes);
-        }
-        return false;
+        long elapsedMinutes = Duration.between(originalTimestamp, shiftStopDateTime.minusMinutes(gracePeriod)).toMinutes();
+        return isBetween(Punch.MIN_ELAPSED_MINUTES, dockPenalty, elapsedMinutes);
     }
 
-    
     private int getNearestInterval(int interval, LocalTime time){
         float minutes = time.getMinute();
         float seconds = time.getSecond();
@@ -283,7 +258,6 @@ public class Punch {
         return false;
     }
    
-   
     private boolean isWeekend(){
         String dayAbbr = getDayAbbreviation(originalTimestamp);
         return Arrays.asList(Punch.WeekendDays).contains(dayAbbr);
@@ -294,6 +268,7 @@ public class Punch {
         String dayAbbr = (dayOfWeek.toString()).substring(0, 3);
         return dayAbbr;
     }
+    
     public String formatTimestamp(LocalDateTime timestamp){
         StringBuilder s = new StringBuilder();
         s.append(formattedDate(timestamp));
@@ -301,6 +276,7 @@ public class Punch {
         s.append(formattedTime(timestamp));
         return s.toString();
     }
+    
     public String formattedDate(LocalDateTime timestamp){
         StringBuilder s = new StringBuilder();
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MM/dd/yyyy");

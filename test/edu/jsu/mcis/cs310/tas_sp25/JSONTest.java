@@ -140,5 +140,93 @@ public class JSONTest {
         }
 
     }
+    @Test
+    public void testJSONShift4() {
+
+        try {
+
+            BadgeDAO badgeDAO = daoFactory.getBadgeDAO();
+            PunchDAO punchDAO = daoFactory.getPunchDAO();
+            ShiftDAO shiftDAO = daoFactory.getShiftDAO();
+
+            /* Expected JSON Data */
+            // INSERT INTO `event` (`id`,`terminalid`,`badgeid`,`timestamp`,`eventtypeid`) VALUES 
+            // (4923,104,'D2C39273','2018-09-18 06:59:42',1),
+            // (4996,104,'D2C39273','2018-09-18 17:36:19',0),
+
+            String expectedJSON = "[{\"originaltimestamp\":\"TUE 09\\/18\\/2018 06:59:42\",\"badgeid\":\"D2C39273\",\"adjustedtimestamp\":\"TUE 09\\/18\\/2018 07:00:00\",\"adjustmenttype\":\"Shift Start\",\"terminalid\":\"104\",\"id\":\"4923\",\"punchtype\":\"CLOCK IN\"},{\"originaltimestamp\":\"TUE 09\\/18\\/2018 17:36:19\",\"badgeid\":\"D2C39273\",\"adjustedtimestamp\":\"TUE 09\\/18\\/2018 17:30:00\",\"adjustmenttype\":\"Interval Round\",\"terminalid\":\"104\",\"id\":\"4996\",\"punchtype\":\"CLOCK OUT\"}]";
+
+            ArrayList<HashMap<String, String>> expected = (ArrayList) Jsoner.deserialize(expectedJSON);
+
+            /* Get Punch/Badge/Shift Objects */
+            Punch p = punchDAO.find(4923);
+            Badge b = badgeDAO.find(p.getBadge().getId()); // badge id is D2C39273
+            Shift s = shiftDAO.find(b); // this is shift 1.
+
+            /* Get/Adjust Daily Punch List */
+            ArrayList<Punch> dailypunchlist = punchDAO.list(b, p.getOriginaltimestamp().toLocalDate());
+
+            for (Punch punch : dailypunchlist) {
+                punch.adjust(s);
+            }
+
+            /* JSON Conversion */
+            String actualJSON = DAOUtility.getPunchListAsJSON(dailypunchlist);
+
+            ArrayList<HashMap<String, String>> actual = (ArrayList) Jsoner.deserialize(actualJSON);
+
+            /* Compare to Expected JSON */
+            assertEquals(expected, actual);
+
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+        }
+
+    }
+    @Test
+    public void testJSONShift5() {
+
+        try {
+
+            BadgeDAO badgeDAO = daoFactory.getBadgeDAO();
+            PunchDAO punchDAO = daoFactory.getPunchDAO();
+            ShiftDAO shiftDAO = daoFactory.getShiftDAO();
+
+            /* Expected JSON Data */
+            
+            // INSERT INTO `event` (`id`,`terminalid`,`badgeid`,`timestamp`,`eventtypeid`) VALUES 
+            //  (4541,104,'8E5F0240','2018-09-14 07:00:30',1), friday
+            //  (4785,0,'8E5F0240','2018-09-14 15:30:00',0), friday
+            String expectedJSON = "[{\"originaltimestamp\":\"FRI 09\\/14\\/2018 07:00:30\",\"badgeid\":\"8E5F0240\",\"adjustedtimestamp\":\"FRI 09\\/14\\/2018 07:00:00\",\"adjustmenttype\":\"Shift Start\",\"terminalid\":\"104\",\"id\":\"4541\",\"punchtype\":\"CLOCK IN\"},{\"originaltimestamp\":\"FRI 09\\/14\\/2018 15:30:00\",\"badgeid\":\"8E5F0240\",\"adjustedtimestamp\":\"FRI 09\\/14\\/2018 15:30:00\",\"adjustmenttype\":\"None\",\"terminalid\":\"0\",\"id\":\"4785\",\"punchtype\":\"CLOCK OUT\"}]";
+
+            ArrayList<HashMap<String, String>> expected = (ArrayList) Jsoner.deserialize(expectedJSON);
+
+            /* Get Punch/Badge/Shift Objects */
+            Punch p = punchDAO.find(4541);
+            Badge b = badgeDAO.find(p.getBadge().getId()); // 8E5F0240
+            Shift s = shiftDAO.find(b); // also using shift 1
+
+            /* Get/Adjust Daily Punch List */
+            ArrayList<Punch> dailypunchlist = punchDAO.list(b, p.getOriginaltimestamp().toLocalDate());
+
+            for (Punch punch : dailypunchlist) {
+                punch.adjust(s);
+            }
+
+            /* JSON Conversion */
+            String actualJSON = DAOUtility.getPunchListAsJSON(dailypunchlist);
+
+            ArrayList<HashMap<String, String>> actual = (ArrayList) Jsoner.deserialize(actualJSON);
+
+            /* Compare to Expected JSON */
+            assertEquals(expected, actual);
+
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+        }
+
+    }
 
 }
