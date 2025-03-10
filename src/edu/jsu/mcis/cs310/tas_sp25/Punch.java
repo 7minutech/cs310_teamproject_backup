@@ -91,74 +91,67 @@ public class Punch {
     
     public void adjust(Shift s){
         LocalDate date = originalTimestamp.toLocalDate();
-        if (shiftStartRule(s.getShiftStart(), s.getRoundInterval())){
-            adjustedTimestamp = LocalDateTime.of(date, s.getShiftStart());
-            adjustmenttype = PunchAdjustmentType.SHIFT_START;
+        switch (punchtype){
+            case CLOCK_IN:
+                if (shiftStartRule(s.getShiftStart(), s.getRoundInterval())){
+                    adjustedTimestamp = LocalDateTime.of(date, s.getShiftStart());
+                    adjustmenttype = PunchAdjustmentType.SHIFT_START;
+                }
+                if (lunchStopRule(s.getLunchStart(), s.getLunchStop())) {
+                    adjustedTimestamp = LocalDateTime.of(date, s.getLunchStop());
+                    adjustmenttype = PunchAdjustmentType.LUNCH_STOP;
+                }
+                if (gracePeriodRule(s.getShiftStart(), s.getShiftStop(), s.getGracePeriod())) {
+                    adjustedTimestamp = LocalDateTime.of(date, s.getShiftStart());
+                    adjustmenttype = PunchAdjustmentType.SHIFT_START;
+                }
+                if (dockPenaltyRule(s.getShiftStart(), s.getShiftStop(), s.getGracePeriod(), s.getDockPenalty())) {            
+                    adjustedTimestamp = LocalDateTime.of(date, s.getShiftStart().plusMinutes(s.getDockPenalty()));
+                    adjustmenttype = PunchAdjustmentType.SHIFT_DOCK;
+                }
+                break;
+            case CLOCK_OUT:
+                if (shiftStopRule(s.getShiftStop(), s.getRoundInterval())){
+                    adjustedTimestamp = LocalDateTime.of(date, s.getShiftStop());
+                    adjustmenttype = PunchAdjustmentType.SHIFT_STOP;
+                }
+                if (lunchStartRule(s.getLunchStart(), s.getLunchStart())) {
+                    adjustedTimestamp = LocalDateTime.of(date, s.getLunchStop());
+                    adjustmenttype = PunchAdjustmentType.LUNCH_START;
+                }
+                if (gracePeriodRule(s.getShiftStart(), s.getShiftStop(), s.getGracePeriod())) {
+                    adjustedTimestamp = LocalDateTime.of(date, s.getShiftStop());
+                    adjustmenttype = PunchAdjustmentType.SHIFT_STOP;
+                }
+                if (dockPenaltyRule(s.getShiftStart(), s.getShiftStop(), s.getGracePeriod(), s.getDockPenalty())) {            
+                    adjustedTimestamp = LocalDateTime.of(date, s.getShiftStop().minusMinutes(s.getDockPenalty()));
+                    adjustmenttype = PunchAdjustmentType.SHIFT_DOCK;
+                }
+                break;
         }
-        else if (shiftStopRule(s.getShiftStop(), s.getRoundInterval())){
-            adjustedTimestamp = LocalDateTime.of(date, s.getShiftStop());
-            adjustmenttype = PunchAdjustmentType.SHIFT_STOP;
+        if (adjustedTimestamp == null){
+            if (roundIntervalRule(s.getRoundInterval())){
+                int interval = s.getRoundInterval();
+                LocalTime punchTime = originalTimestamp.toLocalTime();
+                int nearestIntervalMinute = getNearestInterval(interval, punchTime);
+                LocalTime adjustedTime;
+                if (nearestIntervalMinute == 60){
+                    int adjustedHour = punchTime.getHour() + 1;
+                    adjustedTime = punchTime.withHour(adjustedHour).withMinute(0);
+                }
+                else{
+                    adjustedTime = punchTime.withMinute(nearestIntervalMinute);
+                }
+                adjustedTime = adjustedTime.withSecond(0).withNano(0);
+                adjustedTimestamp = LocalDateTime.of(date, adjustedTime);
+                adjustmenttype = PunchAdjustmentType.INTERVAL_ROUND;
 
-        }
-        // Lunch Adjustments
-        else if (lunchStartRule(s.getLunchStart(), s.getLunchStop())) {
-            adjustedTimestamp = LocalDateTime.of(date, s.getLunchStart());
-            adjustmenttype = PunchAdjustmentType.LUNCH_START;
-        }
-        
-        else if (lunchStopRule(s.getLunchStart(), s.getLunchStop())) {
-            adjustedTimestamp = LocalDateTime.of(date, s.getLunchStop());
-            adjustmenttype = PunchAdjustmentType.LUNCH_STOP;
-        }
-
-        // Grace Period Adjustments 
-        else if (gracePeriodRule(s.getShiftStart(), s.getShiftStop(), s.getGracePeriod())) {
-            if (punchtype == EventType.CLOCK_IN) {
-                adjustedTimestamp = LocalDateTime.of(date, s.getShiftStart());
-                adjustmenttype = PunchAdjustmentType.SHIFT_START;
             }
-            
-            else {
-                adjustedTimestamp = LocalDateTime.of(date, s.getShiftStop());
-                adjustmenttype = PunchAdjustmentType.SHIFT_STOP;
+            if (noneRule(s.getRoundInterval())){
+                adjustedTimestamp = originalTimestamp.withSecond(0).withNano(0);
+                adjustmenttype = PunchAdjustmentType.NONE;
             }
-            
-            
         }
-
-        // Dock Penalty Adjustments
-        else if (dockPenaltyRule(s.getShiftStart(), s.getShiftStop(), s.getGracePeriod(), s.getDockPenalty())) {            
-            if (punchtype == EventType.CLOCK_IN) {
-                adjustedTimestamp = LocalDateTime.of(date, s.getShiftStart().plusMinutes(s.getDockPenalty()));
-            }
-            else {
-                adjustedTimestamp = LocalDateTime.of(date, s.getShiftStop().minusMinutes(s.getDockPenalty()));
-            }
-            
-            adjustmenttype = PunchAdjustmentType.SHIFT_DOCK;
-        }
-        else if (roundIntervalRule(s.getRoundInterval())){
-            int interval = s.getRoundInterval();
-            LocalTime punchTime = originalTimestamp.toLocalTime();
-            int nearestIntervalMinute = getNearestInterval(interval, punchTime);
-            LocalTime adjustedTime;
-            if (nearestIntervalMinute == 60){
-                int adjustedHour = punchTime.getHour() + 1;
-                adjustedTime = punchTime.withHour(adjustedHour).withMinute(0);
-            }
-            else{
-                adjustedTime = punchTime.withMinute(nearestIntervalMinute);
-            }
-            adjustedTime = adjustedTime.withSecond(0).withNano(0);
-            adjustedTimestamp = LocalDateTime.of(date, adjustedTime);
-            adjustmenttype = PunchAdjustmentType.INTERVAL_ROUND;
-            
-        }
-        else if (noneRule(s.getRoundInterval())){
-            adjustedTimestamp = originalTimestamp.withSecond(0).withNano(0);
-            adjustmenttype = PunchAdjustmentType.NONE;
-        }
-
     }
     
     private boolean shiftStartRule(LocalTime shiftStart, int roundInterval){
@@ -167,7 +160,6 @@ public class Punch {
         if (isWeekend() || punchtype != EventType.CLOCK_IN || elapsedMinutes == 0){
             return false;
         }
-        
         if (isBetween(Punch.MIN_ELAPSED_MINUTES,roundInterval, elapsedMinutes)){
             return true;
         }
