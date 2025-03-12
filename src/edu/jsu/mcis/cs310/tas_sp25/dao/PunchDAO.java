@@ -58,17 +58,15 @@ public class PunchDAO {
 
         }
 
-    } catch (SQLException e) {
-        throw new DAOException(e.getMessage());
-    } finally {
-        try {
-            if (rs != null) rs.close();
-            if (ps != null) ps.close();
-        } catch (SQLException e) {
-            throw new DAOException(e.getMessage());
+    } 
+    catch (Exception e) { e.printStackTrace(); }
+        
+        finally {
+            
+            if (rs != null) { try { rs.close(); } catch (Exception e) { e.printStackTrace(); } }
+            if (ps != null) { try { ps.close(); } catch (Exception e) { e.printStackTrace(); } }
+            
         }
-    }
-
     return punch;
     }
    
@@ -129,17 +127,15 @@ public class PunchDAO {
                 }
             }
 
-        } catch (SQLException e) {
-            throw new DAOException(e.getMessage());
-        } finally {
-            try {
-                if (rs != null) rs.close();
-                if (ps != null) ps.close();
-            } catch (SQLException e) {
-                throw new DAOException(e.getMessage());
-            }
-        }
-
+        } 
+        catch (Exception e) { e.printStackTrace(); }
+        
+        finally {
+            
+            if (rs != null) { try { rs.close(); } catch (Exception e) { e.printStackTrace(); } }
+            if (ps != null) { try { ps.close(); } catch (Exception e) { e.printStackTrace(); } }
+            
+        }        
         return punches;
     }
     
