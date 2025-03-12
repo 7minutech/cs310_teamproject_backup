@@ -97,7 +97,7 @@ public class DAOUtility {
     }
     
 public static int calculateTotalMinutes(ArrayList<Punch> dailypunchlist, Shift shift) {
-    
+
     int totalMinutes = 0;
     boolean workedThroughLunch = false;
     Punch clockIn = null;
@@ -108,6 +108,11 @@ public static int calculateTotalMinutes(ArrayList<Punch> dailypunchlist, Shift s
         } else if (punch.getPunchtype() == EventType.CLOCK_OUT) {
             int minutesWorked = (int) Duration.between(clockIn.getAdjustedtimestamp(), punch.getAdjustedtimestamp()).toMinutes();
             totalMinutes += minutesWorked;
+
+            if (clockIn.getAdjustedtimestamp().toLocalTime().isBefore(shift.getLunchStart()) &&
+                punch.getAdjustedtimestamp().toLocalTime().isAfter(shift.getLunchStop())) {
+                workedThroughLunch = true;
+            }
         }
     }
 
