@@ -122,8 +122,5 @@ public static int calculateTotalMinutes(ArrayList<Punch> dailypunchlist, Shift s
 
     return totalMinutes;
 }
-public static BigDecimal calculateAbsenteeism(ArrayList<Punch> punchlist, Shift s){
-    
 
-    }
 }
