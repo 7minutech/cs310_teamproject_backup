@@ -3,6 +3,9 @@ package edu.jsu.mcis.cs310.tas_sp25.dao;
 import edu.jsu.mcis.cs310.tas_sp25.*;
 import java.sql.*;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.math.*;
+
 /**
  *
  * @author elijo
@@ -13,9 +16,10 @@ public class AbsenteeismDAO {
                                             + "WHERE employeeid = ?, payperiod = ?";
 
     private final DAOFactory daoFactory;
-
+    private final EmployeeDAO employeeDAO;
     AbsenteeismDAO(DAOFactory daoFactory) {
         this.daoFactory = daoFactory;
+        this.employeeDAO = new EmployeeDAO(daoFactory);
     }
     
     public Absenteeism find(Employee employee, LocalDate date){
@@ -23,6 +27,46 @@ public class AbsenteeismDAO {
          * as arguments, create and populate an Absenteeism model object, 
          * and return this object to the caller. 
          */
+        Absenteeism absent = null;
+        Date sqlDate = Date.valueOf(date);
+        PreparedStatement ps = null;
+        ResultSet rs = null;
+        
+        try {
+            Connection conn = daoFactory.getConnection();
+
+            if (conn.isValid(0)) {
+
+                ps = conn.prepareStatement(QUERY_FIND);
+                ps.setInt(1, employee.getId());
+                ps.setDate(2, sqlDate);
+                boolean hasResults = ps.execute();
+
+                if (hasResults) {
+                    rs = ps.getResultSet();
+
+                    while (rs.next()) {  
+                        double percentage = rs.getDouble("percentage");
+                        BigDecimal bigPercent = BigDecimal.valueOf(percentage);
+                        Employee foundEmployee = employeeDAO.find(rs.getInt("employeeid"));
+                        Date foundSQLDate = rs.getDate("payperiod");
+                        LocalDate foundDate = foundSQLDate.toLocalDate();
+                        absent = new Absenteeism(foundEmployee, foundDate, bigPercent);
+                    }
+                }
+
+            }
+
+        } 
+        catch (Exception e) { e.printStackTrace(); }
+
+        finally {
+
+            if (rs != null) { try { rs.close(); } catch (Exception e) { e.printStackTrace(); } }
+            if (ps != null) { try { ps.close(); } catch (Exception e) { e.printStackTrace(); } }
+
+        }
+        return absent;
     }
     
     public void create(Absenteeism absent){
