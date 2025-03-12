@@ -195,8 +195,6 @@ public class PunchAdjustTest {
 
     }
     
-    // katty wip
-    
     @Test
     public void testAdjustPunchesShift2SpecialCases() {
 
@@ -209,12 +207,12 @@ public class PunchAdjustTest {
 
         Punch p1 = punchDAO.find(4188);  // Interval Adjustment Before Shift (In)
         Punch p2 = punchDAO.find(4238);  // Grace Period (In)
-        Punch p3 = punchDAO.find(199);  // Shift Dock (In)
-        Punch p4 = punchDAO.find(2684);  // Interval Round During Shift (Out)
-        Punch p5 = punchDAO.find(4553);  // Grace Period (Out)
-        Punch p6 = punchDAO.find(1484);  // Shift Dock (Out)
-        Punch p7 = punchDAO.find(1727);  // Interval Adjustment After Shift (Out)
-        Punch p8 = punchDAO.find(1793);  // ?
+        Punch p3 = punchDAO.find(199);   // Interval Adjustment After Shift (In)
+        Punch p4 = punchDAO.find(3341);  // Interval Round During Shift (Out)
+        Punch p5 = punchDAO.find(1484);  // Shift Dock (Out)
+        Punch p6 = punchDAO.find(2693);  // Shift Dock (In)
+        Punch p7 = punchDAO.find(1768);  // Grace Period (Out)
+        Punch p8 = punchDAO.find(2492);  // Interval Adjustment After Shift (Out)
 
         /* Adjust Punches According to Shift Ruleset */
         
@@ -235,23 +233,23 @@ public class PunchAdjustTest {
         assertEquals("#E215F3DB CLOCK IN: WED 09/12/2018 07:03:14", p2.printOriginal());
         assertEquals("#E215F3DB CLOCK IN: WED 09/12/2018 07:00:00 (Shift Start)", p2.printAdjusted()); 
         
-        assertEquals("#CB99D1E8 CLOCK IN: WED 08/01/2018 07:00:36", p8.printOriginal());
-        assertEquals("#CB99D1E8 CLOCK IN: WED 08/01/2018 07:00:00 (Shift Start)", p8.printAdjusted());
-
-        assertEquals("#229324A4 CLOCK IN: MON 08/27/2018 07:09:48", p3.printOriginal());
-        assertEquals("#229324A4 CLOCK IN: MON 08/27/2018 07:15:00 (Shift Dock)", p3.printAdjusted());
-
-        assertEquals("#B6902696 CLOCK OUT: FRI 09/14/2018 15:09:45", p4.printOriginal());
-        assertEquals("#B6902696 CLOCK OUT: FRI 09/14/2018 15:15:00 (Interval Round)", p4.printAdjusted());
-
-       assertEquals("#1B2052DE CLOCK OUT: WED 08/15/2018 15:25:46", p5.printOriginal());
-       assertEquals("#1B2052DE CLOCK OUT: WED 08/15/2018 15:30:00 (Shift Stop)", p5.printAdjusted());
-       // idk about this one tbh
-       assertEquals("#2305D772 CLOCK OUT: THU 08/16/2018 15:30:00", p6.printOriginal());
-       assertEquals("#2305D772 CLOCK OUT: THU 08/16/2018 15:15:00 (Shift Dock)", p6.printAdjusted());
-
-       assertEquals("#1D52BFA2 CLOCK OUT: THU 08/16/2018 15:37:01", p7.printOriginal());
-       assertEquals("#1D52BFA2 CLOCK OUT: THU 08/16/2018 15:30:00 (Shift Stop)", p7.printAdjusted());
+        assertEquals("#CB99D1E8 CLOCK IN: WED 08/01/2018 07:00:36", p3.printOriginal());
+        assertEquals("#CB99D1E8 CLOCK IN: WED 08/01/2018 07:00:00 (Shift Start)", p3.printAdjusted());
+        
+        assertEquals("#8E5F0240 CLOCK IN: MON 08/27/2018 07:08:57", p6.printOriginal());
+        assertEquals("#8E5F0240 CLOCK IN: MON 08/27/2018 07:15:00 (Shift Dock)", p6.printAdjusted());
+        
+        assertEquals("#CEBCC740 CLOCK OUT: TUE 09/04/2018 15:03:20", p4.printOriginal());
+        assertEquals("#CEBCC740 CLOCK OUT: TUE 09/04/2018 15:00:00 (Interval Round)", p4.printAdjusted());
+        
+        assertEquals("#1B2052DE CLOCK OUT: WED 08/15/2018 15:25:26", p5.printOriginal());
+        assertEquals("#1B2052DE CLOCK OUT: WED 08/15/2018 15:15:00 (Shift Dock)", p5.printAdjusted());
+        
+        assertEquals("#12565C60 CLOCK OUT: FRI 08/17/2018 15:32:27", p7.printOriginal());
+        assertEquals("#12565C60 CLOCK OUT: FRI 08/17/2018 15:30:00 (Shift Stop)", p7.printAdjusted());
+        
+        assertEquals("#4E04B5FE CLOCK OUT: FRI 08/24/2018 15:37:22", p8.printOriginal());
+        assertEquals("#4E04B5FE CLOCK OUT: FRI 08/24/2018 15:30:00 (Shift Stop)", p8.printAdjusted());
 
     }
 }
