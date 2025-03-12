@@ -42,7 +42,7 @@ public class Absenteeism {
         // #28DC3FB8 (Pay Period Starting 09-02-2018): 2.50% 
         StringBuilder s = new StringBuilder();
         DecimalFormat df = new DecimalFormat("0.00"); // A formatter for 2 zeroes.
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MM/dd/yyyy"); // A formatter for our date.
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MM-dd-yyyy"); // A formatter for our date.
         // Employee ID
         s.append('#').append(this.employee.getId()).append(' ');
         // Pay Period
