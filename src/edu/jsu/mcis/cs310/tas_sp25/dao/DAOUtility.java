@@ -5,7 +5,7 @@ import java.util.*;
 import java.time.temporal.ChronoUnit;
 import java.time.format.DateTimeFormatter;
 import com.github.cliftonlabs.json_simple.*;
-import edu.jsu.mcis.cs310.tas_sp25.Punch;
+import edu.jsu.mcis.cs310.tas_sp25.*;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 
@@ -16,6 +16,7 @@ import java.sql.ResultSetMetaData;
  * individual static methods.
  * 
  */
+
 public class DAOUtility {
     public static String getResultSetAsJson(ResultSet rs) {
         JsonArray records = new JsonArray(); // declare an empty array. if we were to find nothing, it will be returned
@@ -64,33 +65,56 @@ public class DAOUtility {
         return map;
     }
     
+    public static HashMap<String, String> punchToHashmap(Punch punch) {
+        HashMap<String, String> punchData = new HashMap<>();
+
+        punchData.put("id", String.valueOf((int) punch.getId())); 
+        punchData.put("badgeid", String.valueOf(punch.getBadge().getId())); 
+        punchData.put("terminalid", String.valueOf(punch.getTerminalid())); 
+        punchData.put("punchtype", punch.getPunchtype().toString()); 
+        punchData.put("adjustmenttype", punch.getAdjustmentType().toString()); 
+        // both timestamps have a different format than needed: they include the punchtype and IDs.
+        String originalTimestamp = punch.printOriginal();
+        int delimiterIndex = originalTimestamp.indexOf(": ");
+        originalTimestamp = originalTimestamp.substring(delimiterIndex + 2); // +2 to skip ": "
+        punchData.put("originaltimestamp", originalTimestamp);
+        String adjustedTimestamp = punch.printAdjusted();
+        delimiterIndex = adjustedTimestamp.indexOf(": ");
+        adjustedTimestamp = adjustedTimestamp.substring(delimiterIndex + 2);
+        // The adjustment type is also include in parenthesis. We must remove everything after the opening parenthesis.
+        delimiterIndex = adjustedTimestamp.indexOf(" (");
+        adjustedTimestamp = adjustedTimestamp.substring(0, delimiterIndex);
+        punchData.put("adjustedtimestamp", adjustedTimestamp);
+        return punchData;
+    }
+    
     public static String getPunchListAsJSON(ArrayList<Punch> dailypunchlist) {
         ArrayList<HashMap<String, String>> jsonData = new ArrayList<>();
 
         for (Punch punch : dailypunchlist) {
-            HashMap<String, String> punchData = new HashMap<>();
-
-            punchData.put("id", String.valueOf((int) punch.getId())); 
-            punchData.put("badgeid", String.valueOf(punch.getBadge().getId())); 
-            punchData.put("terminalid", String.valueOf(punch.getTerminalid())); 
-            punchData.put("punchtype", punch.getPunchtype().toString()); 
-            punchData.put("adjustmenttype", punch.getAdjustmentType().toString()); 
-            // both timestamps have a different format than needed: they include the punchtype and IDs.
-            String originalTimestamp = punch.printOriginal();
-            int delimiterIndex = originalTimestamp.indexOf(": ");
-            originalTimestamp = originalTimestamp.substring(delimiterIndex + 2); // +2 to skip ": "
-            punchData.put("originaltimestamp", originalTimestamp);
-            String adjustedTimestamp = punch.printAdjusted();
-            delimiterIndex = adjustedTimestamp.indexOf(": ");
-            adjustedTimestamp = adjustedTimestamp.substring(delimiterIndex + 2);
-            // The adjustment type is also include in parenthesis. We must remove everything after the opening parenthesis.
-            delimiterIndex = adjustedTimestamp.indexOf(" (");
-            adjustedTimestamp = adjustedTimestamp.substring(0, delimiterIndex);
-            punchData.put("adjustedtimestamp", adjustedTimestamp);
-
-            jsonData.add(punchData);
+            jsonData.add(punchToHashmap(punch));
         }
 
+        return Jsoner.serialize(jsonData);
+    }
+    
+    public static String getPunchListPlusTotalsAsJSON(ArrayList<Punch> punchlist, Shift shift) {
+        ArrayList<HashMap<String, String>> jsonData = new ArrayList<>();
+        /*
+            ArrayList punchlist
+                HashMap punchData
+            string totalminutes
+            string absenteeism
+        
+        */
+        HashMap<String, String> punchData = new HashMap<>();
+        
+        punchData.put("absenteeism", Integer.toString(calculateAbsenteeism(punchlist, shift)));
+        punchData.put("totalminutes",Integer.toString(calculateTotalMinutes(punchlist, shift)));
+        punchData.put("punchlist", getPunchListAsJSON(punchlist)); // punch list
+        
+        jsonData.add(punchData);
+        
         return Jsoner.serialize(jsonData);
     }
     
