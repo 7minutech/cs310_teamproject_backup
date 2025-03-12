@@ -281,8 +281,7 @@ public class Punch {
         StringBuilder s = new StringBuilder();
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MM/dd/yyyy");
         String formattedDate = timestamp.format(formatter);
-        DayOfWeek dayOfWeek = timestamp.getDayOfWeek();
-        String dayAbbr = (dayOfWeek.toString()).substring(0, 3);
+        String dayAbbr = getDayAbbreviation(timestamp);
         s.append(dayAbbr).append(" ").append(formattedDate);
         return s.toString();
     }
