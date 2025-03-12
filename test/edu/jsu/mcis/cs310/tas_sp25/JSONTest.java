@@ -5,6 +5,8 @@ import java.util.*;
 import org.junit.*;
 import static org.junit.Assert.*;
 import com.github.cliftonlabs.json_simple.*;
+import java.time.LocalDate;
+import java.time.LocalTime;
 
 public class JSONTest {
 
@@ -141,7 +143,7 @@ public class JSONTest {
 
     }
     @Test
-    public void testJSONShift4() {
+    public void testJSONShiftIntervalRound() {
 
         try {
 
@@ -185,7 +187,7 @@ public class JSONTest {
 
     }
     @Test
-    public void testJSONShift5() {
+    public void testJSONShiftNone() {
 
         try {
 
@@ -209,6 +211,46 @@ public class JSONTest {
 
             /* Get/Adjust Daily Punch List */
             ArrayList<Punch> dailypunchlist = punchDAO.list(b, p.getOriginaltimestamp().toLocalDate());
+
+            for (Punch punch : dailypunchlist) {
+                punch.adjust(s);
+            }
+
+            /* JSON Conversion */
+            String actualJSON = DAOUtility.getPunchListAsJSON(dailypunchlist);
+
+            ArrayList<HashMap<String, String>> actual = (ArrayList) Jsoner.deserialize(actualJSON);
+
+            /* Compare to Expected JSON */
+            assertEquals(expected, actual);
+
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+        }
+
+    }
+    
+    @Test
+    public void testNullJSON() {
+
+        try {
+            BadgeDAO badgeDAO = daoFactory.getBadgeDAO();
+            PunchDAO punchDAO = daoFactory.getPunchDAO();
+            ShiftDAO shiftDAO = daoFactory.getShiftDAO();
+
+            /* Expected JSON Data */
+            String expectedJSON = "[]";
+
+            ArrayList<HashMap<String, String>> expected = (ArrayList) Jsoner.deserialize(expectedJSON);
+
+            /* Get Punch/Badge/Shift Objects */
+            Punch p = punchDAO.find(4541);
+            Badge b = badgeDAO.find(p.getBadge().getId()); // 8E5F0240
+            Shift s = shiftDAO.find(b); // also using shift 1
+
+            /* Get/Adjust Daily Punch List */
+            ArrayList<Punch> dailypunchlist = punchDAO.list(b, LocalDate.parse("2022-07-02")); // date not in database.
 
             for (Punch punch : dailypunchlist) {
                 punch.adjust(s);
