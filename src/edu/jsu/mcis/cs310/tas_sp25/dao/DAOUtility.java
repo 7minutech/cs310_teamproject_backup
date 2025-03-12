@@ -5,7 +5,9 @@ import java.util.*;
 import java.time.temporal.ChronoUnit;
 import java.time.format.DateTimeFormatter;
 import com.github.cliftonlabs.json_simple.*;
+import edu.jsu.mcis.cs310.tas_sp25.EventType;
 import edu.jsu.mcis.cs310.tas_sp25.Punch;
+import edu.jsu.mcis.cs310.tas_sp25.Shift;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 
@@ -94,5 +96,31 @@ public class DAOUtility {
         return Jsoner.serialize(jsonData);
     }
     
-    
+public static int calculateTotalMinutes(ArrayList<Punch> dailypunchlist, Shift shift) {
+
+    int totalMinutes = 0;
+    boolean workedThroughLunch = false;
+    Punch clockIn = null;
+
+    for (Punch punch : dailypunchlist) {
+        if (punch.getPunchtype() == EventType.CLOCK_IN) {
+            clockIn = punch;
+        } else if (punch.getPunchtype() == EventType.CLOCK_OUT) {
+            int minutesWorked = (int) Duration.between(clockIn.getAdjustedtimestamp(), punch.getAdjustedtimestamp()).toMinutes();
+            totalMinutes += minutesWorked;
+
+            if (clockIn.getAdjustedtimestamp().toLocalTime().isBefore(shift.getLunchStart()) &&
+                punch.getAdjustedtimestamp().toLocalTime().isAfter(shift.getLunchStop())) {
+                workedThroughLunch = true;
+            }
+        }
+    }
+
+    if (workedThroughLunch && totalMinutes >= shift.getLunchThreshold()) {
+        totalMinutes -= shift.getLunchDuration();
+    }
+
+    return totalMinutes;
+}
+
 }
