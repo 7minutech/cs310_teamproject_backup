@@ -8,6 +8,8 @@ import com.github.cliftonlabs.json_simple.*;
 import edu.jsu.mcis.cs310.tas_sp25.EventType;
 import edu.jsu.mcis.cs310.tas_sp25.Punch;
 import edu.jsu.mcis.cs310.tas_sp25.Shift;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 
@@ -122,5 +124,13 @@ public static int calculateTotalMinutes(ArrayList<Punch> dailypunchlist, Shift s
 
     return totalMinutes;
 }
+    public static BigDecimal calculateAbsenteeism(ArrayList<Punch> punchlist, Shift s) {
+    int totalMinutesWorked = DAOUtility.calculateTotalMinutes(punchlist, s);
+    int standardMinutes = s.getShiftDuration();
+
+    double percentage = ((double) (standardMinutes - totalMinutesWorked) / standardMinutes) * 100;
+
+    return BigDecimal.valueOf(percentage).setScale(2, RoundingMode.HALF_UP);
+    }
 
 }
