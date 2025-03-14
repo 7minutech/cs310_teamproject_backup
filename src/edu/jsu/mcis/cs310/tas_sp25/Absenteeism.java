@@ -44,7 +44,7 @@ public class Absenteeism {
         DecimalFormat df = new DecimalFormat("0.00"); // A formatter for 2 zeroes.
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MM-dd-yyyy"); // A formatter for our date.
         // Employee ID
-        s.append('#').append(this.employee.getId()).append(' ');
+        s.append('#').append(this.employee.getBadge().getId()).append(' ');
         // Pay Period
         s.append("(Pay Period Starting ").append(this.payStart.format(formatter)).append("): ");
         // Percentage
