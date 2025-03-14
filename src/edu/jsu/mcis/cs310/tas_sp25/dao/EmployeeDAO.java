@@ -61,20 +61,23 @@ public class EmployeeDAO {
     public Employee find(Badge badge) {
 
         Employee employee = null;
-
-        try (Connection conn = daoFactory.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(QUERY_FIND_BY_BADGE)) {
-
-            stmt.setString(1, badge.getId());
-
-            try (ResultSet rs = stmt.executeQuery()) {
-                if (rs.next()) {
-                    employee = find(rs.getInt("id"));
-                }
+        ResultSet rs = null;
+        PreparedStatement ps = null;
+        try {
+            Connection conn = daoFactory.getConnection();
+            ps = conn.prepareStatement(QUERY_FIND_BY_BADGE);
+            ps.setString(1, badge.getId());
+            rs = ps.executeQuery();
+            if (rs.next()) {
+                employee = find(rs.getInt("id"));
             }
+            
 
-        } catch (SQLException e) {
-            throw new DAOException("Error finding employee by badge: " + e.getMessage());
+        } catch (Exception e) { 
+            e.printStackTrace(); 
+        } finally { 
+            if (rs != null) { try { rs.close(); } catch (Exception e) { e.printStackTrace(); } } 
+            if (ps != null) { try { ps.close(); } catch (Exception e) { e.printStackTrace(); } } 
         }
 
         return employee;
