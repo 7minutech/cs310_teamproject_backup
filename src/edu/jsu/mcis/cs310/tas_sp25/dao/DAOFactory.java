@@ -55,5 +55,13 @@ public final class DAOFactory {
     public AbsenteeismDAO getAbsenteeismDAO(){
         return new AbsenteeismDAO(this);
     }
+    
+    public void createConnection(){
+        try {
+            conn = DriverManager.getConnection(url, username, password);
+        } catch (SQLException e) {
+            throw new DAOException(e.getMessage());
+        }
+    }
 
 }
