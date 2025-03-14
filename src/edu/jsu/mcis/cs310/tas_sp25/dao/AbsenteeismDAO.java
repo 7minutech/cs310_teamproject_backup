@@ -12,7 +12,7 @@ import java.math.BigDecimal;
 public class AbsenteeismDAO {
     private static final String QUERY_FIND = "SELECT * "
                                             + "FROM absenteeism "
-                                            + "WHERE employeeid = ?, payperiod = ?";
+                                            + "WHERE employeeid = ? AND payperiod = ?";
     private static final String QUERY_CREATE = "INSERT INTO absenteeism (employeeid, payperiod, percentage) VALUES (?, ?, ?)"
                                              + "ON DUPLICATE KEY UPDATE percentage = ?";
 
@@ -36,18 +36,20 @@ public class AbsenteeismDAO {
         
         try {
             Connection conn = daoFactory.getConnection();
-
+            if (conn.isClosed()){
+                daoFactory.createConnection();
+                conn = daoFactory.getConnection();
+            }
             if (conn.isValid(0)) {
 
                 ps = conn.prepareStatement(QUERY_FIND);
                 ps.setInt(1, employee.getId());
                 ps.setDate(2, sqlDate);
                 boolean hasResults = ps.execute();
-
                 if (hasResults) {
                     rs = ps.getResultSet();
+                    if (rs.next()) {  
 
-                    while (rs.next()) {  
                         double percentage = rs.getDouble("percentage");
                         BigDecimal bigPercent = BigDecimal.valueOf(percentage);
                         Employee foundEmployee = employeeDAO.find(rs.getInt("employeeid"));
@@ -78,12 +80,16 @@ public class AbsenteeismDAO {
          * (Again, the pay period date added to the database should always be the date of the start of the pay period.)
          */
         PreparedStatement ps = null;
-        
+        Connection conn = null;
         try {
-            Connection conn = daoFactory.getConnection();
+            conn = daoFactory.getConnection();
+
+            if (conn.isClosed()){
+                daoFactory.createConnection();
+                conn = daoFactory.getConnection();
+            }
 
             if (conn.isValid(0)) {
-
                 ps = conn.prepareStatement(QUERY_CREATE);
                 LocalDate date = absent.getPayStart();
                 Date sqlDate = Date.valueOf(date);
@@ -91,8 +97,7 @@ public class AbsenteeismDAO {
                 ps.setInt(1, absent.getEmployee().getId());
                 ps.setDate(2, sqlDate);
                 ps.setDouble(3, percentage);
-                ps.setDouble(4, percentage);
-                
+                ps.setDouble(4, percentage);       
                 ps.executeUpdate();
             }
 
@@ -104,7 +109,7 @@ public class AbsenteeismDAO {
         finally {
 
             if (ps != null) { try { ps.close(); } catch (Exception e) { e.printStackTrace(); } }
-
+            
         }
     }
 }
