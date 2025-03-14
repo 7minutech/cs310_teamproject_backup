@@ -22,42 +22,41 @@ public class EmployeeDAO {
     }
 
     public Employee find(int id) {
-
         Employee employee = null;
+        ResultSet rs = null;
+        PreparedStatement ps = null;
 
-        try (Connection conn = daoFactory.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(QUERY_FIND_BY_ID)) {
-
-            stmt.setInt(1, id);
-            
-            try (ResultSet rs = stmt.executeQuery()) {
-                if (rs.next()) {
-
-                    Badge badge = badgeDAO.find(rs.getString("badgeid"));
-                    Department department = departmentDAO.find(rs.getInt("departmentid"));
-                    Shift shift = shiftDAO.find(rs.getInt("shiftid"));
-                    EmployeeType employeeType = EmployeeType.values()[rs.getInt("employeetypeid")];
-
-                    employee = new Employee(
-                        rs.getInt("id"),
-                        rs.getString("firstname"),
-                        rs.getString("middlename"),
-                        rs.getString("lastname"),
-                        rs.getTimestamp("active").toLocalDateTime(),
-                        badge,
-                        department,
-                        shift,
-                        employeeType
-                    );
-                }
+        try {
+            Connection conn = daoFactory.getConnection();
+            ps = conn.prepareStatement(QUERY_FIND_BY_ID);
+            ps.setInt(1, id);
+            rs = ps.executeQuery();
+            if (rs.next()) {
+                Badge badge = badgeDAO.find(rs.getString("badgeid"));
+                Department department = departmentDAO.find(rs.getInt("departmentid"));
+                Shift shift = shiftDAO.find(rs.getInt("shiftid"));
+                EmployeeType employeeType = EmployeeType.values()[rs.getInt("employeetypeid")];
+                employee = new Employee(
+                    rs.getInt("id"),
+                    rs.getString("firstname"),
+                    rs.getString("middlename"),
+                    rs.getString("lastname"),
+                    rs.getTimestamp("active").toLocalDateTime(),
+                    badge,
+                    department,
+                    shift,
+                    employeeType
+                );
             }
-
-        } catch (SQLException e) {
-            throw new DAOException("Error finding employee: " + e.getMessage());
+        } catch (Exception e) { 
+            e.printStackTrace(); 
+        } finally { 
+            if (rs != null) { try { rs.close(); } catch (Exception e) { e.printStackTrace(); } } 
+            if (ps != null) { try { ps.close(); } catch (Exception e) { e.printStackTrace(); } } 
         }
 
         return employee;
-    }
+}
 
     public Employee find(Badge badge) {
 
