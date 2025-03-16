@@ -129,6 +129,15 @@ public class DAOUtility {
 
         return totalMinutes;
     }
+    
+    public static BigDecimal calculateAbsenteeism(ArrayList<Punch> punchlist, Shift s) {
+        int totalMinutesWorked = DAOUtility.calculateTotalMinutes(punchlist, s);
+        int standardMinutes = s.getShiftDuration();
+
+        double percentage = ((double) (standardMinutes - totalMinutesWorked) / standardMinutes) * 100;
+
+        return BigDecimal.valueOf(percentage).setScale(2, RoundingMode.HALF_UP);
+    }
 
     public static String getPunchListPlusTotalsAsJSON(ArrayList<Punch> punchlist, Shift shift) {
         ArrayList<HashMap<String, String>> jsonData = new ArrayList<>();
@@ -141,23 +150,13 @@ public class DAOUtility {
         */
         HashMap<String, String> punchData = new HashMap<>();
         
-        punchData.put("absenteeism", Integer.toString(calculateAbsenteeism(punchlist, shift)));
-        punchData.put("totalminutes",Integer.toString(calculateTotalMinutes(punchlist, shift)));
+        punchData.put("absenteeism", calculateAbsenteeism(punchlist, shift).toString());
+        punchData.put("totalminutes", Integer.toString(calculateTotalMinutes(punchlist, shift)));
         punchData.put("punchlist", getPunchListAsJSON(punchlist)); // punch list
         
         jsonData.add(punchData);
         
         return Jsoner.serialize(jsonData);
-    }
-    
-    
-    public static BigDecimal calculateAbsenteeism(ArrayList<Punch> punchlist, Shift s) {
-        int totalMinutesWorked = DAOUtility.calculateTotalMinutes(punchlist, s);
-        int standardMinutes = s.getShiftDuration();
-
-        double percentage = ((double) (standardMinutes - totalMinutesWorked) / standardMinutes) * 100;
-
-        return BigDecimal.valueOf(percentage).setScale(2, RoundingMode.HALF_UP);
     }
 
 }

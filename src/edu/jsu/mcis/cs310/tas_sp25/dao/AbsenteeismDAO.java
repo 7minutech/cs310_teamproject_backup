@@ -2,8 +2,9 @@ package edu.jsu.mcis.cs310.tas_sp25.dao;
 
 import edu.jsu.mcis.cs310.tas_sp25.*;
 import java.sql.*;
-import java.time.LocalDate;
+import java.time.*;
 import java.math.BigDecimal;
+import java.time.temporal.TemporalAdjusters;
 
 /**
  *
@@ -55,6 +56,7 @@ public class AbsenteeismDAO {
                         Employee foundEmployee = employeeDAO.find(rs.getInt("employeeid"));
                         Date foundSQLDate = rs.getDate("payperiod");
                         LocalDate foundDate = foundSQLDate.toLocalDate();
+                        foundDate = foundDate.with(TemporalAdjusters.previousOrSame(DayOfWeek.SUNDAY)); // get previous sunday of date.
                         absent = new Absenteeism(foundEmployee, foundDate, bigPercent);
                     }
                 }

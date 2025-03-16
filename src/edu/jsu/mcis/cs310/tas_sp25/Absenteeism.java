@@ -27,7 +27,7 @@ public class Absenteeism {
     public Employee getEmployee() {
         return this.employee;
     }
-    
+
     public LocalDate getPayStart() {
         return this.payStart;
     }
