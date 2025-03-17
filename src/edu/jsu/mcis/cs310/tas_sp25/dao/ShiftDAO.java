@@ -8,6 +8,7 @@ import java.util.HashMap;
 public class ShiftDAO {
     private final DAOFactory daoFactory;
     private final String QUERY_FIND_EMPLOYEE = "SELECT * FROM employee WHERE badgeid = ?"; // find the employee with this badge
+    private final String QUERY_FIND_DAILYSCHEDULE = "SELECT * FROM dailyschedule WHERE badgeid = ?"; // find the employee with this badge
     private final String QUERY_FIND = "SELECT * FROM shift WHERE id = ?";
 
     ShiftDAO(DAOFactory daoFactory) {
@@ -76,6 +77,46 @@ public class ShiftDAO {
         return shift;
 
     }
+    
+    public DailySchedule findSchedule(int id) {
+        DailySchedule dailyschedule = null;
+
+        PreparedStatement ps = null;
+        ResultSet rs = null;
+
+        try {
+            Connection conn = daoFactory.getConnection();
+            if (conn.isValid(0)) {
+                ps = conn.prepareStatement(QUERY_FIND_DAILYSCHEDULE);
+                ps.setString(1, Integer.toString(id));
+
+                boolean hasresults = ps.execute();
+                if (hasresults) {
+                    dailyschedule = new DailySchedule(getResultsSetAsParameters(rs));
+                }
+            }
+        } catch (SQLException e) {
+            throw new DAOException(e.getMessage());
+        } finally {
+            if (rs != null) {
+                try {
+                    rs.close();
+                } catch (SQLException e) {
+                    throw new DAOException(e.getMessage());
+                }
+            }
+            if (ps != null) {
+                try {
+                    ps.close();
+                } catch (SQLException e) {
+                    throw new DAOException(e.getMessage());
+                }
+            }
+        }
+        return dailyschedule;
+
+    }
+
 
 
     public Shift find(int id) {
@@ -99,11 +140,11 @@ public class ShiftDAO {
 
                     rs = ps.getResultSet();
 
-                    HashMap<String, String> parameters = getResultsSetAsParameters(rs);                    
-                    shift = new Shift(Integer.toString(id), parameters);
-
+                    HashMap<String, String> shiftParameters = getResultsSetAsParameters(rs);        
+                    // we need to find our DailySchedule.
+                    DailySchedule dailyschedule = findSchedule(Integer.parseInt(shiftParameters.get("dailyscheduleid"))); // get our schedule's ID            
+                    shift = new Shift(Integer.toString(id), shiftParameters.get("description"), dailyschedule);
                 }
-
             }
 
         } catch (SQLException e) {

@@ -10,30 +10,15 @@ import java.util.HashMap;
  */
 
 public class Shift {
+    private final DailySchedule defaultschedule;
     private final String id, description;
     
-    private final LocalTime shiftstart;
-    private final LocalTime shiftstop;
-    private final LocalTime lunchstart;
-    private final LocalTime lunchstop;
-    private final int roundinterval;
-    private final int graceperiod;
-    private final int dockpenalty;
-    private final int lunchthreshold;
     
-    public Shift(String id, HashMap<String, String> parameters) {
+    public Shift(String id, String description, DailySchedule defaultschedule) {
         this.id = id;
-        this.description = parameters.get("description");
+        this.description = description;
 
-        this.shiftstart = LocalTime.parse(parameters.get("shiftstart"));
-        this.shiftstop = LocalTime.parse(parameters.get("shiftstop"));
-        
-        this.roundinterval = Integer.parseInt(parameters.get("roundinterval"));
-        this.graceperiod = Integer.parseInt(parameters.get("graceperiod"));
-        this.dockpenalty = Integer.parseInt(parameters.get("dockpenalty"));
-        this.lunchstart = LocalTime.parse(parameters.get("lunchstart"));
-        this.lunchstop = LocalTime.parse(parameters.get("lunchstop"));
-        this.lunchthreshold = Integer.parseInt(parameters.get("lunchthreshold"));
+        this.defaultschedule = defaultschedule;
     }
     
     // Getters
