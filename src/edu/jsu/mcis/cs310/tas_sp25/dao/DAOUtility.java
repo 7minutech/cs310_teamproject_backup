@@ -140,7 +140,6 @@ public class DAOUtility {
     }
 
     public static String getPunchListPlusTotalsAsJSON(ArrayList<Punch> punchlist, Shift shift) {
-        ArrayList<HashMap<String, String>> jsonData = new ArrayList<>();
         /*
             ArrayList punchlist
                 HashMap punchData
@@ -148,13 +147,11 @@ public class DAOUtility {
             string absenteeism
         
         */
-        HashMap<String, String> punchData = new HashMap<>();
+        HashMap<String, String> jsonData = new HashMap<>();
         
-        punchData.put("absenteeism", calculateAbsenteeism(punchlist, shift).toString());
-        punchData.put("totalminutes", Integer.toString(calculateTotalMinutes(punchlist, shift)));
-        punchData.put("punchlist", getPunchListAsJSON(punchlist)); // punch list
-        
-        jsonData.add(punchData);
+        jsonData.put("absenteeism", calculateAbsenteeism(punchlist, shift).toString());
+        jsonData.put("totalminutes", Integer.toString(calculateTotalMinutes(punchlist, shift)));
+        jsonData.put("punchlist", getPunchListAsJSON(punchlist)); // punch list
         
         return Jsoner.serialize(jsonData);
     }
