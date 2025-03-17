@@ -10,8 +10,8 @@ import java.util.HashMap;
 public class ShiftDAO {
     private final DAOFactory daoFactory;
     private final String QUERY_FIND_EMPLOYEE = "SELECT * FROM employee WHERE badgeid = ?"; // find the employee with this badge
-    private final String QUERY_FIND_SCHEDULE_OVERRIDES = "SELECT * FROM scheduleoverride WHERE day = ? AND dailyscheduleid = ?"; // select all schedule overrides for this date and dailyscheduleid
     private final String QUERY_FIND_DAILYSCHEDULE = "SELECT * FROM dailyschedule WHERE id = ?"; // find the employee with this badge
+    private final String QUERY_FIND_SCHEDULE_OVERRIDES = "SELECT * FROM scheduleoverride WHERE day = ? AND dailyscheduleid = ?"; // select all schedule overrides for this date and dailyscheduleid
     private final String QUERY_FIND = "SELECT * FROM shift WHERE id = ?";
 
     ShiftDAO(DAOFactory daoFactory) {
@@ -138,12 +138,12 @@ public class ShiftDAO {
 
                 // Convert timestamp to the corresponding day of the week
                 DayOfWeek dayOfWeek = timestamp.getDayOfWeek();
-                ps.setString(1, dayOfWeek.toString()); // Store day as string, assuming DB uses text format (e.g., "MONDAY")
+                ps.setString(1, dayOfWeek.toString());
                 ps.setInt(2, dailyscheduleid);
 
                 rs = ps.executeQuery();
                 while (rs.next()) {
-                    overrides.add(getResultsSetAsParameters(rs)); 
+                    overrides.add(getResultsSetAsParameters(rs));
                 }
             }
         } catch (SQLException e) {
@@ -169,11 +169,11 @@ public class ShiftDAO {
         This will return in this format.
         ArrayList<HashMap<String, String>>
         [
-            start
-            end
-            badgeid
-            day
-            dailyscheduleid
+            start:          
+            end:            
+            badgeid:        
+            day:            
+            dailyscheduleid:
         ]
         */
         
