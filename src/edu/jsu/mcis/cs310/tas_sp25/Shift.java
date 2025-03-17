@@ -53,6 +53,10 @@ public class Shift {
     public int getShiftDuration() {
         return (int) java.time.Duration.between(shiftstart, shiftstop).toMinutes();
     }
+    
+    public DailySchedule getDefaultschedule() {
+        return this.defaultschedule;
+    }
 
     @Override
     public String toString() {

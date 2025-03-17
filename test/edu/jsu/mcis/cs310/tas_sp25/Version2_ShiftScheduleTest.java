@@ -1,4 +1,4 @@
-ppackage edu.jsu.mcis.cs310.tas_sp25;
+package edu.jsu.mcis.cs310.tas_sp25;
 
 import edu.jsu.mcis.cs310.tas_sp25.dao.PunchDAO;
 import edu.jsu.mcis.cs310.tas_sp25.dao.BadgeDAO;

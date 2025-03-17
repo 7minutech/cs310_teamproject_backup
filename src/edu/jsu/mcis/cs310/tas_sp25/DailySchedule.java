@@ -60,15 +60,4 @@ public class DailySchedule {
     public int getShiftDuration() {
         return (int) java.time.Duration.between(shiftstart, shiftstop).toMinutes();
     }
-
-    @Override
-    public String toString() {
-        // assertEquals("Shift 1: 07:00 - 15:30 (510 minutes); Lunch: 12:00 - 12:30 (30 minutes)", s1.toString());
-        StringBuilder sb = new StringBuilder();
-        sb.append("Daily Schedule").append(": ");
-        sb.append(shiftstart).append(" - ").append(shiftstop).append(" (").append(getShiftDuration()).append(" minutes); ");
-        sb.append("Lunch: ").append(lunchstart).append(" - ").append(lunchstop).append(" (").append(getLunchDuration()).append(" minutes)");
-        return sb.toString();
-    }
-    
 }
