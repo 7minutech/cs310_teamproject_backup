@@ -23,35 +23,35 @@ public class Shift {
     
     // Getters
     public int getRoundInterval() {
-        return this.roundinterval;
+        return this.defaultschedule.getRoundInterval();
     }
     public int getGracePeriod() {
-        return this.graceperiod;
+        return this.defaultschedule.getGracePeriod();
     }
     public int getDockPenalty() {
-        return this.dockpenalty;
+        return this.defaultschedule.getDockPenalty();
     }
     public int getLunchThreshold() {
-        return this.lunchthreshold;
+        return this.defaultschedule.getLunchThreshold();
     }
     public LocalTime getShiftStart() {
-        return this.shiftstart;
+        return this.defaultschedule.getShiftStart();
     }
     public LocalTime getShiftStop() {
-        return this.shiftstop;
+        return this.defaultschedule.getShiftStop();
     }
     public LocalTime getLunchStart() {
-        return this.lunchstart;
+        return this.defaultschedule.getLunchStart();
     }
     public LocalTime getLunchStop() {
-        return this.lunchstop;
+        return this.defaultschedule.getLunchStop();
     }
     public int getLunchDuration() {
-        return (int) java.time.Duration.between(lunchstart, lunchstop).toMinutes();
+        return (int) java.time.Duration.between(getLunchStart(), getLunchStop()).toMinutes();
     }
 
     public int getShiftDuration() {
-        return (int) java.time.Duration.between(shiftstart, shiftstop).toMinutes();
+        return (int) java.time.Duration.between(getShiftStart(), getShiftStop()).toMinutes();
     }
     
     public DailySchedule getDefaultschedule() {
