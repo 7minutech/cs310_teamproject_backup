@@ -113,7 +113,7 @@ public class DepartmentFindTest {
         assertEquals(6, dept.getId()); // replaced 101 with 6 id -Austin
         // reason why - 101 to 6 because 101 didn’t exist in department, but 6 did.
     }  
-        //Adde my test
+        //Added my test - Austin--Confirms shifts are retrieved correctly. 
     @Test
     public void testFindAnyDepartment() {
         DepartmentDAO dao = daoFactory.getDepartmentDAO();
