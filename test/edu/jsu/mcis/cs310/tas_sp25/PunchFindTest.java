@@ -105,4 +105,20 @@ public class PunchFindTest {
         assertEquals("B09A75D7", badgeId);
     }
     
+    //Austin Test added - retrieves an existing punch & confirms punches exist in the database.
+    @Test
+    public void testFindFirstAvailablePunch() {
+        PunchDAO dao = daoFactory.getPunchDAO();
+    
+        for (int id = 1; id <= 1000; id++) { 
+            Punch punch = dao.find(id);
+        if (punch != null) {
+            assertNotNull("Expected a punch but got NULL", punch);
+            return;
+        }
+    }
+
+        fail("No punches found in the database!");
+    }
+    
 }

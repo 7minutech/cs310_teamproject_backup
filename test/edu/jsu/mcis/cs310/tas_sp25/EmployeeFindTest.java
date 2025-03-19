@@ -112,5 +112,22 @@ public class EmployeeFindTest {
         assertEquals("ID #111: Ellis, Misty F (#D4A2072B), Type: Temporary / Part-Time, Department: Grinding, Active: 10/11/2015", e7.toString());
     
     }
+    // Added test- Austin 
+    // Ensures `find()` shows an existing employee by checking multiple IDs.
     
+    @Test
+    public void testFindFirstAvailableEmployee() {
+        EmployeeDAO dao = daoFactory.getEmployeeDAO();
+    
+        for (int id = 1; id <= 100; id++) { 
+            Employee emp = dao.find(id);
+        if (emp != null) {
+            assertNotNull("Expected an employee but got NULL", emp);
+            return; 
+        }
+    }
+
+        fail("No employees found in the database!"); 
+    }
 }
+

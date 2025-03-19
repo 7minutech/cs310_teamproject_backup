@@ -101,7 +101,26 @@ public class DepartmentFindTest {
         Department d6 = departmentDAO.find(-101); // Use an ID that does not exist
 
 
-        assertNull("Department should not exist", d6);
+        assertNull("Department should not exist", d6);   
     }
     
+    @Test
+    public void testFindDepartmentById() {
+        DepartmentDAO dao = daoFactory.getDepartmentDAO();
+        Department dept = dao.find(6);
+
+        assertNotNull(dept);
+        assertEquals(6, dept.getId()); // replaced 101 with 6 id -Austin
+        // reason why - 101 to 6 because 101 didn’t exist in department, but 6 did.
+    }  
+        //Adde my test
+    @Test
+    public void testFindAnyDepartment() {
+        DepartmentDAO dao = daoFactory.getDepartmentDAO();
+        Department dept = dao.find(1);
+        
+        assertNotNull("Expected department but got NULL", dept);
 }
+    }
+    
+

@@ -3,6 +3,7 @@ package edu.jsu.mcis.cs310.tas_sp25;
 import edu.jsu.mcis.cs310.tas_sp25.dao.*;
 import org.junit.*;
 import static org.junit.Assert.*;
+import java.util.List;
 
 public class BadgeFindTest {
 
@@ -44,20 +45,12 @@ public class BadgeFindTest {
         assertEquals("#08D01475 (Littell, Amie D)", b2.toString());
 
     }
-    
-    @Test
-    public void testFindBadge3() {
-        
+    //checks if find()-returns null when searching for a non-existent badge in the database
+     @Test
+    public void testFindNonExistentBadge() { 
         BadgeDAO badgeDAO = daoFactory.getBadgeDAO();
-
-        /* Retrieve Badges from Database */
-
-        Badge b3 = badgeDAO.find("D2CC71D4");
-
-        /* Compare to Expected Values */
-        
-        assertEquals("#D2CC71D4 (Lawson, Matthew J)", b3.toString());
-
+        Badge b = badgeDAO.find("00000000"); 
+        assertNull(b); 
     }
-    
+       
 }

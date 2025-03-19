@@ -112,4 +112,19 @@ public class ShiftFindTest {
         assertNull(b2);
         assertNull(b3);
     }
+    //Austin Test added - checks for an existing & valid shift
+    @Test
+    public void testFindFirstAvailableShift() {
+        ShiftDAO dao = daoFactory.getShiftDAO();
+    
+        for (int id = 1; id <= 50; id++) { 
+            Shift shift = dao.find(id);
+        if (shift != null) {
+            assertNotNull("Expected a shift but got NULL", shift);
+            return;
+        }
+    }
+
+    fail("No shifts found in the database!");
+    }
 }
