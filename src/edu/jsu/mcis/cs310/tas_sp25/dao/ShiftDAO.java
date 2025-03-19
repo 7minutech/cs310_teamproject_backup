@@ -95,6 +95,7 @@ public class ShiftDAO {
 
                 boolean hasresults = ps.execute();
                 if (hasresults) {
+                    rs = ps.getResultSet();
                     dailyschedule = new DailySchedule(getResultsSetAsParameters(rs));
                 }
             }
