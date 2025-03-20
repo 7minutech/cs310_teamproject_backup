@@ -159,21 +159,13 @@ public static int calculateTotalMinutes(ArrayList<Punch> punchList, Shift shift)
 
         return totalMinutes;
     }
-    public static int calculateExpectedTotal(ArrayList<Punch> punchList, Shift shift) {
-        int expectedMinutes = 0;
-        for (int i = 0; i < punchList.size(); i++){
-            Punch p = punchList.get(i);
-            if (isClockInShift(p)){
-                expectedMinutes += (int) Duration.between(shift.getShiftStart(), shift.getShiftStop()).toMinutes();
-                expectedMinutes -= shift.getLunchDuration();
-            }
-        }
 
+    public static int calculateExpectedTotal(Shift shift) {
+        int expectedMinutes = 0;
+        expectedMinutes += (int) Duration.between(shift.getShiftStart(), shift.getShiftStop()).toMinutes();
+        expectedMinutes -= (int) Duration.between(shift.getLunchStart(), shift.getLunchStop()).toMinutes();
+        expectedMinutes *= 5;
         return expectedMinutes;
-    }
-    
-    private static boolean isClockInShift(Punch p){
-        return (p.getPunchtype() == EventType.CLOCK_IN && p.getAdjustmentType() != PunchAdjustmentType.LUNCH_STOP);
     }
 
     private static boolean isWeekend(LocalDate date) {
@@ -185,8 +177,7 @@ public static int calculateTotalMinutes(ArrayList<Punch> punchList, Shift shift)
     
     public static BigDecimal calculateAbsenteeism(ArrayList<Punch> punchlist, Shift s) {
         int totalMinutesWorked = DAOUtility.calculateTotalMinutes(punchlist, s);
-        System.out.print(totalMinutesWorked);
-        int standardMinutes = calculateExpectedTotal(punchlist, s);
+        int standardMinutes = calculateExpectedTotal(s);
 
         double percentage = ((double) (standardMinutes - totalMinutesWorked) / standardMinutes) * 100;
 
