@@ -1,8 +1,7 @@
 package edu.jsu.mcis.cs310.tas_sp25;
 
-import java.time.LocalDateTime;
-import java.time.LocalTime;
-import java.util.HashMap;
+import java.time.*;
+import java.util.*;
 
 /**
  *
@@ -87,6 +86,18 @@ public class Shift {
 
     public void setLunchStop(LocalTime value) {
         this.defaultschedule.setLunchStop(value);
+    }
+    
+    public void copyFrom(DailySchedule schedule) {
+        // We set the fields rather than update defaultSchedule field, because we want to preserve the default schedule.
+        setRoundInterval(schedule.getRoundInterval());
+        setGracePeriod(schedule.getGracePeriod());
+        setDockPenalty(schedule.getDockPenalty());
+        setLunchThreshold(schedule.getLunchThreshold());
+        setShiftStart(schedule.getShiftStart());
+        setShiftStop(schedule.getShiftStop());
+        setLunchStart(schedule.getLunchStart());
+        setLunchStop(schedule.getLunchStop());
     }
 
 
