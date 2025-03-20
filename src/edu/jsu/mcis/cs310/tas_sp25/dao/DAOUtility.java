@@ -152,8 +152,8 @@ public static int calculateTotalMinutes(ArrayList<Punch> punchList, Shift shift)
             totalMinutes += dailyTotal;
         }
 
-
-        totalMinutes += shift.getLunchThreshold();
+        //No need to add lunch threshold
+        //totalMinutes += shift.getLunchThreshold();
 
         return totalMinutes;
     }
