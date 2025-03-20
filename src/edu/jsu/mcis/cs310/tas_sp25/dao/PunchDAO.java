@@ -10,7 +10,11 @@ public class PunchDAO {
 
     private static final String QUERY_FIND = "SELECT * FROM event WHERE id = ?";
     private static final String QUERY_FIND_TODAY = "SELECT * FROM event WHERE badgeid = ? AND DATEDIFF(?, timestamp) = 0";
-    private static final String QUERY_FIND_DAYS = "SELECT * FROM event WHERE badgeid = ? AND (timestamp BETWEEN ? AND ?)";
+    private static final String QUERY_FIND_DAYS = "SELECT * "
+                                                + " FROM event"
+                                                + " WHERE badgeid = ?"
+                                                + " AND (timestamp >= ? "
+                                                + "AND timestamp < (? + INTERVAL 1 DAY))";
     private static final String QUERY_CREATE = "INSERT INTO event (terminalid, badgeid, eventtypeid) VALUES (?, ?, ?)";
 
 
@@ -225,8 +229,8 @@ public class PunchDAO {
 
                 ps = conn.prepareStatement(QUERY_FIND_DAYS);
                 ps.setString(1, badge.getId());
-                ps.setDate(2, Date.valueOf(begin.plusDays(1))); // but add one day.
-                ps.setDate(3, Date.valueOf(end.plusDays(1))); // but add one day.
+                ps.setDate(2, Date.valueOf(begin)); // but add one day.
+                ps.setDate(3, Date.valueOf(end)); // but add one day.
 
                 rs = ps.executeQuery();
 
