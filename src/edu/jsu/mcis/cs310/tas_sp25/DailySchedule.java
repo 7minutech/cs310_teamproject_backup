@@ -12,9 +12,9 @@ import java.util.HashMap;
  * @author mantra
  */
 public class DailySchedule {
-    private final LocalTime shiftstart, shiftstop;
-    private final LocalTime lunchstart, lunchstop;
-    private final int roundinterval, graceperiod, dockpenalty, lunchthreshold;
+    private LocalTime shiftstart, shiftstop;
+    private LocalTime lunchstart, lunchstop;
+    private int roundinterval, graceperiod, dockpenalty, lunchthreshold;
     
     public DailySchedule(HashMap<String, String> parameters) {
         this.shiftstart = LocalTime.parse(parameters.get("shiftstart"));
@@ -60,4 +60,38 @@ public class DailySchedule {
     public int getShiftDuration() {
         return (int) java.time.Duration.between(shiftstart, shiftstop).toMinutes();
     }
+    
+    // Setters
+    public void setRoundInterval(int value) {
+        this.roundinterval = value;
+    }
+
+    public void setGracePeriod(int value) {
+        this.graceperiod = value;
+    }
+
+    public void setDockPenalty(int value) {
+        this.dockpenalty = value;
+    }
+
+    public void setLunchThreshold(int value) {
+        this.lunchthreshold = value;
+    }
+
+    public void setShiftStart(LocalTime value) {
+        this.shiftstart = value;
+    }
+
+    public void setShiftStop(LocalTime value) {
+        this.shiftstop = value;
+    }
+
+    public void setLunchStart(LocalTime value) {
+        this.lunchstart = value;
+    }
+
+    public void setLunchStop(LocalTime value) {
+        this.lunchstop = value;
+    }
+
 }

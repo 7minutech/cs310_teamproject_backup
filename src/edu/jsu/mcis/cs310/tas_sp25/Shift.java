@@ -53,10 +53,42 @@ public class Shift {
     public int getShiftDuration() {
         return (int) java.time.Duration.between(getShiftStart(), getShiftStop()).toMinutes();
     }
-    
     public DailySchedule getDefaultschedule() {
         return this.defaultschedule;
     }
+    
+    // Setters
+    public void setRoundInterval(int value) {
+        this.defaultschedule.setRoundInterval(value);
+    }
+    public void setGracePeriod(int value) {
+        this.defaultschedule.setGracePeriod(value);
+    }
+
+    public void setDockPenalty(int value) {
+        this.defaultschedule.setDockPenalty(value);
+    }
+
+    public void setLunchThreshold(int value) {
+        this.defaultschedule.setLunchThreshold(value);
+    }
+
+    public void setShiftStart(LocalTime value) {
+        this.defaultschedule.setShiftStart(value);
+    }
+
+    public void setShiftStop(LocalTime value) {
+        this.defaultschedule.setShiftStop(value);
+    }
+
+    public void setLunchStart(LocalTime value) {
+        this.defaultschedule.setLunchStart(value);
+    }
+
+    public void setLunchStop(LocalTime value) {
+        this.defaultschedule.setLunchStop(value);
+    }
+
 
     @Override
     public String toString() {
