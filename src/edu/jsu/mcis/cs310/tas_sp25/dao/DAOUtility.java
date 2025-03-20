@@ -193,8 +193,10 @@ public static int calculateTotalMinutes(ArrayList<Punch> punchList, Shift shift)
         
         */
         HashMap<String, String> jsonData = new HashMap<>();
-        
-        jsonData.put("absenteeism", calculateAbsenteeism(punchlist, shift).toString());
+        StringBuilder absentPercent = new StringBuilder();
+        absentPercent.append(calculateAbsenteeism(punchlist, shift).toString());
+        absentPercent.append("%");
+        jsonData.put("absenteeism", absentPercent.toString());
         jsonData.put("totalminutes", Integer.toString(calculateTotalMinutes(punchlist, shift)));
         jsonData.put("punchlist", getPunchListAsJSON(punchlist)); // punch list
         
