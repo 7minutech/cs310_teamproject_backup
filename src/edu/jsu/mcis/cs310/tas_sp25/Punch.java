@@ -242,7 +242,7 @@ public class Punch {
         return ((value >= lowerbound) && (value <= upperbound));
     }
    
-    private boolean isWeekend(){
+    public boolean isWeekend(){
         String dayAbbr = getDayAbbreviation(originalTimestamp);
         return Arrays.asList(Punch.WeekendDays).contains(dayAbbr);
     }
