@@ -6,6 +6,8 @@ import java.time.temporal.ChronoUnit;
 import java.time.format.DateTimeFormatter;
 import com.github.cliftonlabs.json_simple.*;
 import edu.jsu.mcis.cs310.tas_sp25.EventType;
+import edu.jsu.mcis.cs310.tas_sp25.PunchAdjustmentType;
+
 import edu.jsu.mcis.cs310.tas_sp25.Punch;
 import edu.jsu.mcis.cs310.tas_sp25.Shift;
 import java.math.BigDecimal;
@@ -122,25 +124,28 @@ public static int calculateTotalMinutes(ArrayList<Punch> punchList, Shift shift)
             int dailyTotal = 0;
             boolean workedThroughLunch = false;
             Punch clockIn = null;
-
+            Punch clockOut = null;
 
             for (Punch punch : dailyPunches) {
                 if (punch.getPunchtype() == EventType.CLOCK_IN) {
                     clockIn = punch; 
+                    //System.out.println(clockIn.printAdjusted());
+
                 } 
                 else if (punch.getPunchtype() == EventType.CLOCK_OUT && clockIn != null) {
-                    int minutesWorked = (int) Duration.between(clockIn.getAdjustedtimestamp(), punch.getAdjustedtimestamp()).toMinutes();
+                    clockOut = punch;
+                    //System.out.println(clockOut.printAdjusted());
+                    int minutesWorked = (int) Duration.between(clockIn.getAdjustedtimestamp(), clockOut.getAdjustedtimestamp()).toMinutes();
                     dailyTotal += minutesWorked;
 
 
                     if (!isWeekend(day)) {
                         LocalTime clockInTime = clockIn.getAdjustedtimestamp().toLocalTime();
-                        LocalTime clockOutTime = punch.getAdjustedtimestamp().toLocalTime();
+                        LocalTime clockOutTime = clockOut.getAdjustedtimestamp().toLocalTime();
                         if (clockInTime.isBefore(shift.getLunchStart()) && clockOutTime.isAfter(shift.getLunchStop())) {
                             workedThroughLunch = true;
                         }
                     }
-                    clockIn = null; 
                 }
             }
 
@@ -152,10 +157,23 @@ public static int calculateTotalMinutes(ArrayList<Punch> punchList, Shift shift)
             totalMinutes += dailyTotal;
         }
 
-        //No need to add lunch threshold
-        //totalMinutes += shift.getLunchThreshold();
-
         return totalMinutes;
+    }
+    public static int calculateExpectedTotal(ArrayList<Punch> punchList, Shift shift) {
+        int expectedMinutes = 0;
+        for (int i = 0; i < punchList.size(); i++){
+            Punch p = punchList.get(i);
+            if (isClockInShift(p)){
+                expectedMinutes += (int) Duration.between(shift.getShiftStart(), shift.getShiftStop()).toMinutes();
+                expectedMinutes -= shift.getLunchDuration();
+            }
+        }
+
+        return expectedMinutes;
+    }
+    
+    private static boolean isClockInShift(Punch p){
+        return (p.getPunchtype() == EventType.CLOCK_IN && p.getAdjustmentType() != PunchAdjustmentType.LUNCH_STOP);
     }
 
     private static boolean isWeekend(LocalDate date) {
@@ -168,7 +186,7 @@ public static int calculateTotalMinutes(ArrayList<Punch> punchList, Shift shift)
     public static BigDecimal calculateAbsenteeism(ArrayList<Punch> punchlist, Shift s) {
         int totalMinutesWorked = DAOUtility.calculateTotalMinutes(punchlist, s);
         System.out.print(totalMinutesWorked);
-        int standardMinutes = 2400;
+        int standardMinutes = calculateExpectedTotal(punchlist, s);
 
         double percentage = ((double) (standardMinutes - totalMinutesWorked) / standardMinutes) * 100;
 
