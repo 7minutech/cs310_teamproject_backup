@@ -103,36 +103,72 @@ public class DAOUtility {
     }
     
 
-    public static int calculateTotalMinutes(ArrayList<Punch> dailypunchlist, Shift shift) {
+
+public static int calculateTotalMinutes(ArrayList<Punch> punchList, Shift shift) {
+        // Group punches by day
+        Map<LocalDate, List<Punch>> punchesByDay = new HashMap<>();
+        for (Punch p : punchList) {
+            LocalDate day = p.getAdjustedtimestamp().toLocalDate();
+            punchesByDay.computeIfAbsent(day, k -> new ArrayList<>()).add(p);
+        }
 
         int totalMinutes = 0;
-        boolean workedThroughLunch = false;
-        Punch clockIn = null;
 
-        for (Punch punch : dailypunchlist) {
-            if (punch.getPunchtype() == EventType.CLOCK_IN) {
-                clockIn = punch;
-            } else if (punch.getPunchtype() == EventType.CLOCK_OUT) {
-                int minutesWorked = (int) Duration.between(clockIn.getAdjustedtimestamp(), punch.getAdjustedtimestamp()).toMinutes();
-                totalMinutes += minutesWorked;
+        // Loop through each day’s punches
+        for (LocalDate day : punchesByDay.keySet()) {
+            List<Punch> dailyPunches = punchesByDay.get(day);
+            dailyPunches.sort(Comparator.comparing(Punch::getAdjustedtimestamp)); // Sort punches in order
 
-                if (clockIn.getAdjustedtimestamp().toLocalTime().isBefore(shift.getLunchStart()) &&
-                    punch.getAdjustedtimestamp().toLocalTime().isAfter(shift.getLunchStop())) {
-                    workedThroughLunch = true;
+            int dailyTotal = 0;
+            boolean workedThroughLunch = false;
+            Punch clockIn = null;
+
+
+            for (Punch punch : dailyPunches) {
+                if (punch.getPunchtype() == EventType.CLOCK_IN) {
+                    clockIn = punch; 
+                } 
+                else if (punch.getPunchtype() == EventType.CLOCK_OUT && clockIn != null) {
+                    int minutesWorked = (int) Duration.between(clockIn.getAdjustedtimestamp(), punch.getAdjustedtimestamp()).toMinutes();
+                    dailyTotal += minutesWorked;
+
+
+                    if (!isWeekend(day)) {
+                        LocalTime clockInTime = clockIn.getAdjustedtimestamp().toLocalTime();
+                        LocalTime clockOutTime = punch.getAdjustedtimestamp().toLocalTime();
+                        if (clockInTime.isBefore(shift.getLunchStart()) && clockOutTime.isAfter(shift.getLunchStop())) {
+                            workedThroughLunch = true;
+                        }
+                    }
+                    clockIn = null; 
                 }
             }
+
+
+            if (!isWeekend(day) && workedThroughLunch && dailyTotal >= shift.getLunchThreshold()) {
+                dailyTotal -= shift.getLunchDuration();
+            }
+
+            totalMinutes += dailyTotal;
         }
 
-        if (workedThroughLunch && totalMinutes >= shift.getLunchThreshold()) {
-            totalMinutes -= shift.getLunchDuration();
-        }
+
+        totalMinutes += shift.getLunchThreshold();
 
         return totalMinutes;
     }
+
+    private static boolean isWeekend(LocalDate date) {
+        DayOfWeek dayOfWeek = date.getDayOfWeek();
+        return (dayOfWeek == DayOfWeek.SATURDAY || dayOfWeek == DayOfWeek.SUNDAY);
+    }
+
+
     
     public static BigDecimal calculateAbsenteeism(ArrayList<Punch> punchlist, Shift s) {
         int totalMinutesWorked = DAOUtility.calculateTotalMinutes(punchlist, s);
-        int standardMinutes = s.getShiftDuration();
+        System.out.print(totalMinutesWorked);
+        int standardMinutes = 2400;
 
         double percentage = ((double) (standardMinutes - totalMinutesWorked) / standardMinutes) * 100;
 
