@@ -24,6 +24,7 @@ import java.sql.ResultSetMetaData;
  */
 
 public class DAOUtility {
+    private static final int WORKS_DAYS = 5;
     public static String getResultSetAsJson(ResultSet rs) {
         JsonArray records = new JsonArray(); // declare an empty array. if we were to find nothing, it will be returned
 
@@ -164,7 +165,7 @@ public static int calculateTotalMinutes(ArrayList<Punch> punchList, Shift shift)
         int expectedMinutes = 0;
         expectedMinutes += (int) Duration.between(shift.getShiftStart(), shift.getShiftStop()).toMinutes();
         expectedMinutes -= (int) Duration.between(shift.getLunchStart(), shift.getLunchStop()).toMinutes();
-        expectedMinutes *= 5;
+        expectedMinutes *=  WORKS_DAYS;
         return expectedMinutes;
     }
 
