@@ -75,9 +75,9 @@ public class DAOUtility {
     public static HashMap<String, String> punchToHashmap(Punch punch) {
         HashMap<String, String> punchData = new HashMap<>();
 
+        punchData.put("terminalid", String.valueOf(punch.getTerminalid())); 
         punchData.put("id", String.valueOf((int) punch.getId())); 
         punchData.put("badgeid", String.valueOf(punch.getBadge().getId())); 
-        punchData.put("terminalid", String.valueOf(punch.getTerminalid())); 
         punchData.put("punchtype", punch.getPunchtype().toString()); 
         punchData.put("adjustmenttype", punch.getAdjustmentType().toString()); 
         // both timestamps have a different format than needed: they include the punchtype and IDs.
@@ -185,23 +185,31 @@ public static int calculateTotalMinutes(ArrayList<Punch> punchList, Shift shift)
         return BigDecimal.valueOf(percentage).setScale(2, RoundingMode.HALF_UP);
     }
 
-    public static String getPunchListPlusTotalsAsJSON(ArrayList<Punch> punchlist, Shift shift) {
+    public static String getPunchListPlusTotalsAsJSON(ArrayList<Punch> punchlist, Shift shift) throws JsonException {
         /*
             ArrayList punchlist
                 HashMap punchData
             string totalminutes
             string absenteeism
-        
+
         */
-        HashMap<String, String> jsonData = new HashMap<>();
-        StringBuilder absentPercent = new StringBuilder();
-        absentPercent.append(calculateAbsenteeism(punchlist, shift).toString());
-        absentPercent.append("%");
-        jsonData.put("absenteeism", absentPercent.toString());
-        jsonData.put("totalminutes", Integer.toString(calculateTotalMinutes(punchlist, shift)));
-        jsonData.put("punchlist", getPunchListAsJSON(punchlist)); // punch list
-        
-        return Jsoner.serialize(jsonData);
+        JsonObject obj = new JsonObject();
+        String json = "";
+        try {
+            JsonArray punches_list = (JsonArray) Jsoner.deserialize(getPunchListAsJSON(punchlist));
+            StringBuilder absentPercent = new StringBuilder();
+            absentPercent.append(calculateAbsenteeism(punchlist, shift).toString());
+            absentPercent.append("%");
+            obj.put("absenteeism", absentPercent.toString());
+            obj.put("totalminutes", calculateTotalMinutes(punchlist, shift));
+            obj.put("punchlist", punches_list); // punch list
+        } catch (JsonException ex) {
+            throw ex;
+        }
+
+        json = Jsoner.serialize(obj);
+
+        return json;
     }
 
 }
