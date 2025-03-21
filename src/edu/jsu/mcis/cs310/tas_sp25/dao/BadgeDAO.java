@@ -47,13 +47,18 @@ public class BadgeDAO {
                 }
 
             }
-
+                // Refactored - Closes ResultSet & PreparedStatement. -Austin
+                // reduces repeated code in DAO - Austin
+                // prevent SQL resource leaks- Austin
+                //helps finally block stay clean & usable - Austin
         } catch (SQLException e) {
-
             throw new DAOException(e.getMessage());
-
         } finally {
-
+            closeResultsSafely(rs, ps);
+        }
+        return badge;
+        }
+        private void closeResultsSafely(ResultSet rs, PreparedStatement ps) {
             if (rs != null) {
                 try {
                     rs.close();
@@ -68,11 +73,5 @@ public class BadgeDAO {
                     throw new DAOException(e.getMessage());
                 }
             }
-
         }
-
-        return badge;
-
-    }
-
 }
