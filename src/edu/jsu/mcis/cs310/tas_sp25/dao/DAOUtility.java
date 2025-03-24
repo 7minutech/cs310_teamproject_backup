@@ -162,10 +162,8 @@ public static int calculateTotalMinutes(ArrayList<Punch> punchList, Shift shift)
     }
 
     public static int calculateExpectedTotal(Shift shift) {
-        int expectedMinutes = 0;
-        expectedMinutes += (int) Duration.between(shift.getShiftStart(), shift.getShiftStop()).toMinutes();
-        expectedMinutes -= (int) Duration.between(shift.getLunchStart(), shift.getLunchStop()).toMinutes();
-        expectedMinutes *=  WORKS_DAYS;
+        int expectedMinutes = shift.getShiftDuration() - shift.getLunchDuration();
+        expectedMinutes *= WORKS_DAYS;
         return expectedMinutes;
     }
 

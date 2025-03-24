@@ -46,11 +46,11 @@ public class Shift {
         return this.defaultschedule.getLunchStop();
     }
     public int getLunchDuration() {
-        return (int) java.time.Duration.between(getLunchStart(), getLunchStop()).toMinutes();
+        return this.defaultschedule.getLunchDuration();
     }
 
     public int getShiftDuration() {
-        return (int) java.time.Duration.between(getShiftStart(), getShiftStop()).toMinutes();
+        return this.defaultschedule.getShiftDuration();
     }
     public DailySchedule getDefaultschedule() {
         return this.defaultschedule;
