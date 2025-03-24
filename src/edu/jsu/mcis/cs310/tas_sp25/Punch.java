@@ -79,14 +79,18 @@ public class Punch {
     }
     
     public String printAdjusted(){
-        StringBuilder s = new StringBuilder();
+        StringBuilder s = new StringBuilder(); // Austin-Refactored -Methods
         if (adjustedTimestamp != null){
-            s.append('#').append(badge.getId()).append(' ');
-            s.append(punchtype).append(": ").append(formatTimestamp(adjustedTimestamp));
-            s.append(" ");
-            s.append("(").append(adjustmenttype).append(")");
+            formatAdjustedPunch(s);
         }
         return s.toString();
+    }
+
+    private void formatAdjustedPunch(StringBuilder s) {
+        s.append('#').append(badge.getId()).append(' ');
+        s.append(punchtype).append(": ").append(formatTimestamp(adjustedTimestamp));
+        s.append(" ");
+        s.append("(").append(adjustmenttype).append(")");
     }
     
     public void adjust(Shift s){
@@ -230,12 +234,10 @@ public class Punch {
         long elapsedMinutes = Duration.between(originalTimestamp, shiftStopDateTime.minusMinutes(gracePeriod)).toMinutes();
         return isBetween(Punch.MIN_ELAPSED_MINUTES, dockPenalty, elapsedMinutes);
     }
-
-    private int getNearestInterval(int interval, LocalTime time){
-        float minutes = time.getMinute();
-        float seconds = time.getSecond();
-        minutes += seconds / 60;
-        return (Math.round(minutes / interval) * interval);
+            // Rounds time to the nearest interval-Austin 
+    private int getNearestInterval(int interval, LocalTime time) {
+        float totalMinutes = time.getMinute() + (time.getSecond() / 60.0f);
+        return Math.round(totalMinutes / interval) * interval;
     }
 
     private boolean isBetween(int lowerbound, int upperbound, long value){
@@ -252,34 +254,23 @@ public class Punch {
         return (dayOfWeek.toString()).substring(0, 3);
     }
     
-    public String formatTimestamp(LocalDateTime timestamp){
-        StringBuilder s = new StringBuilder();
-        s.append(formattedDate(timestamp));
-        s.append(" ");
-        s.append(formattedTime(timestamp));
-        return s.toString();
-    }
+        // Combine date and time to single string - Austin
+    public String formatTimestamp(LocalDateTime timestamp) {
+        return formattedDate(timestamp) + " " + formattedTime(timestamp);
+}
     
-    public String formattedDate(LocalDateTime timestamp){
-        StringBuilder s = new StringBuilder();
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MM/dd/yyyy");
-        String formattedDate = timestamp.format(formatter);
-        String dayAbbr = getDayAbbreviation(timestamp);
-        s.append(dayAbbr).append(" ").append(formattedDate);
-        return s.toString();
-    }
-    
-    public String formattedTime(LocalDateTime timestamp){
-        StringBuilder s = new StringBuilder();
-        LocalTime time = timestamp.toLocalTime();
-        int second = time.getSecond();
-        s.append(time);
-        //Need to forcefully append :00
-        //otherwise nothing is appended
-        if(second == 0){
-            s.append(":00");
-        }
-        return s.toString();
+        // Formats date w/ day abbreviation - Austin
+    public String formattedDate(LocalDateTime timestamp) {
+        return getDayAbbreviation(timestamp) + " " + timestamp.format(DateTimeFormatter.ofPattern("MM/dd/yyyy"));
     }
             
-}
+            // Orginal comments - 
+            //Need to forcefully append :00
+            //otherwise nothing is appended
+    
+            // Formats time and appends ":00" if seconds are zero - Austin
+    public String formattedTime(LocalDateTime timestamp) {
+        LocalTime time = timestamp.toLocalTime();
+        return (time.getSecond() == 0) ? time + ":00" : time.toString();
+    }
+} 
