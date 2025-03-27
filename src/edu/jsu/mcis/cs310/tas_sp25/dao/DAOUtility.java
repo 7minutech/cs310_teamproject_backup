@@ -5,6 +5,7 @@ import java.util.*;
 import java.time.temporal.ChronoUnit;
 import java.time.format.DateTimeFormatter;
 import com.github.cliftonlabs.json_simple.*;
+import edu.jsu.mcis.cs310.tas_sp25.DailySchedule;
 import edu.jsu.mcis.cs310.tas_sp25.EventType;
 import edu.jsu.mcis.cs310.tas_sp25.PunchAdjustmentType;
 
@@ -24,7 +25,6 @@ import java.sql.ResultSetMetaData;
  */
 
 public class DAOUtility {
-    private static final int WORKS_DAYS = 5;
     public static String getResultSetAsJson(ResultSet rs) {
         JsonArray records = new JsonArray(); // declare an empty array. if we were to find nothing, it will be returned
 
@@ -51,7 +51,8 @@ public class DAOUtility {
         return Jsoner.serialize(records);
     }
     
-    public static HashMap<String, String> getResultsSetAsParameters(ResultSet rs) { 
+    public static HashMap<String, String> getResultsSetAsParameters(ResultSet rs) {
+        // Possible future issue, we may need to update to accept rs by reference instead of by value.
         HashMap<String, String> map = new HashMap<>();
         try {
             if (rs != null) {
@@ -107,7 +108,7 @@ public class DAOUtility {
     
 
 
-public static int calculateTotalMinutes(ArrayList<Punch> punchList, Shift shift) {
+    public static int calculateTotalMinutes(ArrayList<Punch> punchList, Shift shift) {
         // Group punches by day
         Map<LocalDate, List<Punch>> punchesByDay = new HashMap<>();
         for (Punch p : punchList) {
@@ -162,8 +163,12 @@ public static int calculateTotalMinutes(ArrayList<Punch> punchList, Shift shift)
     }
 
     public static int calculateExpectedTotal(Shift shift) {
-        int expectedMinutes = shift.getShiftDuration() - shift.getLunchDuration();
-        expectedMinutes *= WORKS_DAYS;
+        int expectedMinutes = 0;
+        for (int dayNumber = 1; dayNumber <= 5; dayNumber++) { // Monday through Friday
+            DayOfWeek day = DayOfWeek.of(dayNumber);
+            DailySchedule schedule = shift.getDailySchedule(day);
+            expectedMinutes += schedule.getShiftDuration() - schedule.getLunchDuration();
+        }
         return expectedMinutes;
     }
 

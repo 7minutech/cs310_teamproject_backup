@@ -4,6 +4,7 @@ import edu.jsu.mcis.cs310.tas_sp25.*;
 import static edu.jsu.mcis.cs310.tas_sp25.dao.DAOUtility.getResultsSetAsParameters;
 import java.sql.*;
 import java.time.*;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -15,6 +16,7 @@ public class ShiftDAO {
     /*
         SCHEDULE OVERRIDE QUERIES
     */
+    //private final String QUERY_FIND_RECURRING_OVERRIDES_ALL = "SELECT * FROM scheduleoverride";
     private final String QUERY_FIND_RECURRING_OVERRIDES_ALL = "SELECT * FROM scheduleoverride WHERE end IS NULL AND badgeid IS NULL";
     private final String QUERY_FIND_RECURRING_OVERRIDES_EMPLOYEE = "SELECT * FROM scheduleoverride WHERE end IS NULL AND badgeid = ?";
     private final String QUERY_FIND_TEMPORARY_OVERRIDES_ALL = "SELECT * FROM scheduleoverride WHERE end IS NOT NULL AND badgeid IS NULL";
@@ -95,6 +97,7 @@ public class ShiftDAO {
 
         try {
             Connection conn = daoFactory.getConnection();
+            
             if (conn.isValid(0)) {
                 ps = conn.prepareStatement(QUERY_FIND_DAILYSCHEDULE);
                 ps.setString(1, Integer.toString(id));
@@ -134,7 +137,13 @@ public class ShiftDAO {
         PreparedStatement ps = null;
         ResultSet rs = null;
 
-        try (Connection conn = daoFactory.getConnection()) {
+        try {
+            Connection conn = daoFactory.getConnection();
+            if (conn.isClosed()){
+                daoFactory.createConnection();
+                conn = daoFactory.getConnection();
+            }
+
             if (conn.isValid(0)) {
                 ps = conn.prepareStatement(query);
                 if (badge != null) {
@@ -142,8 +151,17 @@ public class ShiftDAO {
                 }
 
                 rs = ps.executeQuery();
+                ResultSetMetaData metaData = rs.getMetaData();
+                int columnCount = metaData.getColumnCount();
+
                 while (rs.next()) {
-                    overrides.add(getResultsSetAsParameters(rs));
+                    HashMap<String, String> map = new HashMap<>();
+                    for (int i = 1; i <= columnCount; i++) {
+                        String columnName = metaData.getColumnName(i);
+                        String value = rs.getString(i);
+                        map.put(columnName, value);
+                    }
+                    overrides.add(map);
                 }
             }
         } catch (SQLException e) {
@@ -164,35 +182,45 @@ public class ShiftDAO {
                 }
             }
         }
-        
+
         return overrides;
     }
+
     
-    public void applyDailyScheduleOverrides(Shift shift, LocalDate date, ArrayList<HashMap<String, String>> overrides) {
+    public Shift applyDailyScheduleOverrides(Shift shift, LocalDate date, ArrayList<HashMap<String, String>> overrides) {
         if (shift == null || overrides == null || overrides.isEmpty()) {
-            return; // No overrides or no shift, nothing to change.
+            return shift; // No overrides or no shift, nothing to change.
         }
+
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
         for (HashMap<String, String> override : overrides) {
             String start = override.get("start");
             String end = override.get("end");
-            String day = override.get("day");
-            String overrideScheduleId = override.get("dailyscheduleid");
+            int dayNumber = Integer.parseInt(override.get("day"));
+            DayOfWeek day = DayOfWeek.of(dayNumber);
+            int overrideScheduleId = Integer.parseInt(override.get("dailyscheduleid"));
 
-            // Check if override applies to this date meaning if it's the day of the week (or if weekday doesn't apply) or if it's in the start/end range (or if range doesnt apply)
-            boolean weekDayCheck = (day == null || day.equalsIgnoreCase(date.getDayOfWeek().toString()));
-            boolean rangeStart = (start == null || LocalDate.parse(start).isBefore(date) || LocalDate.parse(start).isEqual(date));
-            boolean rangeEnd = (end == null || LocalDate.parse(end).isAfter(date) || LocalDate.parse(end).isEqual(date));
-            boolean rangeCheck = rangeStart && rangeEnd;
-            
-            if (weekDayCheck && rangeCheck) {
-                // If these apply, then override this schedule while preserving the Shift's defaultschedule field (only updating other fields)
-                DailySchedule overrideSchedule = findSchedule(Integer.parseInt(overrideScheduleId));
-                if (overrideSchedule != null) {
-                    shift.copyFrom(overrideSchedule);
+            LocalDateTime dateTime = date.atStartOfDay();
+            DailySchedule overrideSchedule = findSchedule(overrideScheduleId);
+            if (overrideSchedule != null) {
+                shift.overrideDailySchedule(date.getDayOfWeek(), overrideSchedule);
+            }
+
+            if (end == null) {
+                shift.overrideDailySchedule(day, overrideSchedule);
+            } else {
+                LocalDateTime startDateTime = LocalDateTime.parse(start, formatter);
+                LocalDateTime endDateTime = LocalDateTime.parse(end, formatter);
+                boolean rangeStart = startDateTime.isBefore(dateTime) || startDateTime.isEqual(dateTime);
+                boolean rangeEnd = endDateTime.isAfter(dateTime) || endDateTime.isEqual(dateTime);
+
+                if (rangeStart && rangeEnd) {
+                    shift.overrideDailySchedule(day, overrideSchedule);
                 }
             }
         }
+        return shift;
     }
     
     public Shift find(int id) {
@@ -260,22 +288,22 @@ public class ShiftDAO {
 
         // Find recurring overrides (apply to all employees)
         ArrayList<HashMap<String, String>> allRecurringOverrides = findScheduleOverrides(QUERY_FIND_RECURRING_OVERRIDES_ALL, null);
-        applyDailyScheduleOverrides(shift, date, allRecurringOverrides);
+        shift = applyDailyScheduleOverrides(shift, date, allRecurringOverrides);
 
         // Find recurring overrides for the specific employee (if badge is not null)
         if (badge != null) {
             ArrayList<HashMap<String, String>> employeeRecurringOverrides = findScheduleOverrides(QUERY_FIND_RECURRING_OVERRIDES_EMPLOYEE, badge);
-            applyDailyScheduleOverrides(shift, date, employeeRecurringOverrides);
+            shift = applyDailyScheduleOverrides(shift, date, employeeRecurringOverrides);
         }
 
         // Now find temporary overrides if they apply
         ArrayList<HashMap<String, String>> allTemporaryOverrides = findScheduleOverrides(QUERY_FIND_TEMPORARY_OVERRIDES_ALL, null);
-        applyDailyScheduleOverrides(shift, date, allTemporaryOverrides);
+        shift = applyDailyScheduleOverrides(shift, date, allTemporaryOverrides);
 
         // Find temporary overrides for the specific employee (if badge is not null)
         if (badge != null) {
             ArrayList<HashMap<String, String>> employeeTemporaryOverrides = findScheduleOverrides(QUERY_FIND_TEMPORARY_OVERRIDES_EMPLOYEE, badge);
-            applyDailyScheduleOverrides(shift, date, employeeTemporaryOverrides);
+            shift = applyDailyScheduleOverrides(shift, date, employeeTemporaryOverrides);
         }
 
         // Return the updated shift with all overrides applied

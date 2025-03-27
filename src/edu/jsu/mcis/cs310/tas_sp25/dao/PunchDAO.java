@@ -199,6 +199,10 @@ public class PunchDAO {
 
         try {
             Connection conn = daoFactory.getConnection();
+            if (conn.isClosed()){
+                daoFactory.createConnection();
+                conn = daoFactory.getConnection();
+            }
 
             if (conn.isValid(0)) {
                 ps = conn.prepareStatement(QUERY_FIND_DAYS);

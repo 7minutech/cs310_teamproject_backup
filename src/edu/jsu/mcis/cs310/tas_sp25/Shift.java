@@ -11,6 +11,7 @@ import java.util.*;
 public class Shift {
     private final DailySchedule defaultschedule;
     private final String id, description;
+    private HashMap<DayOfWeek, DailySchedule> dailySchedules;
     
     
     public Shift(String id, String description, DailySchedule defaultschedule) {
@@ -18,6 +19,23 @@ public class Shift {
         this.description = description;
 
         this.defaultschedule = defaultschedule;
+        this.dailySchedules = new HashMap<>();
+        initializeDefaultSchedules();
+    }
+    
+    private void initializeDefaultSchedules() {
+        // put Monday through Friday only.
+        for (DayOfWeek day : EnumSet.range(DayOfWeek.MONDAY, DayOfWeek.FRIDAY)) {
+            dailySchedules.put(day, defaultschedule);
+        }
+    }
+
+    public DailySchedule getDailySchedule(DayOfWeek day) {
+        return dailySchedules.getOrDefault(day, defaultschedule);
+    }
+    
+    public void overrideDailySchedule(DayOfWeek day, DailySchedule schedule) {
+        dailySchedules.put(day, schedule);
     }
     
     // Getters
@@ -52,7 +70,7 @@ public class Shift {
     public int getShiftDuration() {
         return this.defaultschedule.getShiftDuration();
     }
-    public DailySchedule getDefaultschedule() {
+    public DailySchedule getDefaultSchedule() {
         return this.defaultschedule;
     }
     
@@ -87,19 +105,6 @@ public class Shift {
     public void setLunchStop(LocalTime value) {
         this.defaultschedule.setLunchStop(value);
     }
-    
-    public void copyFrom(DailySchedule schedule) {
-        // We set the fields rather than update defaultSchedule field, because we want to preserve the default schedule.
-        setRoundInterval(schedule.getRoundInterval());
-        setGracePeriod(schedule.getGracePeriod());
-        setDockPenalty(schedule.getDockPenalty());
-        setLunchThreshold(schedule.getLunchThreshold());
-        setShiftStart(schedule.getShiftStart());
-        setShiftStop(schedule.getShiftStop());
-        setLunchStart(schedule.getLunchStart());
-        setLunchStop(schedule.getLunchStop());
-    }
-
 
     @Override
     public String toString() {
