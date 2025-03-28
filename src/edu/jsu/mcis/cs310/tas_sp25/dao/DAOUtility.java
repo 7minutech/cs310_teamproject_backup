@@ -131,7 +131,7 @@ public class DAOUtility {
             for (Punch punch : dailyPunches) {
                 if (punch.getPunchtype() == EventType.CLOCK_IN) {
                     clockIn = punch; 
-                    clockOut = null; // Reset clockOut when a new CLOCK IN is found
+                    clockOut = null; // Reset when a new clock in is found
                 } 
                 else if (punch.getPunchtype() == EventType.CLOCK_OUT && clockIn != null && clockOut == null) {
                     clockOut = punch;
@@ -163,7 +163,7 @@ public class DAOUtility {
 
     public static int calculateExpectedTotal(Shift shift) {
         int expectedMinutes = 0;
-        for (int dayNumber = 1; dayNumber <= 5; dayNumber++) { // We must process EVERY single day.
+        for (int dayNumber = 1; dayNumber <= 5; dayNumber++) { // loop through every weekday.
             DayOfWeek day = DayOfWeek.of(dayNumber);
             DailySchedule schedule = shift.getDailySchedule(day);
 
@@ -183,7 +183,6 @@ public class DAOUtility {
 
 
     private static boolean isWeekend(LocalDate date) {
-        //return false;
         DayOfWeek dayOfWeek = date.getDayOfWeek();
         return (dayOfWeek == DayOfWeek.SATURDAY || dayOfWeek == DayOfWeek.SUNDAY);
     }
@@ -200,13 +199,6 @@ public class DAOUtility {
     }
 
     public static String getPunchListPlusTotalsAsJSON(ArrayList<Punch> punchlist, Shift shift) throws JsonException {
-        /*
-            ArrayList punchlist
-                HashMap punchData
-            string totalminutes
-            string absenteeism
-
-        */
         JsonObject obj = new JsonObject();
         String json = "";
         try {
@@ -220,7 +212,6 @@ public class DAOUtility {
         } catch (JsonException ex) {
             throw ex;
         }
-
         json = Jsoner.serialize(obj);
 
         return json;

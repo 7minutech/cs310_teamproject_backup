@@ -118,15 +118,5 @@ public class Shift {
         sb.append(getShiftStart()).append(" - ").append(getShiftStop()).append(" (").append(getShiftDuration()).append(" minutes); ");
         sb.append("Lunch: ").append(getLunchStart()).append(" - ").append(getLunchStop()).append(" (").append(getLunchDuration()).append(" minutes)");
         return sb.toString();
-    }
-    
-    public String dailySchedules() {
-        // assertEquals("Shift 1: 07:00 - 15:30 (510 minutes); Lunch: 12:00 - 12:30 (30 minutes)", s1.toString());
-        StringBuilder sb = new StringBuilder();
-        for (DayOfWeek day : EnumSet.range(DayOfWeek.MONDAY, DayOfWeek.FRIDAY)) {
-            sb.append(day).append(": ").append(getDailySchedule(day)).append("\n");
-        }
-        return sb.toString();
-    }
-    
+    }    
 }
