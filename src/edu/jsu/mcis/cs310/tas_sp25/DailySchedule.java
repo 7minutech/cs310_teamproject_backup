@@ -93,5 +93,15 @@ public class DailySchedule {
     public void setLunchStop(LocalTime value) {
         this.lunchstop = value;
     }
+    
+    @Override
+    public String toString() {
+        // assertEquals("Shift 1: 07:00 - 15:30 (510 minutes); Lunch: 12:00 - 12:30 (30 minutes)", s1.toString());
+        StringBuilder sb = new StringBuilder();
+        sb.append("Daily Schedule: ");
+        sb.append(getShiftStart()).append(" - ").append(getShiftStop()).append(" (").append(getShiftDuration()).append(" minutes); ");
+        sb.append("Lunch: ").append(getLunchStart()).append(" - ").append(getLunchStop()).append(" (").append(getLunchDuration()).append(" minutes)");
+        return sb.toString();
+    }
 
 }

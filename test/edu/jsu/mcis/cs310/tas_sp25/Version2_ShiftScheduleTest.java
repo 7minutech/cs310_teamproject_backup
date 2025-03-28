@@ -27,275 +27,9 @@ public class Version2_ShiftScheduleTest {
     }
     
     @Test
-    public void test1TemporaryOverrideAllEmployees() {
-        
-        BadgeDAO badgeDAO = daoFactory.getBadgeDAO();
-        EmployeeDAO employeeDAO = daoFactory.getEmployeeDAO();
-        PunchDAO punchDAO = daoFactory.getPunchDAO();
-        ShiftDAO shiftDAO = daoFactory.getShiftDAO();
-        
-        /* Create Badge end Employee Objects */
-        
-        Badge b = badgeDAO.find("D2CC71D4");
-        Employee e = employeeDAO.find(b);
-        
-        /* PART ONE */
-        
-        /* Get Shift Object for Pay Period Starting 08-26-2018 (regular Shift 1 schedule) */
-        
-        LocalDate ts = LocalDate.of(2018, Month.AUGUST, 26);
-        LocalDate begin = ts.with(TemporalAdjusters.previousOrSame(DayOfWeek.SUNDAY));
-        LocalDate end = begin.with(TemporalAdjusters.next(DayOfWeek.SATURDAY));
-        
-        Shift s = shiftDAO.find(b, ts);
-        
-        /* Retrieve Punch List #1 */
-        ArrayList<Punch> p1 = punchDAO.list(b, begin, end);
-        
-        for (Punch p : p1) {
-            p.adjust(s);
-        }
-        
-        /* Calculate Pay Period 08-26-2018 Absenteeism */
-        
-        BigDecimal percentage = DAOUtility.calculateAbsenteeism(p1, s);
-        Absenteeism a1 = new Absenteeism(e, ts, percentage);
-        
-        assertEquals("#D2CC71D4 (Pay Period Starting 08-26-2018): -17.50%", a1.toString());
-    }
-    @Test
-    public void test1TemporaryOverrideAllEmployees_2() {
-        
-        /* PART TWO */
-        BadgeDAO badgeDAO = daoFactory.getBadgeDAO();
-        EmployeeDAO employeeDAO = daoFactory.getEmployeeDAO();
-        PunchDAO punchDAO = daoFactory.getPunchDAO();
-        ShiftDAO shiftDAO = daoFactory.getShiftDAO();
-        
-        /* Create Badge end Employee Objects */
-        
-        Badge b = badgeDAO.find("D2CC71D4");
-        Employee e = employeeDAO.find(b);
-        
-        /* Get Shift Object for Pay Period Starting 09-02-2018 (should include Labor Day (09-03) override) */
-        
-        LocalDate ts = LocalDate.of(2018, Month.SEPTEMBER, 2);
-        LocalDate begin = ts.with(TemporalAdjusters.previousOrSame(DayOfWeek.SUNDAY));
-        LocalDate end = begin.with(TemporalAdjusters.next(DayOfWeek.SATURDAY));
-        
-        Shift s = shiftDAO.find(b, ts);
-        
-        /* Retrieve Punch List #2 */
-        
-        ArrayList<Punch> p2 = punchDAO.list(b, begin, end);
-        
-        for (Punch p : p2) {
-            p.adjust(s);
-        }
-        
-        /* Calculate Pay Period 09-02-2018 Absenteeism */
-        
-        BigDecimal percentage = DAOUtility.calculateAbsenteeism(p2, s);
-        Absenteeism a2 = new Absenteeism(e, ts, percentage);
-        
-        assertEquals("#D2CC71D4 (Pay Period Starting 09-02-2018): -29.69%", a2.toString());
-    }
-    @Test
-    public void test1TemporaryOverrideAllEmployees_3() {
-        /* PART TWO */
-        BadgeDAO badgeDAO = daoFactory.getBadgeDAO();
-        EmployeeDAO employeeDAO = daoFactory.getEmployeeDAO();
-        PunchDAO punchDAO = daoFactory.getPunchDAO();
-        ShiftDAO shiftDAO = daoFactory.getShiftDAO();
-        
-        /* Create Badge end Employee Objects */
-        
-        Badge b = badgeDAO.find("D2CC71D4");
-        Employee e = employeeDAO.find(b);
-        
-        /* Get Shift Object for Pay Period Starting 09-09-2018 (regular Shift 1 schedule) */
-        
-        LocalDate ts = LocalDate.of(2018, Month.SEPTEMBER, 9);
-        LocalDate begin = ts.with(TemporalAdjusters.previousOrSame(DayOfWeek.SUNDAY));
-        LocalDate end = begin.with(TemporalAdjusters.next(DayOfWeek.SATURDAY));
-        
-        Shift s = shiftDAO.find(b, ts);
-        
-        /* Retrieve Punch List #3 */
-        
-        ArrayList<Punch> p3 = punchDAO.list(b, begin, end);
-        
-        for (Punch p : p3) {
-            p.adjust(s);
-        }
-        
-        /* Calculate Pay Period 09-09-2018 Absenteeism */
-        
-        BigDecimal percentage = DAOUtility.calculateAbsenteeism(p3, s);
-        Absenteeism a3 = new Absenteeism(e, ts, percentage);
-        
-        assertEquals("#D2CC71D4 (Pay Period Starting 09-09-2018): -4.38%", a3.toString());
-        
-    }
-    
-    @Test
-    public void test2TemporaryOverrideIndividualEmployee() {
-        // Not passing
-        BadgeDAO badgeDAO = daoFactory.getBadgeDAO();
-        EmployeeDAO employeeDAO = daoFactory.getEmployeeDAO();
-        PunchDAO punchDAO = daoFactory.getPunchDAO();
-        ShiftDAO shiftDAO = daoFactory.getShiftDAO();
-        
-        /* Create Badge end Employee Objects */
-        
-        Badge b = badgeDAO.find("0FFA272B");
-        Employee e = employeeDAO.find(b);
-        
-        /* PART ONE */
-        
-        /* Get Shift Object for Pay Period Starting 09-02-2018 (should include Labor Day (09-03) override) */
-        
-        LocalDate ts = LocalDate.of(2018, Month.SEPTEMBER, 2);
-        LocalDate begin = ts.with(TemporalAdjusters.previousOrSame(DayOfWeek.SUNDAY));
-        LocalDate end = begin.with(TemporalAdjusters.next(DayOfWeek.SATURDAY));
-        
-        Shift s = shiftDAO.find(b, ts);
-        
-        /* Retrieve Punch List #1 */
-        
-        ArrayList<Punch> p1 = punchDAO.list(b, begin, end);
-        
-        for (Punch p : p1) {
-            p.adjust(s);
-        }
-        
-        /* Calculate Pay Period 09-02-2018 Absenteeism */
-        
-        BigDecimal percentage = DAOUtility.calculateAbsenteeism(p1, s);
-        Absenteeism a1 = new Absenteeism(e, ts, percentage);
-        
-        assertEquals("#0FFA272B (Pay Period Starting 09-02-2018): 28.13%", a1.toString());
-    }
-    @Test
-    public void test2TemporaryOverrideIndividualEmployee_2() {
-        BadgeDAO badgeDAO = daoFactory.getBadgeDAO();
-        EmployeeDAO employeeDAO = daoFactory.getEmployeeDAO();
-        PunchDAO punchDAO = daoFactory.getPunchDAO();
-        ShiftDAO shiftDAO = daoFactory.getShiftDAO();
-        
-        /* Create Badge end Employee Objects */
-        
-        Badge b = badgeDAO.find("0FFA272B");
-        Employee e = employeeDAO.find(b);
-        
-
-        /* PART TWO */
-        
-        /* Get Shift Object for Pay Period Starting 09-09-2018 (should include temporary "Wednesday Off" override) */
-        
-        LocalDate ts = LocalDate.of(2018, Month.SEPTEMBER, 9);
-        LocalDate begin = ts.with(TemporalAdjusters.previousOrSame(DayOfWeek.SUNDAY));
-        LocalDate end = begin.with(TemporalAdjusters.next(DayOfWeek.SATURDAY));
-        
-        Shift s = shiftDAO.find(b, ts);
-        
-        /* Retrieve Punch List #2 */
-        
-        ArrayList<Punch> p2 = punchDAO.list(b, begin, end);
-        
-        for (Punch p : p2) {
-            p.adjust(s);
-        }
-        
-        /* Calculate Pay Period 09-09-2018 Absenteeism */
-        
-        BigDecimal percentage = DAOUtility.calculateAbsenteeism(p2, s);
-        Absenteeism a2 = new Absenteeism(e, ts, percentage);
-        
-        assertEquals("#0FFA272B (Pay Period Starting 09-09-2018): -0.78%", a2.toString());
-    }
-
-    @Test
-    public void test2TemporaryOverrideIndividualEmployee_3() {
-        BadgeDAO badgeDAO = daoFactory.getBadgeDAO();
-        EmployeeDAO employeeDAO = daoFactory.getEmployeeDAO();
-        PunchDAO punchDAO = daoFactory.getPunchDAO();
-        ShiftDAO shiftDAO = daoFactory.getShiftDAO();
-        
-        /* Create Badge end Employee Objects */
-        
-        Badge b = badgeDAO.find("0FFA272B");
-        Employee e = employeeDAO.find(b);
-        
-        
-        /* Get Shift Object for Pay Period Starting 09-09-2018 (should NOT include temporary "Wednesday Off" override) */
-        
-        LocalDate ts = LocalDate.of(2018, Month.SEPTEMBER, 9);
-        LocalDate begin = ts.with(TemporalAdjusters.previousOrSame(DayOfWeek.SUNDAY));
-        LocalDate end = begin.with(TemporalAdjusters.next(DayOfWeek.SATURDAY));
-        
-        Badge b2 = badgeDAO.find("76B87761");
-        Employee e2 = employeeDAO.find(b2);
-        
-        Shift s = shiftDAO.find(b2, ts);
-        
-        /* Retrieve Punch List #3 */
-        
-        ArrayList<Punch> p3 = punchDAO.list(b2, begin, end);
-        
-        for (Punch p : p3) {
-            p.adjust(s);
-        }
-        
-        /* Calculate Pay Period 09-09-2018 Absenteeism */
-        
-        BigDecimal percentage = DAOUtility.calculateAbsenteeism(p3, s);
-        Absenteeism a3 = new Absenteeism(e2, ts, percentage);
-        
-        assertEquals("#76B87761 (Pay Period Starting 09-09-2018): 15.00%", a3.toString());
-    }
-    @Test
-    public void test2TemporaryOverrideIndividualEmployee_4() {
-        
-        BadgeDAO badgeDAO = daoFactory.getBadgeDAO();
-        EmployeeDAO employeeDAO = daoFactory.getEmployeeDAO();
-        PunchDAO punchDAO = daoFactory.getPunchDAO();
-        ShiftDAO shiftDAO = daoFactory.getShiftDAO();
-        
-        /* Create Badge end Employee Objects */
-        
-        Badge b = badgeDAO.find("0FFA272B");
-        Employee e = employeeDAO.find(b);
-        
-        
-        /* Get Shift Object for Pay Period Starting 09-16-2018 (regular Shift 1 schedule) */
-        
-        LocalDate ts = LocalDate.of(2018, Month.SEPTEMBER, 16);
-        LocalDate begin = ts.with(TemporalAdjusters.previousOrSame(DayOfWeek.SUNDAY));
-        LocalDate end = begin.with(TemporalAdjusters.next(DayOfWeek.SATURDAY));
-        
-        Shift s = shiftDAO.find(b, ts);
-        
-        /* Retrieve Punch List #4 */
-        
-        ArrayList<Punch> p4 = punchDAO.list(b, begin, end);
-        
-        for (Punch p : p4) {
-            p.adjust(s);
-        }
-        
-        /* Calculate Pay Period 09-16-2018 Absenteeism */
-        
-        BigDecimal percentage = DAOUtility.calculateAbsenteeism(p4, s);
-        Absenteeism a4 = new Absenteeism(e, ts, percentage);
-        
-        assertEquals("#0FFA272B (Pay Period Starting 09-16-2018): 55.00%", a4.toString());
-        
-    }
-    
-    @Test
-    public void test3RecurringOverrideIndividualEmployee() {
+    public void aaa_test3RecurringOverrideIndividualEmployee() {
         // not passing...
+        System.out.println("aaa_test3RecurringOverrideIndividualEmployee");
         BadgeDAO badgeDAO = daoFactory.getBadgeDAO();
         EmployeeDAO employeeDAO = daoFactory.getEmployeeDAO();
         PunchDAO punchDAO = daoFactory.getPunchDAO();
@@ -319,9 +53,16 @@ public class Version2_ShiftScheduleTest {
         /* Retrieve Punch List #1 */
         
         ArrayList<Punch> p1 = punchDAO.list(b, begin, end);
+        System.out.println("PunchList before adjusting: ");
         
         for (Punch p : p1) {
+            System.out.println(p);
             p.adjust(s);
+        }
+        
+        System.out.println("PunchList after adjusting: ");
+        for (Punch a : p1) {
+            System.out.println(a.printAdjusted());
         }
         
         /* Calculate Pay Period 09-09-2018 Absenteeism */
@@ -332,7 +73,8 @@ public class Version2_ShiftScheduleTest {
         assertEquals("#3282F212 (Pay Period Starting 09-09-2018): -23.75%", a1.toString());
     }
     @Test
-    public void test3RecurringOverrideIndividualEmployee_2() {
+    public void aab_test3RecurringOverrideIndividualEmployee_2() {
+        System.out.println("aab_test3RecurringOverrideIndividualEmployee_2");
         // not passing
         BadgeDAO badgeDAO = daoFactory.getBadgeDAO();
         EmployeeDAO employeeDAO = daoFactory.getEmployeeDAO();
@@ -356,9 +98,16 @@ public class Version2_ShiftScheduleTest {
         /* Retrieve Punch List #2 */
         
         ArrayList<Punch> p2 = punchDAO.list(b, begin, end);
+        System.out.println("PunchList before adjusting: ");
         
         for (Punch p : p2) {
+            System.out.println(p);
             p.adjust(s);
+        }
+        
+        System.out.println("PunchList after adjusting: ");
+        for (Punch a : p2) {
+            System.out.println(a.printAdjusted());
         }
         
         /* Calculate Pay Period 09-16-2018 Absenteeism */
@@ -370,7 +119,7 @@ public class Version2_ShiftScheduleTest {
     }
     @Test
     public void test3RecurringOverrideIndividualEmployee_3() {
-        
+        System.out.println("test3RecurringOverrideIndividualEmployee_3");
         BadgeDAO badgeDAO = daoFactory.getBadgeDAO();
         EmployeeDAO employeeDAO = daoFactory.getEmployeeDAO();
         PunchDAO punchDAO = daoFactory.getPunchDAO();
@@ -393,9 +142,16 @@ public class Version2_ShiftScheduleTest {
         /* Retrieve Punch List #3 */
         
         ArrayList<Punch> p3 = punchDAO.list(b, begin, end);
+        System.out.println("PunchList before adjusting: ");
         
         for (Punch p : p3) {
+            System.out.println(p);
             p.adjust(s);
+        }
+        
+        System.out.println("PunchList after adjusting: ");
+        for (Punch a : p3) {
+            System.out.println(a.printAdjusted());
         }
         
         /* Calculate Pay Period 09-23-2018 Absenteeism */

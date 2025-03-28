@@ -131,15 +131,12 @@ public class DAOUtility {
             for (Punch punch : dailyPunches) {
                 if (punch.getPunchtype() == EventType.CLOCK_IN) {
                     clockIn = punch; 
-                    //System.out.println(clockIn.printAdjusted());
-
+                    clockOut = null; // Reset clockOut when a new CLOCK IN is found
                 } 
-                else if (punch.getPunchtype() == EventType.CLOCK_OUT && clockIn != null) {
+                else if (punch.getPunchtype() == EventType.CLOCK_OUT && clockIn != null && clockOut == null) {
                     clockOut = punch;
-                    //System.out.println(clockOut.printAdjusted());
                     int minutesWorked = (int) Duration.between(clockIn.getAdjustedtimestamp(), clockOut.getAdjustedtimestamp()).toMinutes();
                     dailyTotal += minutesWorked;
-
 
                     if (!isWeekend(day)) {
                         LocalTime clockInTime = clockIn.getAdjustedtimestamp().toLocalTime();
@@ -148,9 +145,11 @@ public class DAOUtility {
                             workedThroughLunch = true;
                         }
                     }
+
+                    clockIn = null;
+                    clockOut = null;
                 }
             }
-
 
             if (!isWeekend(day) && workedThroughLunch && dailyTotal >= shift.getLunchThreshold()) {
                 dailyTotal -= shift.getLunchDuration();
@@ -164,15 +163,27 @@ public class DAOUtility {
 
     public static int calculateExpectedTotal(Shift shift) {
         int expectedMinutes = 0;
-        for (int dayNumber = 1; dayNumber <= 5; dayNumber++) { // Monday through Friday
+        for (int dayNumber = 1; dayNumber <= 5; dayNumber++) { // We must process EVERY single day.
             DayOfWeek day = DayOfWeek.of(dayNumber);
             DailySchedule schedule = shift.getDailySchedule(day);
-            expectedMinutes += schedule.getShiftDuration() - schedule.getLunchDuration();
+
+            if (schedule != null) {
+                int shiftDuration = schedule.getShiftDuration();
+                int lunchDuration = schedule.getLunchDuration();
+
+                if (shiftDuration < 0 || lunchDuration < 0) {
+                    continue; // Just skip if they're off this day.
+                }
+
+                expectedMinutes += shiftDuration - lunchDuration;
+            }
         }
         return expectedMinutes;
     }
 
+
     private static boolean isWeekend(LocalDate date) {
+        //return false;
         DayOfWeek dayOfWeek = date.getDayOfWeek();
         return (dayOfWeek == DayOfWeek.SATURDAY || dayOfWeek == DayOfWeek.SUNDAY);
     }

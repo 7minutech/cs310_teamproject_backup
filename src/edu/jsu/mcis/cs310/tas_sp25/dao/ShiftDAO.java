@@ -201,27 +201,69 @@ public class ShiftDAO {
             DayOfWeek day = DayOfWeek.of(dayNumber);
             int overrideScheduleId = Integer.parseInt(override.get("dailyscheduleid"));
 
+            // Log the data for each override to help with isolation
+            System.out.println("Processing Override: ");
+            System.out.println("  Start: " + start);
+            System.out.println("  End: " + end);
+            System.out.println("  Day Number: " + dayNumber);
+            System.out.println("  Day of Week: " + day);
+            System.out.println("  Schedule ID: " + overrideScheduleId);
+
+            // Create a dateTime for comparison
             LocalDateTime dateTime = date.atStartOfDay();
+
+            // Retrieve the schedule to apply
             DailySchedule overrideSchedule = findSchedule(overrideScheduleId);
-            if (overrideSchedule != null) {
-                shift.overrideDailySchedule(date.getDayOfWeek(), overrideSchedule);
+
+            // Parse start and end times if they exist
+            LocalDateTime startDateTime = null, endDateTime = null;
+            if (start != null) {
+                startDateTime = LocalDateTime.parse(start, formatter); 
+                System.out.println("  Start DateTime: " + startDateTime);
+            }
+            if (end != null) {
+                endDateTime = LocalDateTime.parse(end, formatter);
+                System.out.println("  End DateTime: " + endDateTime);
             }
 
-            if (end == null) {
-                shift.overrideDailySchedule(day, overrideSchedule);
-            } else {
-                LocalDateTime startDateTime = LocalDateTime.parse(start, formatter);
-                LocalDateTime endDateTime = LocalDateTime.parse(end, formatter);
-                boolean rangeStart = startDateTime.isBefore(dateTime) || startDateTime.isEqual(dateTime);
-                boolean rangeEnd = endDateTime.isAfter(dateTime) || endDateTime.isEqual(dateTime);
+            // If an override schedule exists, check if it should be applied
+            if (overrideSchedule != null) {
+                System.out.println("  Override schedule found: " + overrideSchedule);
 
-                if (rangeStart && rangeEnd) {
-                    shift.overrideDailySchedule(day, overrideSchedule);
+                if (end == null) { // Recurring override.
+                    System.out.println("  Recurring Override:");
+                    if (!dateTime.isBefore(startDateTime)) { // Check if current date is after start time
+                        System.out.println("    Date " + dateTime + " is after start " + startDateTime + ". Applying recurring override.");
+                        shift.setDailySchedule(day, overrideSchedule);
+                        System.out.println("    Recurring override applied to shift.");
+                        return shift; // Return early once the override is applied
+                    } else {
+                        System.out.println("    Date " + dateTime + " is before start " + startDateTime + ". Skipping recurring override.");
+                    }
+                } else { // Temporary override.
+                    System.out.println("  Temporary Override:");
+                    if (!dateTime.isBefore(startDateTime)) { // Check if current date is after the start time
+                        if (!dateTime.isAfter(endDateTime)) { // Check if current date is before the end time
+                            System.out.println("    Date " + dateTime + " is within the range " + startDateTime + " to " + endDateTime + ". Applying temporary override.");
+                            shift.setDailySchedule(day, overrideSchedule);
+                            System.out.println("    Temporary override applied to shift.");
+                            return shift; // Return early once the override is applied
+                        } else {
+                            System.out.println("    Date " + dateTime + " is after end " + endDateTime + ". Skipping temporary override.");
+                        }
+                    } else {
+                        System.out.println("    Date " + dateTime + " is before start " + startDateTime + ". Skipping temporary override.");
+                    }
                 }
+            } else {
+                System.out.println("  No valid override schedule found for ID " + overrideScheduleId);
             }
         }
+
+        // If no overrides applied, return the original shift
         return shift;
     }
+
     
     public Shift find(int id) {
         Shift shift = null;
@@ -280,12 +322,21 @@ public class ShiftDAO {
     }
     
     public Shift find(Badge badge, LocalDate date) {
+        PunchDAO punchDAO = daoFactory.getPunchDAO();
         Shift shift = find(badge); // reuse original to get the initial Shift
+        ArrayList<Punch> punches = punchDAO.list(badge, date, date.plusDays(7));
 
         if (shift == null) {
             return null; // If no shift found, return null
         }
 
+        // Set for all days of the week, including the weekend if they worked. This is necessary later.
+        for (Punch p : punches) {
+            if (p.getPunchtype() == EventType.CLOCK_IN) {
+                shift.setDailySchedule(p.getOriginaltimestamp().getDayOfWeek(), shift.getDefaultSchedule());
+            }
+        }
+        
         // Find recurring overrides (apply to all employees)
         ArrayList<HashMap<String, String>> allRecurringOverrides = findScheduleOverrides(QUERY_FIND_RECURRING_OVERRIDES_ALL, null);
         shift = applyDailyScheduleOverrides(shift, date, allRecurringOverrides);
@@ -295,6 +346,7 @@ public class ShiftDAO {
             ArrayList<HashMap<String, String>> employeeRecurringOverrides = findScheduleOverrides(QUERY_FIND_RECURRING_OVERRIDES_EMPLOYEE, badge);
             shift = applyDailyScheduleOverrides(shift, date, employeeRecurringOverrides);
         }
+        
 
         // Now find temporary overrides if they apply
         ArrayList<HashMap<String, String>> allTemporaryOverrides = findScheduleOverrides(QUERY_FIND_TEMPORARY_OVERRIDES_ALL, null);
@@ -307,6 +359,7 @@ public class ShiftDAO {
         }
 
         // Return the updated shift with all overrides applied
+        System.out.println(shift.dailySchedules());
         return shift;
     }
 
