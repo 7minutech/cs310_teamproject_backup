@@ -152,15 +152,15 @@ public class Punch {
     
     private boolean shiftStartRule(LocalTime shiftStart, int roundInterval){
         LocalTime clockIn = originalTimestamp.toLocalTime();
-        long elapsedMinutes = Duration.between(clockIn, shiftStart).toMinutes();
-        return isBetween(Punch.MIN_ELAPSED_MINUTES + 1,roundInterval, elapsedMinutes);
+        long elapsedSeconds = Duration.between(clockIn, shiftStart).toSeconds();
+        return isBetween(Punch.MIN_ELAPSED_MINUTES * 60, roundInterval * 60, elapsedSeconds);
     }
     
     private boolean shiftStopRule(LocalTime shiftStop, int roundInterval){
         LocalTime clockOut = originalTimestamp.toLocalTime();
-        long elapsedMinutes = Duration.between(shiftStop, clockOut).toMinutes();
+        long elapsedSeconds = Duration.between(shiftStop, clockOut).toSeconds();
         /*Only Late shift start will be positive*/
-        return isBetween(Punch.MIN_ELAPSED_MINUTES + 1,roundInterval,elapsedMinutes);
+        return isBetween((Punch.MIN_ELAPSED_MINUTES * 60) + 1,roundInterval * 60, elapsedSeconds);
     }
     
     private boolean roundIntervalRule(int roundInterval){

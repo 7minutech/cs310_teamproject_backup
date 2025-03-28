@@ -5,6 +5,7 @@ import java.util.*;
 import java.time.temporal.ChronoUnit;
 import java.time.format.DateTimeFormatter;
 import com.github.cliftonlabs.json_simple.*;
+import edu.jsu.mcis.cs310.tas_sp25.DailySchedule;
 import edu.jsu.mcis.cs310.tas_sp25.EventType;
 import edu.jsu.mcis.cs310.tas_sp25.PunchAdjustmentType;
 
@@ -25,6 +26,7 @@ import java.sql.ResultSetMetaData;
 
 public class DAOUtility {
     private static final int WORKS_DAYS = 5;
+
     public static String getResultSetAsJson(ResultSet rs) {
         JsonArray records = new JsonArray(); // declare an empty array. if we were to find nothing, it will be returned
 
@@ -51,7 +53,8 @@ public class DAOUtility {
         return Jsoner.serialize(records);
     }
     
-    public static HashMap<String, String> getResultsSetAsParameters(ResultSet rs) { 
+    public static HashMap<String, String> getResultsSetAsParameters(ResultSet rs) {
+        // Possible future issue, we may need to update to accept rs by reference instead of by value.
         HashMap<String, String> map = new HashMap<>();
         try {
             if (rs != null) {
@@ -88,7 +91,7 @@ public class DAOUtility {
         String adjustedTimestamp = punch.printAdjusted();
         delimiterIndex = adjustedTimestamp.indexOf(": ");
         adjustedTimestamp = adjustedTimestamp.substring(delimiterIndex + 2);
-        // The adjustment type is also include in parenthesis. We must remove everything after the opening parenthesis.
+        // The adjustment type is also included in parenthesis. We must remove everything after the opening parenthesis.
         delimiterIndex = adjustedTimestamp.indexOf(" (");
         adjustedTimestamp = adjustedTimestamp.substring(0, delimiterIndex);
         punchData.put("adjustedtimestamp", adjustedTimestamp);
@@ -104,10 +107,8 @@ public class DAOUtility {
 
         return Jsoner.serialize(jsonData);
     }
-    
 
-
-public static int calculateTotalMinutes(ArrayList<Punch> punchList, Shift shift) {
+    public static int calculateTotalMinutes(ArrayList<Punch> punchList, Shift shift) {
         // Group punches by day
         Map<LocalDate, List<Punch>> punchesByDay = new HashMap<>();
         for (Punch p : punchList) {
@@ -130,15 +131,11 @@ public static int calculateTotalMinutes(ArrayList<Punch> punchList, Shift shift)
             for (Punch punch : dailyPunches) {
                 if (punch.getPunchtype() == EventType.CLOCK_IN) {
                     clockIn = punch; 
-                    //System.out.println(clockIn.printAdjusted());
-
                 } 
                 else if (punch.getPunchtype() == EventType.CLOCK_OUT && clockIn != null) {
                     clockOut = punch;
-                    //System.out.println(clockOut.printAdjusted());
                     int minutesWorked = (int) Duration.between(clockIn.getAdjustedtimestamp(), clockOut.getAdjustedtimestamp()).toMinutes();
                     dailyTotal += minutesWorked;
-
 
                     if (!isWeekend(day)) {
                         LocalTime clockInTime = clockIn.getAdjustedtimestamp().toLocalTime();
@@ -147,9 +144,10 @@ public static int calculateTotalMinutes(ArrayList<Punch> punchList, Shift shift)
                             workedThroughLunch = true;
                         }
                     }
+                    clockIn = null;
+                    clockOut = null;
                 }
             }
-
 
             if (!isWeekend(day) && workedThroughLunch && dailyTotal >= shift.getLunchThreshold()) {
                 dailyTotal -= shift.getLunchDuration();
@@ -163,9 +161,21 @@ public static int calculateTotalMinutes(ArrayList<Punch> punchList, Shift shift)
 
     public static int calculateExpectedTotal(Shift shift) {
         int expectedMinutes = 0;
-        expectedMinutes += (int) Duration.between(shift.getShiftStart(), shift.getShiftStop()).toMinutes();
-        expectedMinutes -= (int) Duration.between(shift.getLunchStart(), shift.getLunchStop()).toMinutes();
-        expectedMinutes *=  WORKS_DAYS;
+        for (int dayNumber = 1; dayNumber <= 5; dayNumber++) { // loop through every weekday.
+            DayOfWeek day = DayOfWeek.of(dayNumber);
+            DailySchedule schedule = shift.getDailySchedule(day);
+
+            if (schedule != null) {
+                int shiftDuration = schedule.getShiftDuration();
+                int lunchDuration = schedule.getLunchDuration();
+
+                if (shiftDuration < 0 || lunchDuration < 0) {
+                    continue; // Just skip if they're off this day.
+                }
+
+                expectedMinutes += shiftDuration - lunchDuration;
+            }
+        }
         return expectedMinutes;
     }
 
@@ -174,8 +184,6 @@ public static int calculateTotalMinutes(ArrayList<Punch> punchList, Shift shift)
         return (dayOfWeek == DayOfWeek.SATURDAY || dayOfWeek == DayOfWeek.SUNDAY);
     }
 
-
-    
     public static BigDecimal calculateAbsenteeism(ArrayList<Punch> punchlist, Shift s) {
         int totalMinutesWorked = DAOUtility.calculateTotalMinutes(punchlist, s);
         int standardMinutes = calculateExpectedTotal(s);
@@ -186,13 +194,6 @@ public static int calculateTotalMinutes(ArrayList<Punch> punchList, Shift shift)
     }
 
     public static String getPunchListPlusTotalsAsJSON(ArrayList<Punch> punchlist, Shift shift) throws JsonException {
-        /*
-            ArrayList punchlist
-                HashMap punchData
-            string totalminutes
-            string absenteeism
-
-        */
         JsonObject obj = new JsonObject();
         String json = "";
         try {
@@ -211,5 +212,4 @@ public static int calculateTotalMinutes(ArrayList<Punch> punchList, Shift shift)
 
         return json;
     }
-
 }

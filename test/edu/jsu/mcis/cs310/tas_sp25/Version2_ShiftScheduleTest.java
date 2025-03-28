@@ -1,4 +1,4 @@
-ppackage edu.jsu.mcis.cs310.tas_sp25;
+package edu.jsu.mcis.cs310.tas_sp25;
 
 import edu.jsu.mcis.cs310.tas_sp25.dao.PunchDAO;
 import edu.jsu.mcis.cs310.tas_sp25.dao.BadgeDAO;
@@ -50,7 +50,6 @@ public class Version2_ShiftScheduleTest {
         Shift s = shiftDAO.find(b, ts);
         
         /* Retrieve Punch List #1 */
-        
         ArrayList<Punch> p1 = punchDAO.list(b, begin, end);
         
         for (Punch p : p1) {
