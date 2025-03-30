@@ -6,6 +6,11 @@ import java.time.*;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * <p>The PunchDAO class has queries and methods to find a punch or a list punches in a range 
+ * and to create punches with the data from the event table</p>
+ * @author Eli
+ */
 public class PunchDAO {
 
     private static final String QUERY_FIND = "SELECT * FROM event WHERE id = ?";
@@ -25,7 +30,13 @@ public class PunchDAO {
         this.daoFactory = daoFactory;
         this.badgeDAO = new BadgeDAO(daoFactory);  // Initialize BadgeDAO
     }
-
+   
+   /**
+    * <p>This is a method which takes in an id and returns the found data 
+    * as a Punch object</p>
+    * @param id The id in the event table to be found 
+    * @return Found punch object
+    */
    public Punch find(Integer id) {
 
     Punch punch = null;
@@ -75,7 +86,13 @@ public class PunchDAO {
     return punch;
     }
    
-   //list method daily
+   /**
+    * <p>This is a method which takes an employee's badge and a date and
+    * returns the list of punches for that employee on that date</p>
+    * @param badge The badge of an employee from the badge table
+    * @param date The date on which the punches are searched for 
+    * @return The ArrayList of found punch objects for the day
+    */
     public ArrayList<Punch> list(Badge badge, LocalDate date) {
         ArrayList<Punch> punches = new ArrayList<>();
         PreparedStatement ps = null;
@@ -144,6 +161,13 @@ public class PunchDAO {
         return punches;
     }
     
+    /**
+     * <p>This is a method which takes a punch object and inserts it into the
+     * event table and returns that inserted punch's id</p>
+     * @param punch The punch object to be inserted into the event table
+     * @return The id of the newly created punch object inserted into the event 
+     * table
+     */
     public int create(Punch punch) {
         
         int result = 0;
@@ -191,7 +215,14 @@ public class PunchDAO {
         
     }
     
-    //list method range
+    /**
+     * <p>This method takes a badge from an employee, a start, and an end date
+     * and returns that employee's punches over that range of days</p>
+     * @param badge The badge of an employee from the badge table
+     * @param begin The start date for the range of punches
+     * @param end The end date for the range of punches
+     * @return The ArrayList of found punches over the specified data range 
+     */
     public ArrayList<Punch> list(Badge badge, LocalDate begin, LocalDate end) {
         ArrayList<Punch> punches = new ArrayList<>();
         PreparedStatement ps = null;
