@@ -4,6 +4,11 @@ import java.time.*;
 import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 
+/**
+ * <p>The {@link Punch} class represents a punch made by an employee in the 
+ * event table</p>
+ * @author Eli
+ */
 public class Punch {
     private final Integer id;
     private final int terminalid;
@@ -15,6 +20,13 @@ public class Punch {
     private static final String[] WeekendDays = {"SAT","SUN"};
     private static final int MIN_ELAPSED_MINUTES = 0;
     
+    /**
+     * This method takes a terminal id, {@link Badge}, and {@link EventType} and 
+     * creates a {@link Punch} which represents a particular punch
+     * @param terminalid The id of the terminal associated with the punch
+     * @param badge The badge of the employee associated with the punch
+     * @param punchtype The {@link EventType} associated with the punch
+     */
     public Punch(int terminalid, Badge badge, EventType punchtype) {
         this.terminalid = terminalid;
         this.badge = badge;
@@ -25,6 +37,15 @@ public class Punch {
         this.adjustmenttype = null;
     }
     
+    /**
+     * This method takes an id, terminal id, {@link Badge}, {@link LocalDateTime}
+     * {@link EventType} and creates a {@link Punch} which represents a particular punch
+     * @param id The id number associated with the punch
+     * @param terminalid The id of the terminal associated with the punch
+     * @param badge The badge of the employee associated with the punch
+     * @param originaltimestamp The timestamp associated with the punch
+     * @param punchtype The {@link EventType} associated with the punch
+     */
     public Punch(int id, int terminalid, Badge badge, LocalDateTime originaltimestamp, EventType punchtype){
         this.id = id;
         this.terminalid = terminalid;
@@ -35,41 +56,80 @@ public class Punch {
         this.adjustmenttype = null;
     }
 
+    
+    /**
+    * Gets the id of the punch.
+    * @return The id of the punch
+    */
     public Integer getId() {
-        return id;
+       return id;
     }
 
+    /**
+    * Gets the terminal id associated with the punch.
+    * @return The terminal id associated with the punch
+    */
     public int getTerminalid() {
-        return terminalid;
+       return terminalid;
     }
 
+    /**
+    * Gets the {@link Badge} associated with the punch.
+    * @return The badge associated with the punch
+    */
     public Badge getBadge() {
-        return badge;
+       return badge;
     }
 
+    /**
+    * Gets the {@link EventType} associated with the punch.
+    * @return The event type associated with the punch
+    */
     public EventType getPunchtype() {
-        return punchtype;
+       return punchtype;
     }
 
+    /**
+    * Gets the original timestamp when the punch was made.
+    * @return The original timestamp as a {@link LocalDateTime} of the punch
+    */
     public LocalDateTime getOriginaltimestamp() {
-        return originalTimestamp;
+       return originalTimestamp;
     }
 
+    /**
+    * Gets the adjusted timestamp if the punch was adjusted.
+    * @return The adjusted timestamp of the punch as a {@link LocalDateTime},
+    * or null if no adjustment was made
+    */
     public LocalDateTime getAdjustedtimestamp() {
-        return adjustedTimestamp;
+       return adjustedTimestamp;
     }
 
+    /**
+    * Gets the type of adjustment made to the punch, if any.
+    * @return The adjustment type as a {@link PunchAdjustmentType},
+    * or null if no adjustment was made
+    */
     public PunchAdjustmentType getAdjustmentType() {
-        return adjustmenttype;
+       return adjustmenttype;
     }
 
+    /**
+     * This method returns the formatted string from {@link #printOriginal()}
+     * @return The {@link Punch} as a {@link String}
+     */
     @Override
     public String toString() {
         return printOriginal();
     }
     
+    /**
+     * This method uses {@link StringBuilder} to create a string representation 
+     * of the originalTimestamp}
+     * @return The {@link String} representation of the originalTimestamp}
+     */
     public String printOriginal(){
-        // "#D2C39273 CLOCK IN: WED 09/05/2018 07:00:07"
         StringBuilder s = new StringBuilder();
 
         s.append('#').append(badge.getId()).append(' ');
@@ -78,6 +138,11 @@ public class Punch {
         return s.toString();
     }
     
+    /**
+     * This method uses {@link #formatAdjustedPunch} 
+     * to create a string representation of the adjustedTimestamp
+     * @return The {@link String} representation of the adjustedTimestamp
+     */
     public String printAdjusted(){
         StringBuilder s = new StringBuilder(); // Austin-Refactored -Methods
         if (adjustedTimestamp != null){
@@ -85,7 +150,14 @@ public class Punch {
         }
         return s.toString();
     }
-
+    
+    /**
+     * This method takes a {@link StringBuilder} and formats an adjusted punch
+     * using {@link #formatTimestamp(java.time.LocalDateTime)} for the timestamp 
+     * portion of punch
+     * @param s The {@link StringBuilder} which will append the formatted information
+     * of the adjusted punch
+     */
     private void formatAdjustedPunch(StringBuilder s) {
         s.append('#').append(badge.getId()).append(' ');
         s.append(punchtype).append(": ").append(formatTimestamp(adjustedTimestamp));
@@ -93,6 +165,13 @@ public class Punch {
         s.append("(").append(adjustmenttype).append(")");
     }
     
+    /**
+     * This method takes a {@link Shift} and checks which punch adjustment rules
+     * should apply based on the {@link EventType} and the day of the week
+     * using {@link #isWeekend()} to initialize the adjustedTimestamp and adjustmentType
+     * depending on the applied punch adjustment rule
+     * @param s The shift used for the punch adjustment rules
+     */
     public void adjust(Shift s){
         LocalDate date = originalTimestamp.toLocalDate();
         if (!(isWeekend())){
@@ -259,16 +338,25 @@ public class Punch {
         return formattedDate(timestamp) + " " + formattedTime(timestamp);
 }
     
-        // Formats date w/ day abbreviation - Austin
+    // Formats date w/ day abbreviation - Austin
+    /**
+     * This method takes a {@link LocalDateTime} but only formats the date
+     * and returns the {@link String} representation of it
+     * @param timestamp The {@link LocalDateTime} of the punch
+     * @return The {@link String} representation of the date
+     */
     public String formattedDate(LocalDateTime timestamp) {
         return getDayAbbreviation(timestamp) + " " + timestamp.format(DateTimeFormatter.ofPattern("MM/dd/yyyy"));
     }
             
-            // Orginal comments - 
-            //Need to forcefully append :00
-            //otherwise nothing is appended
     
-            // Formats time and appends ":00" if seconds are zero - Austin
+    // Formats time and appends ":00" if seconds are zero - Austin
+    /**
+     * This method takes a {@link LocalDateTime} but formats only the time and 
+     * returns the {@link String} representation of it
+     * @param timestamp The {@link LocalDateTime} of the punch
+     * @return The {@link String} representation of the time
+     */
     public String formattedTime(LocalDateTime timestamp) {
         LocalTime time = timestamp.toLocalTime();
         return (time.getSecond() == 0) ? time + ":00" : time.toString();
