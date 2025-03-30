@@ -7,7 +7,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * <p>The PunchDAO class has queries and methods to find a punch or a list punches in a range 
+ * <p>The PunchDAO class has queries and methods to find a {@link Punch} or a list punches in a range 
  * and to create punches with the data from the event table</p>
  * @author Eli
  */
@@ -33,9 +33,9 @@ public class PunchDAO {
    
    /**
     * <p>This is a method which takes in an id and returns the found data 
-    * as a Punch object</p>
+    * as a {@link Punch} object</p>
     * @param id The id in the event table to be found 
-    * @return Found punch object
+    * @return Found {@link Punch} object
     */
    public Punch find(Integer id) {
 
@@ -162,9 +162,9 @@ public class PunchDAO {
     }
     
     /**
-     * <p>This is a method which takes a punch object and inserts it into the
+     * <p>This is a method which takes a {@link Punch} object and inserts it into the
      * event table and returns that inserted punch's id</p>
-     * @param punch The punch object to be inserted into the event table
+     * @param punch The {@link Punch} object to be inserted into the event table
      * @return The id of the newly created punch object inserted into the event 
      * table
      */
@@ -296,6 +296,3 @@ public class PunchDAO {
         return punches;
     }
 }
-
-
-
