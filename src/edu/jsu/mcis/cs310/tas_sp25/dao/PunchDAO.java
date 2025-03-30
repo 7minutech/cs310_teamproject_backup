@@ -25,7 +25,12 @@ public class PunchDAO {
 
     private final DAOFactory daoFactory;
     private final BadgeDAO badgeDAO;
-
+    
+    /**
+     * Creates a {@link PunchDAO} with the given {@link DAOFactory} and also
+     * creates a {@link BadgeDAO} for fetching punches of a specific employee
+     * @param daoFactory 
+     */
     PunchDAO(DAOFactory daoFactory) {
         this.daoFactory = daoFactory;
         this.badgeDAO = new BadgeDAO(daoFactory);  // Initialize BadgeDAO
