@@ -8,26 +8,43 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+/**
+ * <p>The {@code ShiftDAO} class provides methods for retrieving {@link Shift} 
+ * and {@link DailySchedule} objects from the database. It also applies 
+ * schedule overrides based on employee and date-specific configurations.</p>
+ * 
+ * <p>This class supports loading shifts by shift ID, badge, and also handling 
+ * recurring and temporary overrides from the schedule override table.</p>
+ */
 public class ShiftDAO {
+    /* The DAOFactory instance used to obtain connections and other DAOs */
     private final DAOFactory daoFactory;
+    // SQL query strings for loading shift and schedule information.
     private final String QUERY_FIND = "SELECT * FROM shift WHERE id = ?";
-    private final String QUERY_FIND_EMPLOYEE = "SELECT * FROM employee WHERE badgeid = ?"; // find the employee with this badge
-    private final String QUERY_FIND_DAILYSCHEDULE = "SELECT * FROM dailyschedule WHERE id = ?"; // find the employee with this badge
-    /*
-        SCHEDULE OVERRIDE QUERIES
-    */
-    //private final String QUERY_FIND_RECURRING_OVERRIDES_ALL = "SELECT * FROM scheduleoverride";
+    private final String QUERY_FIND_EMPLOYEE = "SELECT * FROM employee WHERE badgeid = ?";
+    private final String QUERY_FIND_DAILYSCHEDULE = "SELECT * FROM dailyschedule WHERE id = ?";
     private final String QUERY_FIND_RECURRING_OVERRIDES_ALL = "SELECT * FROM scheduleoverride WHERE end IS NULL AND badgeid IS NULL";
     private final String QUERY_FIND_RECURRING_OVERRIDES_EMPLOYEE = "SELECT * FROM scheduleoverride WHERE end IS NULL AND badgeid = ?";
     private final String QUERY_FIND_TEMPORARY_OVERRIDES_ALL = "SELECT * FROM scheduleoverride WHERE end IS NOT NULL AND badgeid IS NULL";
     private final String QUERY_FIND_TEMPORARY_OVERRIDES_EMPLOYEE = "SELECT * FROM scheduleoverride WHERE end IS NOT NULL AND badgeid = ?";
 
+    /**
+     * Constructs a {@code ShiftDAO} with the given factory.
+     * 
+     * @param daoFactory the DAO factory to use for DB access
+     */
     ShiftDAO(DAOFactory daoFactory) {
 
         this.daoFactory = daoFactory;
 
     }
     
+    /**
+     * Finds and returns a {@link Shift} assigned to the employee identified by the given {@link Badge}.
+     * 
+     * @param badge the badge identifying the employee
+     * @return the employee's {@code Shift}, or null if not found
+     */
     public Shift find(Badge badge) { // find via badge
         if (badge == null) { // Return null without trying if badge is invalid.
             return null;
@@ -89,6 +106,12 @@ public class ShiftDAO {
 
     }
     
+    /**
+     * Finds and returns a {@link DailySchedule} by its ID.
+     * 
+     * @param id the daily schedule ID
+     * @return the {@link DailySchedule}, or null if not found
+     */
     public DailySchedule findSchedule(int id) {
         DailySchedule dailyschedule = null;
 
@@ -131,6 +154,13 @@ public class ShiftDAO {
 
     }
     
+    /**
+     * Executes a query to find schedule overrides and returns them as a list of key-value pairs.
+     * 
+     * @param query the SQL query string
+     * @param badge optional badge to filter by employee (nullable)
+     * @return a list of schedule override maps
+     */
     public ArrayList<HashMap<String, String>> findScheduleOverrides(String query, Badge badge) {
         ArrayList<HashMap<String, String>> overrides = new ArrayList<>();
 
@@ -186,7 +216,14 @@ public class ShiftDAO {
         return overrides;
     }
 
-    
+    /**
+     * Applies schedule overrides to a given {@link Shift}, modifying the daily schedule if needed.
+     * 
+     * @param shift the shift to apply overrides to
+     * @param date the date to match against override rules
+     * @param overrides a list of schedule overrides
+     * @return the updated shift with any applicable overrides applied
+     */
     public Shift applyDailyScheduleOverrides(Shift shift, LocalDate date, ArrayList<HashMap<String, String>> overrides) {
         if (shift == null || overrides == null || overrides.isEmpty()) {
             return shift; // No overrides or no shift, nothing to change.
@@ -236,7 +273,12 @@ public class ShiftDAO {
         return shift;
     }
 
-    
+    /**
+     * Finds and returns a {@link Shift} by its ID.
+     * 
+     * @param id the shift ID
+     * @return the {@link Shift}, or null if not found
+     */
     public Shift find(int id) {
         Shift shift = null;
 
@@ -293,6 +335,14 @@ public class ShiftDAO {
 
     }
     
+    /**
+     * Finds and returns a {@link Shift} for a given employee and date, applying any recurring 
+     * or temporary overrides if present.
+     * 
+     * @param badge the employee's badge
+     * @param date the specific date for shift and override lookup
+     * @return the {@link Shift} with any applicable daily overrides
+     */
     public Shift find(Badge badge, LocalDate date) {
         PunchDAO punchDAO = daoFactory.getPunchDAO();
         Shift shift = find(badge); // reuse original to get the initial Shift
