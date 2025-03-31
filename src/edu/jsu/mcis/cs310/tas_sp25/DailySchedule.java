@@ -8,14 +8,40 @@ import java.time.LocalTime;
 import java.util.HashMap;
 
 /**
- *
+ * <p>The {@code DailySchedule} class represents a daily work schedule 
+ * including shift times, lunch times, and various timekeeping thresholds.</p>
+ * 
+ * <p>This class is used to define the schedule rules that determine rounding 
+ * intervals, grace periods, and penalties for tardiness, as well as the duration 
+ * and timing of lunch breaks.</p>
+ * 
  * @author mantra
  */
+
 public class DailySchedule {
+    
+    /**
+     * The start and end times of the employee's scheduled shift.
+     */
     private LocalTime shiftstart, shiftstop;
+    
+    /**
+     * The start and end times of the scheduled lunch period.
+     */
     private LocalTime lunchstart, lunchstop;
+    
+    
+    /**
+     * The rounding interval, grace period, dock penalty, and lunch threshold in minutes.
+     */
     private int roundinterval, graceperiod, dockpenalty, lunchthreshold;
     
+    /**
+     * Constructs a {@code DailySchedule} object using a map of string parameters.
+     * 
+     * @param parameters A HashMap of schedule parameters including shift times,
+     *                   lunch times, and timing rules.
+     */
     public DailySchedule(HashMap<String, String> parameters) {
         this.shiftstart = LocalTime.parse(parameters.get("shiftstart"));
         this.shiftstop = LocalTime.parse(parameters.get("shiftstop"));
@@ -94,6 +120,12 @@ public class DailySchedule {
         this.lunchstop = value;
     }
     
+    /**
+     * Returns a formatted string representation of the daily schedule, including shift
+     * and lunch details.
+     * 
+     * @return a string representing the schedule and durations
+     */
     @Override
     public String toString() {
         // assertEquals("Shift 1: 07:00 - 15:30 (510 minutes); Lunch: 12:00 - 12:30 (30 minutes)", s1.toString());
