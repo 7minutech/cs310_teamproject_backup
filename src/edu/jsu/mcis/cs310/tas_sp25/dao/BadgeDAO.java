@@ -24,7 +24,6 @@ public class BadgeDAO {
         this.daoFactory = daoFactory;
 
     }
-<<<<<<< HEAD
 
    
         /**
