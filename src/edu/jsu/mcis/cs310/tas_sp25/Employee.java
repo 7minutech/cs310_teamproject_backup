@@ -5,7 +5,12 @@ import java.time.format.DateTimeFormatter;
 
 
 /**
- *
+ * <p>The {@code Employee} class represents an individual worker in the organization, 
+ * including their name, badge, department, shift, and employment type.</p>
+ * 
+ * <p>This class stores identifying and job-related data, and is used throughout 
+ * the system for tracking time, attendance, and scheduling.</p>
+ * 
  * @author Katty
  */
 
@@ -18,7 +23,21 @@ public class Employee {
     private final Department department;
     private final Shift shift;
     private final EmployeeType employeeType;
-
+    
+    /**
+     * Constructs an {@code Employee} object with full name, badge, department, shift,
+     * and employment type information.
+     * 
+     * @param id The employee's unique ID
+     * @param firstname The employee's first name
+     * @param middlename The employee's middle name
+     * @param lastname The employee's last name
+     * @param active The activation date of the employee
+     * @param badge The badge assigned to the employee
+     * @param department The department the employee belongs to
+     * @param shift The assigned shift
+     * @param employeeType The type of employee (Full-Time/Part-Time)
+     */
     public Employee(int id, String firstname, String middlename, String lastname, 
                     LocalDateTime active, Badge badge, Department department, 
                     Shift shift, EmployeeType employeeType) {
@@ -61,7 +80,13 @@ public class Employee {
     public EmployeeType getEmployeeType() {
         return this.employeeType;
     }
-
+    
+    /**
+     * Returns a formatted string with the employee's ID, name, badge ID, type,
+     * department, and activation date.
+     * 
+     * @return a string representation of the employee
+     */
     @Override
     public String toString() {
         // Expected format: ID #14: Donaldson, Kathleen C (#229324A4), Type: Full-Time, Department: Press, Active: 02/02/2017
