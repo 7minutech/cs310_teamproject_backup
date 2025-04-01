@@ -1,12 +1,11 @@
 package edu.jsu.mcis.cs310.tas_sp25;
 
 /**
- * <p>The {@code EventType} enum defines the types of timeclock events that can be 
- * recorded when an employee uses their badge. These events include clocking in, 
+ * <p>The {@code EventType} enum defines the types of punches that can be 
+ * recorded when an employee creates a punch. These events include clocking in, 
  * clocking out, and taking a time-out.</p>
  * 
- * <p>Each enum constant includes both a unique numeric ID and a textual description 
- * used for display or database storage.</p>
+ * <p>Each enum constant includes both a unique numeric ID and a textual description.</p>
  */
 public enum EventType {
 
