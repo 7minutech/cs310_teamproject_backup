@@ -3,30 +3,23 @@ package edu.jsu.mcis.cs310.tas_sp25.dao;
 import java.sql.*;
 
 /**
- * <p>The {@code DAOFactory} class is responsible for creating and managing access 
- * to DAO instances and maintaining a shared database connection.</p>
- * 
- * <p>It loads connection properties from a configuration file and provides 
- * factory methods to retrieve specific DAO objects such as {@link BadgeDAO}, 
- * {@link ShiftDAO}, {@link EmployeeDAO}, and more.</p>
+ * Builds and gives access to different DAO classes.
+ * Also connects to the database using properties.
  */
 public final class DAOFactory {
 
-    /* Property keys for database configuration */
+    /* Property keys for database settings */
     private static final String PROPERTY_URL = "url";
     private static final String PROPERTY_USERNAME = "username";
     private static final String PROPERTY_PASSWORD = "password";
 
-    /* Database connection configuration */
+    /* Settings for the database */
     private final String url, username, password;
-    /* Shared database connection instance */
     private Connection conn = null;
     
     /**
-     * Constructs a {@code DAOFactory} using the provided prefix to load 
-     * configuration properties from the DAO properties file.
-     * 
-     * @param prefix the prefix used to select the correct property set
+     * Sets up DAOFactory using properties from file.
+     * @param prefix which set of properties to load
      */
     public DAOFactory(String prefix) {
 
@@ -43,37 +36,67 @@ public final class DAOFactory {
         }
 
     }
-
+        
+    /**
+     * Gives current database connection.
+     * @return shared connection
+     */
+    
     Connection getConnection() {
         return conn;
     }
+    
+    /**
+     * Makes a BadgeDAO using this factory.
+     * @return BadgeDAO
+     */
 
     public BadgeDAO getBadgeDAO() {
         return new BadgeDAO(this);
     }
     
+    /**
+     * Makes a ShiftDAO using this factory.
+     * @return ShiftDAO
+     */
     public ShiftDAO getShiftDAO() {
         return new ShiftDAO(this);
     }
     
+    /**
+     * Makes a PunchDAO using this factory.
+     * @return PunchDAO
+     */
     public PunchDAO getPunchDAO(){
         return new PunchDAO(this);
     }
     
+    /**
+     * Makes a DepartmentDAO using this factory.
+     * @return DepartmentDAO
+     */
     public DepartmentDAO getDepartmentDAO() {
         return new DepartmentDAO(this);
     }
     
+    /**
+     * Makes an EmployeeDAO using this factory.
+     * @return EmployeeDAO
+     */
     public EmployeeDAO getEmployeeDAO() {
         return new EmployeeDAO(this);
     }
     
+    /**
+     * Makes an AbsenteeismDAO using this factory.
+     * @return AbsenteeismDAO
+     */
     public AbsenteeismDAO getAbsenteeismDAO(){
         return new AbsenteeismDAO(this);
     }
     
     /**
-     * Re-establishes a new database connection using stored credentials.
+     * Reconnects to the database.
      */
     public void createConnection(){
         try {
