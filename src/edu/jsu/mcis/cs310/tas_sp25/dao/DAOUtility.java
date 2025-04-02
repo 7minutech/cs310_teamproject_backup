@@ -27,7 +27,7 @@ import java.sql.ResultSetMetaData;
  */
 
 public class DAOUtility {
-    /* The number of standard workdays in a typical week*/
+    /** The number of standard workdays in a typical week. */
     private static final int WORKS_DAYS = 5;
 
     /**
