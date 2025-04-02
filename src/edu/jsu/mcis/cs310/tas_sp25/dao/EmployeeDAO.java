@@ -16,18 +16,18 @@ import java.sql.*;
 
 public class EmployeeDAO {
 
-    /* SQL query to find an employee by ID. */
+    /** SQL query to find an employee by ID. */
     private static final String QUERY_FIND_BY_ID = "SELECT * FROM employee WHERE id = ?";
-    /* SQL query to find an employee's ID using their badge ID. */
+    /** SQL query to find an employee's ID using their badge ID. */
     private static final String QUERY_FIND_BY_BADGE = "SELECT id FROM employee WHERE badgeid = ?";
 
-    /* DAO factory for obtaining database connections and other DAOs. */
+    /** DAO factory for obtaining database connections and other DAOs. */
     private final DAOFactory daoFactory;
-    /* DAO used to look up {@link Badge} objects. */
+    /** DAO used to look up {@link Badge} objects. */
     private final BadgeDAO badgeDAO;
-    /* DAO used to look up {@link Department} objects. */
+    /** DAO used to look up {@link Department} objects. */
     private final DepartmentDAO departmentDAO;
-    /* DAO used to look up {@link Shift} objects. */
+    /** DAO used to look up {@link Shift} objects. */
     private final ShiftDAO shiftDAO;
     
     /**

@@ -21,6 +21,10 @@ import java.sql.*;
  */
 
 public class DAOUtility {
+
+    /** The number of standard workdays in a typical week. */
+    private static final int WORKS_DAYS = 5;
+
     /**
      * Converts a SQL {@link ResultSet} into a JSON-formatted string.
      *
