@@ -3,10 +3,10 @@ package edu.jsu.mcis.cs310.tas_sp25.dao;
 import edu.jsu.mcis.cs310.tas_sp25.*;
 import java.sql.*;
 
-
 /**
  * Connects to the database to find badge info.
  */
+
 public class BadgeDAO {
 
     private static final String QUERY_FIND = "SELECT * FROM badge WHERE id = ?";
@@ -72,9 +72,9 @@ public class BadgeDAO {
             return badge;
         }
 
-        public int create(Badge badge) {
+    public boolean create(Badge badge) {
 
-            int result = 0;
+            boolean result = false;
 
             PreparedStatement ps = null;
             ResultSet rs = null;
@@ -86,24 +86,15 @@ public class BadgeDAO {
                 if (conn.isValid(0)) {
 
                     ps = conn.prepareStatement(QUERY_CREATE, Statement.RETURN_GENERATED_KEYS);
-                    ps.setInt(1, punch.getTerminalid());
-                    ps.setString(2, punch.getBadge().getId());
-                    ps.setInt(3, punch.getPunchtype().getId());
+                    ps.setString(1, badge.getId());
+                    ps.setString(2, badge.getDescription());
 
                     int updateCount = ps.executeUpdate();
 
                     if (updateCount > 0) {
-
-                        rs = ps.getGeneratedKeys();
-
-                        if (rs.next()) {
-                            result = rs.getInt(1);
-                        }
-
+                        result = true;
                     }
-
                 }
-
             }
 
             catch (Exception e) { e.printStackTrace(); }

@@ -13,8 +13,10 @@ import edu.jsu.mcis.cs310.tas_sp25.Punch;
 import edu.jsu.mcis.cs310.tas_sp25.Shift;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.nio.charset.StandardCharsets;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
+import java.util.zip.CRC32;
 
 /**
  * 
@@ -211,5 +213,13 @@ public class DAOUtility {
         json = Jsoner.serialize(obj);
 
         return json;
+    }
+    
+    public static String getCRCHash(String input, int length) {
+        CRC32 crc32 = new CRC32();
+        crc32.update(input.getBytes(StandardCharsets.UTF_8));
+        long hash = crc32.getValue();
+        String formatter = "%0"+length+"X";
+        return String.format(formatter, hash); // Add trailing zeroes to beginning.
     }
 }

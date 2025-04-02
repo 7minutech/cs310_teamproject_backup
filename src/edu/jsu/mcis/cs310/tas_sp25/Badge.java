@@ -1,4 +1,5 @@
 package edu.jsu.mcis.cs310.tas_sp25;
+import edu.jsu.mcis.cs310.tas_sp25.dao.DAOUtility;
 
 public class Badge {
 
@@ -14,6 +15,7 @@ public class Badge {
      */
     public Badge(String description) {
         this.description = description;
+        this.id = DAOUtility.getCRCHash(description, 8);
     }
     
     public String getId() {
