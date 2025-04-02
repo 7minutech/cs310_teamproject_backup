@@ -1,7 +1,3 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package edu.jsu.mcis.cs310.tas_sp25;
 
 /**
@@ -14,19 +10,13 @@ package edu.jsu.mcis.cs310.tas_sp25;
  */
 public class Department {
     
-    /**
-     * The unique ID of the department.
-     */
+    /** The unique ID of the department. */
     private final int id;
     
-    /**
-     * The name or description of the department.
-     */
+    /** The name or description of the department. */
     private final String description;
     
-    /**
-     * The ID of the terminal associated with this department.
-     */
+    /** The ID of the terminal associated with this department. */
     private final int terminalid;
     
     /**

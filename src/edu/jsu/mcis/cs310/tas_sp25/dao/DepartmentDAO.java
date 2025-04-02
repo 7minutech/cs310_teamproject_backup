@@ -11,9 +11,9 @@ import java.sql.*;
  * with the retrieved ID, description, and terminal ID values.</p>
  */
 public class DepartmentDAO {
-    /* SQL query to find a department by ID. */
+    /** SQL query to find a department by ID. */
     private static final String QUERY_FIND = "SELECT id, description, terminalid FROM department WHERE id = ?";
-    /* DAO factory used for database connections and access to other DAOs */
+    /** DAO factory used for database connections and access to other DAOs. */
     private final DAOFactory daoFactory;
     
     /**
