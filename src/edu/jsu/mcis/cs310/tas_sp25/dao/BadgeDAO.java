@@ -10,6 +10,9 @@ import java.sql.*;
  * <p>Badges are identified by their unique ID and are used to associate 
  * employees with timeclock activity. This DAO is responsible for querying 
  * badge data and constructing {@code Badge} instances from the results.</p>
+
+/**
+ * Connects to the database to find badge info.
  */
 public class BadgeDAO {
 
@@ -22,6 +25,9 @@ public class BadgeDAO {
      * Constructs a {@code BadgeDAO} using the provided factory.
      * 
      * @param daoFactory the factory used to access the database
+    /**
+     * Sets up BadgeDAO to use the database.
+     * @param daoFactory Factory to get database connection
      */
     BadgeDAO(DAOFactory daoFactory) {
 
@@ -34,6 +40,9 @@ public class BadgeDAO {
      * 
      * @param id the badge ID to search for
      * @return the corresponding {@link Badge} object, or {@code null} if not found
+     * Looks up a badge by ID.
+     * @param id The badge ID to find
+     * @return Badge if found, or null if not
      */
     public Badge find(String id) {
 
@@ -67,10 +76,11 @@ public class BadgeDAO {
                 }
 
             }
-                // Refactored - Closes ResultSet & PreparedStatement. -Austin
-                // reduces repeated code in DAO - Austin
-                // prevent SQL resource leaks- Austin
-                //helps finally block stay clean & usable - Austin
+        /**
+            * Refactored: closes ResultSet & PreparedStatement.  
+            * Reduces duplicate code, avoids leaks, and keeps finally block clean.  
+            * - Austin
+        */
         } catch (SQLException e) {
             throw new DAOException(e.getMessage());
         } finally {
@@ -86,6 +96,12 @@ public class BadgeDAO {
      * @param rs the result set to close
      * @param ps the prepared statement to close
      */
+        /**
+        * Closes ResultSet and PreparedStatement safely.
+        * Helps clean up code and avoid leaks.
+        * @param rs The result set to close
+        * @param ps The prepared statement to close
+          */
         private void closeResultsSafely(ResultSet rs, PreparedStatement ps) {
             if (rs != null) {
                 try {
