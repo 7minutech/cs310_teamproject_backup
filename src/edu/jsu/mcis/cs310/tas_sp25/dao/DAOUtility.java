@@ -2,19 +2,13 @@ package edu.jsu.mcis.cs310.tas_sp25.dao;
 
 import java.time.*;
 import java.util.*;
-import java.time.temporal.ChronoUnit;
-import java.time.format.DateTimeFormatter;
 import com.github.cliftonlabs.json_simple.*;
 import edu.jsu.mcis.cs310.tas_sp25.DailySchedule;
 import edu.jsu.mcis.cs310.tas_sp25.EventType;
-import edu.jsu.mcis.cs310.tas_sp25.PunchAdjustmentType;
-
 import edu.jsu.mcis.cs310.tas_sp25.Punch;
 import edu.jsu.mcis.cs310.tas_sp25.Shift;
-import java.math.BigDecimal;
-import java.math.RoundingMode;
-import java.sql.ResultSet;
-import java.sql.ResultSetMetaData;
+import java.math.*;
+import java.sql.*;
 
 /**
  * <p><strong>Utility class for DAOs.</strong> This is a final, non-constructable class containing
@@ -27,9 +21,6 @@ import java.sql.ResultSetMetaData;
  */
 
 public class DAOUtility {
-    /* The number of standard workdays in a typical week*/
-    private static final int WORKS_DAYS = 5;
-
     /**
      * Converts a SQL {@link ResultSet} into a JSON-formatted string.
      *
