@@ -8,7 +8,14 @@ public class Badge {
         this.id = id;
         this.description = description;
     }
-
+    
+    /* An alternate constructor for Badge where we don't know our ID.
+     * 
+     */
+    public Badge(String description) {
+        this.description = description;
+    }
+    
     public String getId() {
         return id;
     }

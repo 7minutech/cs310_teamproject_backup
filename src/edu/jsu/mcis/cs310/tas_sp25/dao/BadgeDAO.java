@@ -10,6 +10,7 @@ import java.sql.*;
 public class BadgeDAO {
 
     private static final String QUERY_FIND = "SELECT * FROM badge WHERE id = ?";
+    private static final String QUERY_CREATE = "INSERT INTO badge (id, description) VALUES (?, ?)";
 
     private final DAOFactory daoFactory;
     /**
@@ -68,7 +69,54 @@ public class BadgeDAO {
         } finally {
             closeResultsSafely(rs, ps);
         }
-        return badge;
+            return badge;
+        }
+
+        public int create(Badge badge) {
+
+            int result = 0;
+
+            PreparedStatement ps = null;
+            ResultSet rs = null;
+
+            try {
+
+                Connection conn = daoFactory.getConnection();
+
+                if (conn.isValid(0)) {
+
+                    ps = conn.prepareStatement(QUERY_CREATE, Statement.RETURN_GENERATED_KEYS);
+                    ps.setInt(1, punch.getTerminalid());
+                    ps.setString(2, punch.getBadge().getId());
+                    ps.setInt(3, punch.getPunchtype().getId());
+
+                    int updateCount = ps.executeUpdate();
+
+                    if (updateCount > 0) {
+
+                        rs = ps.getGeneratedKeys();
+
+                        if (rs.next()) {
+                            result = rs.getInt(1);
+                        }
+
+                    }
+
+                }
+
+            }
+
+            catch (Exception e) { e.printStackTrace(); }
+
+            finally {
+
+                if (rs != null) { try { rs.close(); } catch (Exception e) { e.printStackTrace(); } }
+                if (ps != null) { try { ps.close(); } catch (Exception e) { e.printStackTrace(); } }
+
+            }
+
+            return result;
+
         }
     
         /**
