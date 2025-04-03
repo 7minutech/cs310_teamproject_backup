@@ -4,19 +4,29 @@ import edu.jsu.mcis.cs310.tas_sp25.*;
 import java.sql.*;
 
 /**
- * Connects to the database to find badge info.
+ * <p>The {@code BadgeDAO} class provides database access for retrieving 
+ * {@link Badge} objects from the system.</p>
+ * 
+ * <p>Badges are identified by their unique ID and are used to associate 
+ * employees with timeclock activity. This DAO is responsible for querying 
+ * badge data and constructing {@code Badge} instances from the results.</p>
  */
 
 public class BadgeDAO {
 
+    /** SQL query used to find a badge by its ID. */
     private static final String QUERY_FIND = "SELECT * FROM badge WHERE id = ?";
     private static final String QUERY_CREATE = "INSERT INTO badge (id, description) VALUES (?, ?)";
     private static final String QUERY_DELETE = "DELETE FROM badge WHERE id = ?";
     
 
+    /** DAO factory for managing database connections and cross-DAO access. */
     private final DAOFactory daoFactory;
+    
+
     /**
-     * Sets up BadgeDAO to use the database.
+     * Constructs a {@code BadgeDAO} using the provided factory.
+     *
      * @param daoFactory Factory to get database connection
      */
     BadgeDAO(DAOFactory daoFactory) {
@@ -24,10 +34,12 @@ public class BadgeDAO {
         this.daoFactory = daoFactory;
 
     }
-        /**
-     * Looks up a badge by ID.
-     * @param id The badge ID to find
-     * @return Badge if found, or null if not
+
+    /**
+     * Finds a {@link Badge} object in the database using the given badge ID.
+     * 
+     * @param id the badge ID to search for
+     * @return the corresponding {@link Badge} object, or {@code null} if not found
      */
     public Badge find(String id) {
 
@@ -62,10 +74,10 @@ public class BadgeDAO {
 
             }
         /**
-            * Refactored: closes ResultSet & PreparedStatement.  
-            * Reduces duplicate code, avoids leaks, and keeps finally block clean.  
-            * - Austin
-        */
+         * Refactored: closes ResultSet & PreparedStatement.  
+         * Reduces duplicate code, avoids leaks, and keeps finally block clean.  
+         * - Austin
+         */
         } catch (SQLException e) {
             throw new DAOException(e.getMessage());
         } finally {
@@ -147,12 +159,14 @@ public class BadgeDAO {
         }
     
     
-        /**
-        * Closes ResultSet and PreparedStatement safely.
-        * Helps clean up code and avoid leaks.
-        * @param rs The result set to close
-        * @param ps The prepared statement to close
-          */
+    /**
+     * Closes the given {@link ResultSet} and {@link PreparedStatement} safely, 
+     * suppressing exceptions and wrapping any SQL errors in a {@link DAOException}.
+     * 
+     * @param rs the result set to close
+     * @param ps the prepared statement to close
+     */
+
         private void closeResultsSafely(ResultSet rs, PreparedStatement ps) {
             if (rs != null) {
                 try {

@@ -2,13 +2,9 @@ package edu.jsu.mcis.cs310.tas_sp25.dao;
 
 import java.time.*;
 import java.util.*;
-import java.time.temporal.ChronoUnit;
-import java.time.format.DateTimeFormatter;
 import com.github.cliftonlabs.json_simple.*;
 import edu.jsu.mcis.cs310.tas_sp25.DailySchedule;
 import edu.jsu.mcis.cs310.tas_sp25.EventType;
-import edu.jsu.mcis.cs310.tas_sp25.PunchAdjustmentType;
-
 import edu.jsu.mcis.cs310.tas_sp25.Punch;
 import edu.jsu.mcis.cs310.tas_sp25.Shift;
 import java.math.BigDecimal;
@@ -17,18 +13,30 @@ import java.nio.charset.StandardCharsets;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.util.zip.CRC32;
+import java.math.*;
+import java.sql.*;
 
 /**
- * 
- * Utility class for DAOs.  This is a final, non-constructable class containing
+ * <p><strong>Utility class for DAOs.</strong> This is a final, non-constructable class containing
  * common DAO logic and other repeated and/or standardized code, refactored into
- * individual static methods.
+ * individual static methods.</p>
+ * 
+ * <p>This class supports data conversion (like {@link ResultSet} to JSON), punch processing, 
+ * and absenteeism calculations to help keep DAO code clean and DRY.</p>
  * 
  */
 
 public class DAOUtility {
+
+    /** The number of standard workdays in a typical week. */
     private static final int WORKS_DAYS = 5;
 
+    /**
+     * Converts a SQL {@link ResultSet} into a JSON-formatted string.
+     *
+     * @param rs the {@link ResultSet} to convert
+     * @return a JSON array string containing the result set data
+     */
     public static String getResultSetAsJson(ResultSet rs) {
         JsonArray records = new JsonArray(); // declare an empty array. if we were to find nothing, it will be returned
 
@@ -55,6 +63,13 @@ public class DAOUtility {
         return Jsoner.serialize(records);
     }
     
+    /**
+     * Converts a {@link ResultSet} to a key-value map where each key is a column name
+     * and each value is its corresponding string value.
+     *
+     * @param rs the result set
+     * @return a {@link HashMap} of the result set data
+     */
     public static HashMap<String, String> getResultsSetAsParameters(ResultSet rs) {
         // Possible future issue, we may need to update to accept rs by reference instead of by value.
         HashMap<String, String> map = new HashMap<>();
@@ -77,6 +92,12 @@ public class DAOUtility {
         return map;
     }
     
+    /**
+     * Converts a {@link Punch} object into a {@link HashMap} of key-value pairs.
+     *
+     * @param punch the punch to convert
+     * @return a map representing the punch data
+     */
     public static HashMap<String, String> punchToHashmap(Punch punch) {
         HashMap<String, String> punchData = new HashMap<>();
 
@@ -100,6 +121,12 @@ public class DAOUtility {
         return punchData;
     }
     
+    /**
+     * Converts a list of {@link Punch} objects into a JSON string.
+     *
+     * @param dailypunchlist the list of punches
+     * @return a JSON array string representing the punch list
+     */
     public static String getPunchListAsJSON(ArrayList<Punch> dailypunchlist) {
         ArrayList<HashMap<String, String>> jsonData = new ArrayList<>();
 
@@ -110,6 +137,14 @@ public class DAOUtility {
         return Jsoner.serialize(jsonData);
     }
 
+    /**
+     * Calculates the total minutes worked for a list of punches, adjusting for
+     * lunch periods and shift configuration.
+     *
+     * @param punchList list of punches
+     * @param shift the shift associated with the punches
+     * @return total minutes worked
+     */
     public static int calculateTotalMinutes(ArrayList<Punch> punchList, Shift shift) {
         // Group punches by day
         Map<LocalDate, List<Punch>> punchesByDay = new HashMap<>();
@@ -161,6 +196,12 @@ public class DAOUtility {
         return totalMinutes;
     }
 
+    /**
+     * Calculates the expected number of work minutes in a week based on the provided shift.
+     *
+     * @param shift the shift
+     * @return expected total minutes
+     */
     public static int calculateExpectedTotal(Shift shift) {
         int expectedMinutes = 0;
         for (int dayNumber = 1; dayNumber <= 5; dayNumber++) { // loop through every weekday.
@@ -181,11 +222,24 @@ public class DAOUtility {
         return expectedMinutes;
     }
 
+    /**
+     * Determines if the given date is a weekend.
+     *
+     * @param date the date to check
+     * @return true if the date is Saturday or Sunday, false otherwise
+     */
     private static boolean isWeekend(LocalDate date) {
         DayOfWeek dayOfWeek = date.getDayOfWeek();
         return (dayOfWeek == DayOfWeek.SATURDAY || dayOfWeek == DayOfWeek.SUNDAY);
     }
 
+    /**
+     * Calculates the absenteeism percentage based on worked vs. expected minutes.
+     *
+     * @param punchlist the list of punches
+     * @param s the shift
+     * @return absenteeism as a {@link BigDecimal} percentage
+     */
     public static BigDecimal calculateAbsenteeism(ArrayList<Punch> punchlist, Shift s) {
         int totalMinutesWorked = DAOUtility.calculateTotalMinutes(punchlist, s);
         int standardMinutes = calculateExpectedTotal(s);
@@ -195,6 +249,14 @@ public class DAOUtility {
         return BigDecimal.valueOf(percentage).setScale(2, RoundingMode.HALF_UP);
     }
 
+    /**
+     * Combines punch list, total minutes worked, and absenteeism into a JSON string.
+     *
+     * @param punchlist the punch data
+     * @param shift the associated shift
+     * @return a combined JSON string
+     * @throws JsonException if JSON formatting fails
+     */
     public static String getPunchListPlusTotalsAsJSON(ArrayList<Punch> punchlist, Shift shift) throws JsonException {
         JsonObject obj = new JsonObject();
         String json = "";
