@@ -18,8 +18,8 @@ public class BadgeDAO {
     private static final String QUERY_FIND = "SELECT * FROM badge WHERE id = ?";
     private static final String QUERY_CREATE = "INSERT INTO badge (id, description) VALUES (?, ?)";
     private static final String QUERY_DELETE = "DELETE FROM badge WHERE id = ?";
-    
-
+    private static final String QUERY_UPDATE = "UPDATE badge SET description = ? WHERE id = ?";
+        
     /** DAO factory for managing database connections and cross-DAO access. */
     private final DAOFactory daoFactory;
     
@@ -157,6 +157,28 @@ public class BadgeDAO {
             return result;
 
         }
+    
+    /**
+    * Updates the description of a badge in the database using its ID.
+    * @param badge The badge object containing the updated description and ID.
+    * @return true if the update is successful, false otherwise.
+    */
+    public boolean update(Badge badge) {
+        boolean result = false;
+        
+            
+        try (PreparedStatement ps = daoFactory.getConnection().prepareStatement(QUERY_UPDATE)) {
+            
+                ps.setString(1, badge.getDescription());
+                ps.setString(2, badge.getId());
+                result = ps.executeUpdate() == 1;
+            
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return result;
+    }
     
     
     /**
