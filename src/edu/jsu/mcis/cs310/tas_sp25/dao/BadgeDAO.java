@@ -11,6 +11,8 @@ public class BadgeDAO {
 
     private static final String QUERY_FIND = "SELECT * FROM badge WHERE id = ?";
     private static final String QUERY_CREATE = "INSERT INTO badge (id, description) VALUES (?, ?)";
+    private static final String QUERY_DELETE = "DELETE FROM badge WHERE id = ?";
+    
 
     private final DAOFactory daoFactory;
     /**
@@ -109,6 +111,41 @@ public class BadgeDAO {
             return result;
 
         }
+    
+    public boolean delete(String badgeId) {
+
+            boolean result = false;
+
+            PreparedStatement ps = null;
+
+            try {
+
+                Connection conn = daoFactory.getConnection();
+
+                if (conn.isValid(0)) {
+
+                    ps = conn.prepareStatement(QUERY_DELETE);
+                    ps.setString(1, badgeId);
+
+
+                    int updateCount = ps.executeUpdate();
+                    
+                    result = updateCount > 0;
+                }
+            }
+
+            catch (Exception e) { e.printStackTrace(); }
+
+            finally {
+
+                if (ps != null) { try { ps.close(); } catch (Exception e) { e.printStackTrace(); } }
+
+            }
+
+            return result;
+
+        }
+    
     
         /**
         * Closes ResultSet and PreparedStatement safely.
