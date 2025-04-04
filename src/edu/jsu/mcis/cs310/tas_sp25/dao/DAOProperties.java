@@ -12,12 +12,12 @@ import java.util.Properties;
  * <code>username</code>, and <code>password</code> are expected to be defined in the file.</p>
  */
 public class DAOProperties {
-    /* Name of the properties file containing database configuration */
+    /** Name of the properties file containing database configuration. */
     private static final String PROPERTIES_FILE = "dao.properties";
-    /* Static instance of the loaded properties */
+    /** Static instance of the loaded properties. */
     private static final Properties PROPERTIES = new Properties();
 
-    /* Prefix used to namespace property keys (e.g., "tas.jdbc") */
+    /** Prefix used to namespace property keys (e.g., "tas.jdbc"). */
     private final String prefix;
 
     static {

@@ -9,16 +9,16 @@ package edu.jsu.mcis.cs310.tas_sp25;
  */
 public enum EventType {
 
-    /* Represents an event where an employee clocks out */
+    /** Represents an event where an employee clocks out. */
     CLOCK_OUT(0,"CLOCK OUT"),
-    /* Represents an event where an employee clocks in */
+    /** Represents an event where an employee clocks in. */
     CLOCK_IN(1, "CLOCK IN"),
-    /* Represents a time-out (such as for a break) */
+    /** Represents a time-out (such as for a break). */
     TIME_OUT(2,"TIME OUT");
 
-    /* A text description of the event type */
+    /** A text description of the event type. */
     private final String description;
-    /* A unique numeric ID for the event type */
+    /** A unique numeric ID for the event type. */
     private final int eventTypeId;
 
     /**

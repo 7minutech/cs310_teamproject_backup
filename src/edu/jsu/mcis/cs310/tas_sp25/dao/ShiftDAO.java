@@ -16,7 +16,7 @@ import java.util.*;
  * recurring and temporary overrides from the schedule override table.</p>
  */
 public class ShiftDAO {
-    /* The DAOFactory instance used to obtain connections and other DAOs */
+    /** The DAOFactory instance used to obtain connections and other DAOs. */
     private final DAOFactory daoFactory;
     // SQL query strings for loading shift and schedule information.
     private final String QUERY_FIND = "SELECT * FROM shift WHERE id = ?";

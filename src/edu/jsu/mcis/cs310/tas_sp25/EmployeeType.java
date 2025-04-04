@@ -10,13 +10,13 @@ package edu.jsu.mcis.cs310.tas_sp25;
  */
 public enum EmployeeType {
     
-    /* Represents a temporary or part-time employee.*/
+    /** Represents a temporary or part-time employee. */
     PART_TIME("Temporary / Part-Time"),
     
-    /* Represents a full-time employee.*/
+    /** Represents a full-time employee. */
     FULL_TIME("Full-Time");
     
-    /* Readable description of the employee type.*/
+    /** Readable description of the employee type. */
     private final String description;
 
     /**

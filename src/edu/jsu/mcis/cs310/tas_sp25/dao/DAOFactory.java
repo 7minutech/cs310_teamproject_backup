@@ -8,12 +8,12 @@ import java.sql.*;
  */
 public final class DAOFactory {
 
-    /* Property keys for database settings */
+    /** Property keys for database settings. */
     private static final String PROPERTY_URL = "url";
     private static final String PROPERTY_USERNAME = "username";
     private static final String PROPERTY_PASSWORD = "password";
 
-    /* Settings for the database */
+    /** Settings for the database. */
     private final String url, username, password;
     private Connection conn = null;
     

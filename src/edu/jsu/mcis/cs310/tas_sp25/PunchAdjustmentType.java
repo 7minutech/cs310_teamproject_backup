@@ -10,31 +10,31 @@ package edu.jsu.mcis.cs310.tas_sp25;
 
 public enum PunchAdjustmentType {
     
-    /* No adjustment is applied to the punch time. */
+    /** No adjustment is applied to the punch time. */
     NONE("None"),
     
-    /* Punch was adjusted to the shift start time. */
+    /** Punch was adjusted to the shift start time. */
     SHIFT_START("Shift Start"),
     
-    /* Punch was adjusted to the shift stop time. */
+    /** Punch was adjusted to the shift stop time. */
     SHIFT_STOP("Shift Stop"),
     
-    /* Punch was adjusted to apply a dock penalty for being late or leaving early. */
+    /** Punch was adjusted to apply a dock penalty for being late or leaving early. */
     SHIFT_DOCK("Shift Dock"),
     
-    /* Punch is adjusted to the start of the lunch period. */
+    /** Punch is adjusted to the start of the lunch period. */
     LUNCH_START("Lunch Start"),
     
-    /* Punch is adjusted to the end of the lunch period. */
+    /** Punch is adjusted to the end of the lunch period. */
     LUNCH_STOP("Lunch Stop"),
     
-    /* Punch is adjusted due to a grace period at shift start/stop. */
+    /** Punch is adjusted due to a grace period at shift start/stop. */
     GRACE_PERIOD("Grace Period"),
     
-    /* Punch is rounded to the nearest interval. */
+    /** Punch is rounded to the nearest interval. */
     INTERVAL_ROUND("Interval Round");
     
-    /* Readable description of the adjustment type. */
+    /** Readable description of the adjustment type. */
     private final String description;
     
     /**
