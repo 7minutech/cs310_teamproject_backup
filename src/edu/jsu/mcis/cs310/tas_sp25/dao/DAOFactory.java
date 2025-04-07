@@ -95,6 +95,10 @@ public final class DAOFactory {
         return new AbsenteeismDAO(this);
     }
     
+    public ReportDAO getReportDAO(){
+        return new ReportDAO(this);
+    }
+    
     /**
      * Reconnects to the database.
      */
