@@ -17,6 +17,7 @@ public class Badge {
      * Identifier and description for the badge.
      */
     private final String id, description;
+    private static final int BADGE_ID_LENGTH = 8;
     
     /**
      * Constructs a {@code Badge} with a specific ID and description.
@@ -34,7 +35,7 @@ public class Badge {
      */
     public Badge(String description) {
         this.description = description;
-        this.id = DAOUtility.getCRCHash(description, 8);
+        this.id = DAOUtility.getCRCHash(description, Badge.BADGE_ID_LENGTH);
     }
     
     /**
