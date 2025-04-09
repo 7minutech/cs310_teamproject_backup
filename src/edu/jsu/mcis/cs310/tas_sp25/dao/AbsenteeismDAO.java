@@ -45,10 +45,6 @@ public class AbsenteeismDAO {
         
         try {
             Connection conn = daoFactory.getConnection();
-            if (conn.isClosed()) {
-                daoFactory.createConnection();
-                conn = daoFactory.getConnection();
-            }
             if (conn.isValid(0)) {
                 ps = conn.prepareStatement(QUERY_FIND);
                 ps.setInt(1, employee.getId());
@@ -86,10 +82,6 @@ public class AbsenteeismDAO {
         Connection conn = null;
         try {
             conn = daoFactory.getConnection();
-            if (conn.isClosed()) {
-                daoFactory.createConnection();
-                conn = daoFactory.getConnection();
-            }
             if (conn.isValid(0)) {
                 ps = conn.prepareStatement(QUERY_CREATE);
                 LocalDate date = absent.getPayStart();
