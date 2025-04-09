@@ -3,12 +3,25 @@ package edu.jsu.mcis.cs310.tas_sp25.dao;
 import com.github.cliftonlabs.json_simple.JsonArray;
 import com.github.cliftonlabs.json_simple.JsonObject;
 import edu.jsu.mcis.cs310.tas_sp25.*;
+import java.time.LocalDateTime;
 import java.sql.*;
 
 
 public class ReportDAO {
 
-        
+     private static final String QUERY_FIND_EMPLOYEES_BY_DATE = 
+            "SELECT *" +
+            "FROM EMPLOYEE " +
+            "WHERE badgeid IN ( " +
+            "    SELECT EMP.badgeid " +
+            "    FROM EMPLOYEE AS EMP " +
+            "    JOIN EVENT AS EVT " +
+            "    ON EMP.badgeid = EVT.badgeid " +
+            "    WHERE EVT.timestamp BETWEEN ? AND ? " +
+            ") " +
+            "AND DEPARTMENTID = ? " +
+            "ORDER BY LASTNAME";
+
     /** DAO factory for managing database connections and cross-DAO access. */
     private final DAOFactory daoFactory;
     
@@ -65,5 +78,14 @@ public class ReportDAO {
     }
 
     return json.toJson();
+    }
+    
+    public String getWhosInWhosOut(LocalDateTime timestamp, Integer departmentId){
+        /*
+        "[{\"arrived\":\"WED 09/05/2018 06:55:32\",\"employeetype\":\
+        "Full-Time Employee\",\"firstname\":\"Lee\",\"badgeid\":\"639D4185\"
+        ,\"shift\":\"Shift 1\",\"lastname\":\"Gaines\",\"status\":\"In\"}]
+        */
+        
     }
 }
