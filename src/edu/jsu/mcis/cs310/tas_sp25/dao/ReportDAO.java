@@ -126,6 +126,7 @@ public class ReportDAO {
                         employee.put("arrived", dayOfWeek.toUpperCase() + " " + formattedDate);
                         employee.put("shift", shiftDescription);
                         employee.put("employeetype", employeeType);
+                        // TODO: Remove hardcode status
                         employee.put("status", "In");
                         employees.add(employee);
                     }
