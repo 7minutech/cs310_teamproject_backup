@@ -95,7 +95,11 @@ public final class DAOFactory {
         return new AbsenteeismDAO(this);
     }
     
-    public ReportDAO getReportDAO(){
+    /**
+    * Makes a ReportDAO using this factory.
+    * @return ReportDAO
+    */
+    public ReportDAO getReportDAO() { //creates & returns ReportDAO -Austin 
         return new ReportDAO(this);
     }
     
