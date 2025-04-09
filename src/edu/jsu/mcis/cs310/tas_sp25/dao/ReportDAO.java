@@ -2,6 +2,7 @@ package edu.jsu.mcis.cs310.tas_sp25.dao;
 
 import com.github.cliftonlabs.json_simple.JsonArray;
 import com.github.cliftonlabs.json_simple.JsonObject;
+import com.github.cliftonlabs.json_simple.Jsoner;
 import edu.jsu.mcis.cs310.tas_sp25.*;
 import java.time.LocalDateTime;
 import java.sql.*;
@@ -120,12 +121,12 @@ public class ReportDAO {
                         String formattedDate = targetFormat.format(fetchedTimestamp);
                         String shiftDescription = rs.getString("shift.description");
                         String employeeType = rs.getString("EMPTYPE.DESCRIPTION");
+                        employee.put("arrived", dayOfWeek.toUpperCase() + " " + formattedDate);
+                        employee.put("employeetype", employeeType);
                         employee.put("firstname", firstName);
                         employee.put("lastname", lastName);
                         employee.put("badgeid", badgeId);
-                        employee.put("arrived", dayOfWeek.toUpperCase() + " " + formattedDate);
                         employee.put("shift", shiftDescription);
-                        employee.put("employeetype", employeeType);
                         // TODO: Remove hardcode status
                         employee.put("status", "In");
                         employees.add(employee);
@@ -139,7 +140,7 @@ public class ReportDAO {
             if (rs != null) { try { rs.close(); } catch (Exception e) { e.printStackTrace(); } }
             if (ps != null) { try { ps.close(); } catch (Exception e) { e.printStackTrace(); } }
         }
-        return employeesString.toString();
+        return Jsoner.serialize(employees);
         
     }
 }
