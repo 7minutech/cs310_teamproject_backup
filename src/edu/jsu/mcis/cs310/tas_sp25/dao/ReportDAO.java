@@ -13,7 +13,7 @@ import java.util.Locale;
 
 public class ReportDAO {
 
-     private static final String QUERY_FIND_EMPLOYEES_BY_DATE = 
+     private static StringBuilder QUERY_FIND_EMPLOYEES_BY_DATE = new StringBuilder(
             "SELECT EMP.FIRSTNAME, EMP.LASTNAME, EMP.badgeid, EVT.timestamp, EMPTYPE.DESCRIPTION, SHIFT.DESCRIPTION " +
              "FROM EMPLOYEE AS EMP " +
              "JOIN EVENT AS EVT " +
@@ -21,9 +21,8 @@ public class ReportDAO {
              "JOIN EMPLOYEETYPE AS EMPTYPE " +
              "ON EMP.EMPLOYEETYPEID = EMPTYPE.ID " +
              "JOIN SHIFT ON EMP.SHIFTID = SHIFT.ID " +
-             "WHERE EVT.timestamp BETWEEN DATE_SUB(?, INTERVAL 15 MINUTE) AND DATE_ADD(?, INTERVAL 15 MINUTE) " +
-             "AND EMP.DEPARTMENTID = ? " +
-             "ORDER BY EMPTYPE.DESCRIPTION, EMP.LASTNAME, EMP.FIRSTNAME;";
+             "WHERE EVT.timestamp BETWEEN DATE_SUB(?, INTERVAL 15 MINUTE) AND DATE_ADD(?, INTERVAL 15 MINUTE) ");
+             
 
     /** DAO factory for managing database connections and cross-DAO access. */
     private final DAOFactory daoFactory;
@@ -102,10 +101,16 @@ public class ReportDAO {
                 conn = daoFactory.getConnection();
             }
             if (conn.isValid(0)) {
-                ps = conn.prepareStatement(QUERY_FIND_EMPLOYEES_BY_DATE);
+                if (departmentId != null){
+                    QUERY_FIND_EMPLOYEES_BY_DATE.append("AND EMP.DEPARTMENTID = ? ");
+                }
+                QUERY_FIND_EMPLOYEES_BY_DATE.append("ORDER BY EMPTYPE.DESCRIPTION, EMP.LASTNAME, EMP.FIRSTNAME");
+                ps = conn.prepareStatement(QUERY_FIND_EMPLOYEES_BY_DATE.toString());
                 ps.setTimestamp(1, sqlTimestamp);
                 ps.setTimestamp(2, sqlTimestamp);
-                ps.setInt(3, departmentId);
+                if (departmentId != null){
+                    ps.setInt(3, departmentId);
+                }
                 boolean hasResults = ps.execute();
                 if (hasResults) {
                     rs = ps.getResultSet();
