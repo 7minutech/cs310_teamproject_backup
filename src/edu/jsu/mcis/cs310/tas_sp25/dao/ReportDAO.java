@@ -118,11 +118,7 @@ public class ReportDAO {
             if (conn.isValid(0)) {
                 queryFindInEmployeesByDate.append(endOfQuery(departmentId));
                 ps = conn.prepareStatement(queryFindInEmployeesByDate.toString());
-                ps.setTimestamp(1, sqlTimestamp);
-                ps.setTimestamp(2, sqlTimestamp);
-                if (departmentId != null){
-                    ps.setInt(3, departmentId);
-                }
+                setWhosInWhosOutPs(sqlTimestamp,departmentId,ps);
                 hasResults = ps.execute();
                 if (hasResults) {
                     rs = ps.getResultSet();
@@ -130,11 +126,7 @@ public class ReportDAO {
                 }  
                 queryFindOutEmployeesByDate.append(endOfQuery(departmentId));
                 ps = conn.prepareStatement(queryFindOutEmployeesByDate.toString());
-                ps.setTimestamp(1, sqlTimestamp);
-                ps.setTimestamp(2, sqlTimestamp);
-                if (departmentId != null){
-                    ps.setInt(3, departmentId);
-                }
+                setWhosInWhosOutPs(sqlTimestamp,departmentId,ps);
                 hasResults = ps.execute();
                 if (hasResults) {
                     rs = ps.getResultSet();
@@ -150,6 +142,19 @@ public class ReportDAO {
         }
         return Jsoner.serialize(employees);
         
+    }
+    
+    private void setWhosInWhosOutPs(Timestamp sqlTimestamp, Integer departmentId, PreparedStatement ps){
+        try{
+            ps.setTimestamp(1, sqlTimestamp);
+            ps.setTimestamp(2, sqlTimestamp);
+            if (departmentId != null){
+                ps.setInt(3, departmentId);
+            }
+        }
+        catch(Exception e){
+            e.printStackTrace();
+        }
     }
     
     private String endOfQuery(Integer departmentId){
