@@ -13,12 +13,12 @@ import java.util.Locale;
 
 public class ReportDAO {
 
-     private static StringBuilder queryFindInEmployeesByDate = new StringBuilder(
+     private StringBuilder queryFindInEmployeesByDate = new StringBuilder(
             "SELECT EMP.FIRSTNAME, EMP.LASTNAME, EMP.badgeid, MIN(IN_EVT.timestamp) AS in_time, "
             + "MAX(OUT_EVT.timestamp) AS out_time, EMPTYPE.DESCRIPTION AS employeetype_description, SHIFT.DESCRIPTION AS shift_description " +
             "FROM EMPLOYEE AS EMP " +
             "JOIN EVENT AS IN_EVT ON EMP.badgeid = IN_EVT.badgeid AND IN_EVT.eventtypeid = 1 " +
-            "JOIN EVENT AS OUT_EVT ON EMP.badgeid = OUT_EVT.badgeid AND OUT_EVT.eventtypeid = 0 " +
+            "JOIN EVENT AS OUT_EVT ON EMP.badgeid = OUT_EVT.badgeid AND (OUT_EVT.eventtypeid = 0 OR OUT_EVT.eventtypeid = 2) " +
             "JOIN EMPLOYEETYPE AS EMPTYPE ON EMP.EMPLOYEETYPEID = EMPTYPE.ID " +
             "JOIN SHIFT ON EMP.SHIFTID = SHIFT.ID " +
             "WHERE ? BETWEEN IN_EVT.timestamp AND OUT_EVT.timestamp " +
@@ -26,7 +26,7 @@ public class ReportDAO {
             "AND DATE(IN_EVT.timestamp) = ? ");
 
     
-     private static StringBuilder queryFindOutEmployeesByDate = new StringBuilder(
+     private StringBuilder queryFindOutEmployeesByDate = new StringBuilder(
             "SELECT EMPLOYEE.FIRSTNAME, EMPLOYEE.LASTNAME, EMPLOYEE.badgeid, EMPLOYEETYPE.DESCRIPTION, SHIFT.DESCRIPTION " +
             "FROM EMPLOYEE " +
             "JOIN EMPLOYEETYPE " +
@@ -34,19 +34,19 @@ public class ReportDAO {
             "JOIN SHIFT " +
             "ON EMPLOYEE.SHIFTID = SHIFT.ID " +
             "WHERE EMPLOYEE.badgeid NOT IN( " +
-            "    SELECT EMP.badgeid " +
-            "    FROM EMPLOYEE AS EMP " +
-            "    JOIN EVENT AS IN_EVT " +
-            "    ON EMP.badgeid = IN_EVT.badgeid AND IN_EVT.eventtypeid = 1 " +
-            "    JOIN EVENT AS OUT_EVT " +
-            "    ON EMP.badgeid = OUT_EVT.badgeid AND OUT_EVT.eventtypeid = 0 " +
-            "    JOIN EMPLOYEETYPE AS EMPTYPE " +
-            "    ON EMP.EMPLOYEETYPEID = EMPTYPE.ID " +
-            "    JOIN SHIFT " +
-            "    ON EMP.SHIFTID = SHIFT.ID " +
-            "    WHERE ? BETWEEN IN_EVT.timestamp AND OUT_EVT.timestamp " +
-            "    AND DATE(IN_EVT.timestamp) = DATE(OUT_EVT.timestamp) " +
-            "    AND DATE(IN_EVT.timestamp) = ? ");             
+            "SELECT EMP.badgeid " +
+            "FROM EMPLOYEE AS EMP " +
+            "JOIN EVENT AS IN_EVT " +
+            "ON EMP.badgeid = IN_EVT.badgeid AND IN_EVT.eventtypeid = 1 " +
+            "JOIN EVENT AS OUT_EVT " +
+            "ON EMP.badgeid = OUT_EVT.badgeid AND (OUT_EVT.eventtypeid = 0 OR OUT_EVT.eventtypeid = 2) " +
+            "JOIN EMPLOYEETYPE AS EMPTYPE " +
+            "ON EMP.EMPLOYEETYPEID = EMPTYPE.ID " +
+            "JOIN SHIFT " +
+            "ON EMP.SHIFTID = SHIFT.ID " +
+            "WHERE ? BETWEEN IN_EVT.timestamp AND OUT_EVT.timestamp " +
+            "AND DATE(IN_EVT.timestamp) = DATE(OUT_EVT.timestamp) " +
+            "AND DATE(IN_EVT.timestamp) = ? ");             
 
     /** DAO factory for managing database connections and cross-DAO access. */
     private final DAOFactory daoFactory;
@@ -132,6 +132,7 @@ public class ReportDAO {
                 }
                 queryFindInEmployeesByDate.append("GROUP BY EMP.FIRSTNAME, EMP.LASTNAME, EMP.badgeid, EMPTYPE.DESCRIPTION, SHIFT.DESCRIPTION ");
                 queryFindInEmployeesByDate.append("ORDER BY EMPTYPE.DESCRIPTION, EMP.LASTNAME, EMP.firstname");
+                String f = queryFindInEmployeesByDate.toString();
                 ps = conn.prepareStatement(queryFindInEmployeesByDate.toString());
                 ps.setTimestamp(1, sqlTimestamp);
                 ps.setDate(2, sqlDate);
@@ -147,6 +148,9 @@ public class ReportDAO {
                     queryFindOutEmployeesByDate.append("AND EMP.DEPARTMENTID = ? ");
                     queryFindOutEmployeesByDate.append(") ");
                     queryFindOutEmployeesByDate.append("AND DEPARTMENTID = ? ");
+                }
+                else{
+                    queryFindOutEmployeesByDate.append(") ");
                 }
                 queryFindOutEmployeesByDate.append("ORDER BY EMPLOYEETYPE.DESCRIPTION, EMPLOYEE.LASTNAME, EMPLOYEE.firstname");
                 ps = conn.prepareStatement(queryFindOutEmployeesByDate.toString());
