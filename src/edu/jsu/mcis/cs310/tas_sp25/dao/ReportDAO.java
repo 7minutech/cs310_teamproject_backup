@@ -116,10 +116,7 @@ public class ReportDAO {
                 conn = daoFactory.getConnection();
             }
             if (conn.isValid(0)) {
-                if (departmentId != null){
-                    queryFindInEmployeesByDate.append("AND EMP.DEPARTMENTID = ? ");
-                }
-                queryFindInEmployeesByDate.append("ORDER BY EMPTYPE.DESCRIPTION, EMP.LASTNAME, EMP.FIRSTNAME");
+                queryFindInEmployeesByDate.append(endOfQuery(departmentId));
                 ps = conn.prepareStatement(queryFindInEmployeesByDate.toString());
                 ps.setTimestamp(1, sqlTimestamp);
                 ps.setTimestamp(2, sqlTimestamp);
@@ -130,12 +127,8 @@ public class ReportDAO {
                 if (hasResults) {
                     rs = ps.getResultSet();
                     addInEmployees(rs, employees);
-                }
-                
-                if (departmentId != null){
-                    queryFindOutEmployeesByDate.append("AND EMP.DEPARTMENTID = ? ");
-                }
-                queryFindOutEmployeesByDate.append("ORDER BY EMPTYPE.DESCRIPTION, EMP.LASTNAME, EMP.FIRSTNAME");
+                }  
+                queryFindOutEmployeesByDate.append(endOfQuery(departmentId));
                 ps = conn.prepareStatement(queryFindOutEmployeesByDate.toString());
                 ps.setTimestamp(1, sqlTimestamp);
                 ps.setTimestamp(2, sqlTimestamp);
@@ -157,6 +150,15 @@ public class ReportDAO {
         }
         return Jsoner.serialize(employees);
         
+    }
+    
+    private String endOfQuery(Integer departmentId){
+        StringBuilder sb = new StringBuilder();
+        if (departmentId != null){
+            sb.append("AND EMP.DEPARTMENTID = ? ");
+        }
+        sb.append("ORDER BY EMPTYPE.DESCRIPTION, EMP.LASTNAME, EMP.FIRSTNAME");
+        return sb.toString();
     }
     
     private void addInEmployees(ResultSet rs, JsonArray employees){
