@@ -22,6 +22,20 @@ public class ReportDAO {
              "ON EMP.EMPLOYEETYPEID = EMPTYPE.ID " +
              "JOIN SHIFT ON EMP.SHIFTID = SHIFT.ID " +
              "WHERE EVT.timestamp BETWEEN DATE_SUB(?, INTERVAL 15 MINUTE) AND DATE_ADD(?, INTERVAL 15 MINUTE) ");
+    
+     private static StringBuilder queryFindOutEmployeesByDate = new StringBuilder(
+            "SELECT EMP.FIRSTNAME, EMP.LASTNAME, EMP.badgeid, EMPTYPE.DESCRIPTION, SHIFT.DESCRIPTION " +
+            "FROM EMPLOYEE AS EMP " +
+            "JOIN EMPLOYEETYPE AS EMPTYPE ON EMP.EMPLOYEETYPEID = EMPTYPE.ID " +
+            "JOIN SHIFT ON EMP.SHIFTID = SHIFT.ID " +
+            "WHERE EMP.badgeid NOT IN ( " +
+            "    SELECT EMP.badgeid " +
+            "    FROM EMPLOYEE AS EMP " +
+            "    JOIN EVENT AS EVT ON EMP.badgeid = EVT.badgeid " +
+            "    WHERE EVT.timestamp BETWEEN DATE_SUB(?, INTERVAL 15 MINUTE) " +
+            "    AND DATE_ADD(?, INTERVAL 15 MINUTE) " +
+            ") "
+            );
              
 
     /** DAO factory for managing database connections and cross-DAO access. */
@@ -93,6 +107,7 @@ public class ReportDAO {
         ResultSet rs = null;
         JsonArray employees = new JsonArray();
         StringBuilder employeesString = new StringBuilder();
+        boolean hasResults;
         
         try {
             Connection conn = daoFactory.getConnection();
@@ -111,7 +126,7 @@ public class ReportDAO {
                 if (departmentId != null){
                     ps.setInt(3, departmentId);
                 }
-                boolean hasResults = ps.execute();
+                hasResults = ps.execute();
                 if (hasResults) {
                     rs = ps.getResultSet();
                     while (rs.next()) {  
@@ -138,6 +153,38 @@ public class ReportDAO {
                     }
                     employeesString.append(employees.toJson());
                 }
+                
+                if (departmentId != null){
+                    queryFindOutEmployeesByDate.append("AND EMP.DEPARTMENTID = ? ");
+                }
+                queryFindOutEmployeesByDate.append("ORDER BY EMPTYPE.DESCRIPTION, EMP.LASTNAME, EMP.FIRSTNAME");
+                ps = conn.prepareStatement(queryFindOutEmployeesByDate.toString());
+                ps.setTimestamp(1, sqlTimestamp);
+                ps.setTimestamp(2, sqlTimestamp);
+                if (departmentId != null){
+                    ps.setInt(3, departmentId);
+                }
+                hasResults = ps.execute();
+                if (hasResults) {
+                    rs = ps.getResultSet();
+                    while (rs.next()) {  
+                        JsonObject employee = new JsonObject();
+                        String firstName = rs.getString("firstname");
+                        String lastName = rs.getString("lastname");
+                        String badgeId = rs.getString("badgeId");
+                        String shiftDescription = rs.getString("shift.description");
+                        String employeeType = rs.getString("EMPTYPE.DESCRIPTION");
+                        employee.put("employeetype", employeeType);
+                        employee.put("firstname", firstName);
+                        employee.put("badgeid", badgeId);
+                        employee.put("shift", shiftDescription);
+                        employee.put("lastname", lastName);
+                        employee.put("status", "Out");
+                        employees.add(employee);
+                    }
+                    employeesString.append(employees.toJson());
+                }
+                
             }
         } catch (Exception e) {
             e.printStackTrace();
