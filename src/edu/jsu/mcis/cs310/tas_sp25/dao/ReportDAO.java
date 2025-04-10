@@ -27,19 +27,26 @@ public class ReportDAO {
 
     
      private static StringBuilder queryFindOutEmployeesByDate = new StringBuilder(
-            "SELECT EMP.FIRSTNAME, EMP.LASTNAME, EMP.badgeid, EMPTYPE.DESCRIPTION, SHIFT.DESCRIPTION " +
-            "FROM EMPLOYEE AS EMP " +
-            "JOIN EMPLOYEETYPE AS EMPTYPE ON EMP.EMPLOYEETYPEID = EMPTYPE.ID " +
-            "JOIN SHIFT ON EMP.SHIFTID = SHIFT.ID " +
-            "WHERE EMP.badgeid NOT IN ( " +
+            "SELECT EMPLOYEE.FIRSTNAME, EMPLOYEE.LASTNAME, EMPLOYEE.badgeid, EMPLOYEETYPE.DESCRIPTION, SHIFT.DESCRIPTION " +
+            "FROM EMPLOYEE " +
+            "JOIN EMPLOYEETYPE " +
+            "ON EMPLOYEE.EMPLOYEETYPEID = EMPLOYEETYPE.ID " +
+            "JOIN SHIFT " +
+            "ON EMPLOYEE.SHIFTID = SHIFT.ID " +
+            "WHERE EMPLOYEE.badgeid NOT IN( " +
             "    SELECT EMP.badgeid " +
             "    FROM EMPLOYEE AS EMP " +
-            "    JOIN EVENT AS EVT ON EMP.badgeid = EVT.badgeid " +
-            "    WHERE EVT.timestamp BETWEEN DATE_SUB(?, INTERVAL 15 MINUTE) " +
-            "    AND DATE_ADD(?, INTERVAL 15 MINUTE) " +
-            ") "
-            );
-             
+            "    JOIN EVENT AS IN_EVT " +
+            "    ON EMP.badgeid = IN_EVT.badgeid AND IN_EVT.eventtypeid = 1 " +
+            "    JOIN EVENT AS OUT_EVT " +
+            "    ON EMP.badgeid = OUT_EVT.badgeid AND OUT_EVT.eventtypeid = 0 " +
+            "    JOIN EMPLOYEETYPE AS EMPTYPE " +
+            "    ON EMP.EMPLOYEETYPEID = EMPTYPE.ID " +
+            "    JOIN SHIFT " +
+            "    ON EMP.SHIFTID = SHIFT.ID " +
+            "    WHERE ? BETWEEN IN_EVT.timestamp AND OUT_EVT.timestamp " +
+            "    AND DATE(IN_EVT.timestamp) = DATE(OUT_EVT.timestamp) " +
+            "    AND DATE(IN_EVT.timestamp) = ? ");             
 
     /** DAO factory for managing database connections and cross-DAO access. */
     private final DAOFactory daoFactory;
@@ -125,7 +132,6 @@ public class ReportDAO {
                 }
                 queryFindInEmployeesByDate.append("GROUP BY EMP.FIRSTNAME, EMP.LASTNAME, EMP.badgeid, EMPTYPE.DESCRIPTION, SHIFT.DESCRIPTION ");
                 queryFindInEmployeesByDate.append("ORDER BY EMPTYPE.DESCRIPTION, EMP.LASTNAME, EMP.firstname");
-                String f = queryFindInEmployeesByDate.toString();
                 ps = conn.prepareStatement(queryFindInEmployeesByDate.toString());
                 ps.setTimestamp(1, sqlTimestamp);
                 ps.setDate(2, sqlDate);
@@ -137,9 +143,19 @@ public class ReportDAO {
                     rs = ps.getResultSet();
                     addInEmployees(rs, employees);
                 }  
-                queryFindOutEmployeesByDate.append(endOfQuery(departmentId));
+                if (departmentId != null){
+                    queryFindOutEmployeesByDate.append("AND EMP.DEPARTMENTID = ? ");
+                    queryFindOutEmployeesByDate.append(") ");
+                    queryFindOutEmployeesByDate.append("AND DEPARTMENTID = ? ");
+                }
+                queryFindOutEmployeesByDate.append("ORDER BY EMPLOYEETYPE.DESCRIPTION, EMPLOYEE.LASTNAME, EMPLOYEE.firstname");
                 ps = conn.prepareStatement(queryFindOutEmployeesByDate.toString());
-                setWhosInWhosOutPs(sqlTimestamp,departmentId,ps);
+                ps.setTimestamp(1, sqlTimestamp);
+                ps.setDate(2, sqlDate);
+                if (departmentId != null){
+                    ps.setInt(3, departmentId);
+                    ps.setInt(4, departmentId);
+                }
                 hasResults = ps.execute();
                 if (hasResults) {
                     rs = ps.getResultSet();
@@ -219,7 +235,7 @@ public class ReportDAO {
                 String lastName = rs.getString("lastname");
                 String badgeId = rs.getString("badgeId");
                 String shiftDescription = rs.getString("shift.description");
-                String employeeType = rs.getString("EMPTYPE.DESCRIPTION");
+                String employeeType = rs.getString("EMPLOYEETYPE.DESCRIPTION");
                 employee.put("employeetype", employeeType);
                 employee.put("firstname", firstName);
                 employee.put("badgeid", badgeId);
