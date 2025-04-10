@@ -13,7 +13,7 @@ import java.util.Locale;
 
 public class ReportDAO {
 
-     private static StringBuilder QUERY_FIND_EMPLOYEES_BY_DATE = new StringBuilder(
+     private static StringBuilder queryFindInEmployeesByDate = new StringBuilder(
             "SELECT EMP.FIRSTNAME, EMP.LASTNAME, EMP.badgeid, EVT.timestamp, EMPTYPE.DESCRIPTION, SHIFT.DESCRIPTION " +
              "FROM EMPLOYEE AS EMP " +
              "JOIN EVENT AS EVT " +
@@ -117,10 +117,10 @@ public class ReportDAO {
             }
             if (conn.isValid(0)) {
                 if (departmentId != null){
-                    QUERY_FIND_EMPLOYEES_BY_DATE.append("AND EMP.DEPARTMENTID = ? ");
+                    queryFindInEmployeesByDate.append("AND EMP.DEPARTMENTID = ? ");
                 }
-                QUERY_FIND_EMPLOYEES_BY_DATE.append("ORDER BY EMPTYPE.DESCRIPTION, EMP.LASTNAME, EMP.FIRSTNAME");
-                ps = conn.prepareStatement(QUERY_FIND_EMPLOYEES_BY_DATE.toString());
+                queryFindInEmployeesByDate.append("ORDER BY EMPTYPE.DESCRIPTION, EMP.LASTNAME, EMP.FIRSTNAME");
+                ps = conn.prepareStatement(queryFindInEmployeesByDate.toString());
                 ps.setTimestamp(1, sqlTimestamp);
                 ps.setTimestamp(2, sqlTimestamp);
                 if (departmentId != null){
