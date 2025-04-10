@@ -129,29 +129,7 @@ public class ReportDAO {
                 hasResults = ps.execute();
                 if (hasResults) {
                     rs = ps.getResultSet();
-                    while (rs.next()) {  
-                        JsonObject employee = new JsonObject();
-                        String firstName = rs.getString("firstname");
-                        String lastName = rs.getString("lastname");
-                        String badgeId = rs.getString("badgeId");
-                        Timestamp fetchedTimestamp = rs.getTimestamp("timestamp");
-                        LocalDateTime dateTimeTimestamp = fetchedTimestamp.toLocalDateTime();
-                        String dayOfWeek = dateTimeTimestamp.getDayOfWeek().getDisplayName(TextStyle.SHORT, Locale.ENGLISH);
-                        SimpleDateFormat targetFormat = new SimpleDateFormat("MM/dd/yyyy HH:mm:ss");
-                        String formattedDate = targetFormat.format(fetchedTimestamp);
-                        String shiftDescription = rs.getString("shift.description");
-                        String employeeType = rs.getString("EMPTYPE.DESCRIPTION");
-                        employee.put("arrived", dayOfWeek.toUpperCase() + " " + formattedDate);
-                        employee.put("employeetype", employeeType);
-                        employee.put("firstname", firstName);
-                        employee.put("lastname", lastName);
-                        employee.put("badgeid", badgeId);
-                        employee.put("shift", shiftDescription);
-                        // TODO: Remove hardcode status
-                        employee.put("status", "In");
-                        employees.add(employee);
-                    }
-                    employeesString.append(employees.toJson());
+                    addInEmployees(rs, employees);
                 }
                 
                 if (departmentId != null){
@@ -167,22 +145,7 @@ public class ReportDAO {
                 hasResults = ps.execute();
                 if (hasResults) {
                     rs = ps.getResultSet();
-                    while (rs.next()) {  
-                        JsonObject employee = new JsonObject();
-                        String firstName = rs.getString("firstname");
-                        String lastName = rs.getString("lastname");
-                        String badgeId = rs.getString("badgeId");
-                        String shiftDescription = rs.getString("shift.description");
-                        String employeeType = rs.getString("EMPTYPE.DESCRIPTION");
-                        employee.put("employeetype", employeeType);
-                        employee.put("firstname", firstName);
-                        employee.put("badgeid", badgeId);
-                        employee.put("shift", shiftDescription);
-                        employee.put("lastname", lastName);
-                        employee.put("status", "Out");
-                        employees.add(employee);
-                    }
-                    employeesString.append(employees.toJson());
+                    addOutEmployees(rs, employees);
                 }
                 
             }
@@ -195,4 +158,63 @@ public class ReportDAO {
         return Jsoner.serialize(employees);
         
     }
+    
+    private void addInEmployees(ResultSet rs, JsonArray employees){
+        try{
+            while (rs.next()) {  
+                JsonObject employee = new JsonObject();
+                String firstName = rs.getString("firstname");
+                String lastName = rs.getString("lastname");
+                String badgeId = rs.getString("badgeId");
+                Timestamp fetchedTimestamp = rs.getTimestamp("timestamp");
+                LocalDateTime dateTimeTimestamp = fetchedTimestamp.toLocalDateTime();
+                String dayOfWeek = dateTimeTimestamp.getDayOfWeek().getDisplayName(TextStyle.SHORT, Locale.ENGLISH);
+                SimpleDateFormat targetFormat = new SimpleDateFormat("MM/dd/yyyy HH:mm:ss");
+                String formattedDate = targetFormat.format(fetchedTimestamp);
+                String shiftDescription = rs.getString("shift.description");
+                String employeeType = rs.getString("EMPTYPE.DESCRIPTION");
+                employee.put("arrived", dayOfWeek.toUpperCase() + " " + formattedDate);
+                employee.put("employeetype", employeeType);
+                employee.put("firstname", firstName);
+                employee.put("lastname", lastName);
+                employee.put("badgeid", badgeId);
+                employee.put("shift", shiftDescription);
+                employee.put("status", "In");
+                employees.add(employee);
+            }
+        }
+        catch(Exception e){
+            e.printStackTrace();
+        }
+        finally{
+            if (rs != null) { try { rs.close(); } catch (Exception e) { e.printStackTrace(); } }
+        }
+    }
+    
+    private void addOutEmployees(ResultSet rs, JsonArray employees){
+        try{
+            while (rs.next()) {  
+                JsonObject employee = new JsonObject();
+                String firstName = rs.getString("firstname");
+                String lastName = rs.getString("lastname");
+                String badgeId = rs.getString("badgeId");
+                String shiftDescription = rs.getString("shift.description");
+                String employeeType = rs.getString("EMPTYPE.DESCRIPTION");
+                employee.put("employeetype", employeeType);
+                employee.put("firstname", firstName);
+                employee.put("badgeid", badgeId);
+                employee.put("shift", shiftDescription);
+                employee.put("lastname", lastName);
+                employee.put("status", "Out");
+                employees.add(employee);
+            }
+        }
+        catch(Exception e){
+            e.printStackTrace();
+        }
+        finally{
+            if (rs != null) { try { rs.close(); } catch (Exception e) { e.printStackTrace(); } }
+        }
+    }
+
 }
