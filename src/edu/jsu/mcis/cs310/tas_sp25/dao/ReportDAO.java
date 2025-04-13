@@ -175,28 +175,6 @@ public class ReportDAO {
         
     }
     
-    private void setWhosInWhosOutPs(Timestamp sqlTimestamp, Integer departmentId, PreparedStatement ps){
-        try{
-            ps.setTimestamp(1, sqlTimestamp);
-            ps.setTimestamp(2, sqlTimestamp);
-            if (departmentId != null){
-                ps.setInt(3, departmentId);
-            }
-        }
-        catch(Exception e){
-            e.printStackTrace();
-        }
-    }
-    
-    private String endOfQuery(Integer departmentId){
-        StringBuilder sb = new StringBuilder();
-        if (departmentId != null){
-            sb.append("AND EMP.DEPARTMENTID = ? ");
-        }
-        sb.append("ORDER BY EMPTYPE.DESCRIPTION, EMP.LASTNAME, EMP.FIRSTNAME");
-        return sb.toString();
-    }
-    
     private void addInEmployees(ResultSet rs, JsonArray employees){
         try{
             while (rs.next()) {  
