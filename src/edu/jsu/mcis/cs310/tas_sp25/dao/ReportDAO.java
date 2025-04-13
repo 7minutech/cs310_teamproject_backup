@@ -11,6 +11,12 @@ import java.text.SimpleDateFormat;
 import java.time.format.TextStyle;
 import java.util.Locale;
 
+/**
+ * This ReportDAO class has queries to gather the attendance of employees and 
+ * methods to get various data regarding attendance and present it in a variety 
+ * of formats
+ * @author Eli
+ */
 public class ReportDAO {
 
      private StringBuilder queryFindInEmployeesByDate = new StringBuilder(
@@ -53,7 +59,7 @@ public class ReportDAO {
     
 
     /**
-     * Constructs a {@code BadgeDAO} using the provided factory.
+     * Constructs a {@code ReportDAO} using the provided factory.
      *
      * @param daoFactory Factory to get database connection
      */
