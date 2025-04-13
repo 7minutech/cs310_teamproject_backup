@@ -175,6 +175,72 @@ public class ReportDAO {
         
     }
     
+    private void fetchInEmployees(Connection conn, Timestamp timestamp, java.sql.Date date, Integer deptId, JsonArray employees) {
+        PreparedStatement ps = null;
+        ResultSet rs = null;
+        StringBuilder query = new StringBuilder(queryFindInEmployeesByDate);
+        boolean hasResults;
+        if (deptId != null) {
+            query.append("AND EMP.DEPARTMENTID = ? ");
+        }
+        query.append("GROUP BY EMP.FIRSTNAME, EMP.LASTNAME, EMP.badgeid, EMPTYPE.DESCRIPTION, SHIFT.DESCRIPTION ");
+        query.append("ORDER BY EMPTYPE.DESCRIPTION, EMP.LASTNAME, EMP.firstname");
+        try{
+            ps = conn.prepareStatement(query.toString());
+            ps.setTimestamp(1, timestamp);
+            ps.setDate(2, date);
+            if (deptId != null) {
+                ps.setInt(3, deptId);
+            }
+            hasResults = ps.execute();
+            if (hasResults) {
+                rs = ps.getResultSet();
+                addInEmployees(rs, employees);
+            }  
+        }
+        catch (SQLException e) {
+                e.printStackTrace();
+        }
+        finally {
+            if (rs != null) { try { rs.close(); } catch (Exception e) { e.printStackTrace(); } }
+            if (ps != null) { try { ps.close(); } catch (Exception e) { e.printStackTrace(); } }
+        }
+        
+    }
+    
+    private void fetchOutEmployees(Connection conn, Timestamp timestamp, java.sql.Date date, Integer deptId, JsonArray employees) {
+        PreparedStatement ps = null;
+        ResultSet rs = null;
+        StringBuilder query = new StringBuilder(queryFindInEmployeesByDate);
+        boolean hasResults;
+        if (deptId != null){
+            queryFindOutEmployeesByDate.append("AND EMP.DEPARTMENTID = ? ");
+        }
+        queryFindOutEmployeesByDate.append("GROUP BY EMP.FIRSTNAME, EMP.LASTNAME, EMP.badgeid, EMPTYPE.DESCRIPTION, SHIFT.DESCRIPTION ");
+        queryFindOutEmployeesByDate.append("ORDER BY EMPTYPE.DESCRIPTION, EMP.LASTNAME, EMP.firstname");
+        try{
+            ps = conn.prepareStatement(query.toString());
+            ps.setTimestamp(1, timestamp);
+            ps.setDate(2, date);
+            if (deptId != null) {
+                ps.setInt(3, deptId);
+            }
+            hasResults = ps.execute();
+            if (hasResults) {
+                rs = ps.getResultSet();
+                addInEmployees(rs, employees);
+            }  
+        }
+        catch (SQLException e) {
+                e.printStackTrace();
+        }
+        finally {
+            if (rs != null) { try { rs.close(); } catch (Exception e) { e.printStackTrace(); } }
+            if (ps != null) { try { ps.close(); } catch (Exception e) { e.printStackTrace(); } }
+        }
+        
+    }
+    
     private void addInEmployees(ResultSet rs, JsonArray employees){
         try{
             while (rs.next()) {  
