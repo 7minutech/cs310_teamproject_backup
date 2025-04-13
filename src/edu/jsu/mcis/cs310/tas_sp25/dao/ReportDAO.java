@@ -207,8 +207,8 @@ public class ReportDAO {
         try{
             while (rs.next()) {  
                 JsonObject employee = new JsonObject();
-                String firstName = rs.getString("firstname");
-                String lastName = rs.getString("lastname");
+                String firstName = rs.getString("firstName");
+                String lastName = rs.getString("lastName");
                 String badgeId = rs.getString("badgeId");
                 Timestamp fetchedTimestamp = rs.getTimestamp("IN_TIME");
                 LocalDateTime dateTimeTimestamp = fetchedTimestamp.toLocalDateTime();
@@ -239,8 +239,8 @@ public class ReportDAO {
         try{
             while (rs.next()) {  
                 JsonObject employee = new JsonObject();
-                String firstName = rs.getString("firstname");
-                String lastName = rs.getString("lastname");
+                String firstName = rs.getString("firstName");
+                String lastName = rs.getString("lastName");
                 String badgeId = rs.getString("badgeId");
                 String shiftDescription = rs.getString("SHIFT.DESCRIPTION");
                 String employeeType = rs.getString("EMPLOYEETYPE.DESCRIPTION");
