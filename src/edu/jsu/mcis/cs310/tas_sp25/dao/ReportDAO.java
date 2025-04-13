@@ -107,70 +107,18 @@ public class ReportDAO {
     }
     
     public String getWhosInWhosOut(LocalDateTime timestamp, Integer departmentId){
-        /*
-        "[{\"arrived\":\"WED 09/05/2018 06:55:32\",\"employeetype\":\
-        "Full-Time Employee\",\"firstname\":\"Lee\",\"badgeid\":\"639D4185\"
-        ,\"shift\":\"Shift 1\",\"lastname\":\"Gaines\",\"status\":\"In\"}]
-        */
         Timestamp sqlTimestamp = Timestamp.valueOf(timestamp);
         java.sql.Date sqlDate = java.sql.Date.valueOf(timestamp.toLocalDate());
-        PreparedStatement ps = null;
-        ResultSet rs = null;
         JsonArray employees = new JsonArray();
-        boolean hasResults;
-        
         try {
-            Connection conn = daoFactory.getConnection();
-            if (conn.isClosed()) {
-                daoFactory.createConnection();
-                conn = daoFactory.getConnection();
-            }
+            Connection conn = ensureConnection();
             if (conn.isValid(0)) {
-                if (departmentId != null){
-                    queryFindInEmployeesByDate.append("AND EMP.DEPARTMENTID = ? ");
-                }
-                queryFindInEmployeesByDate.append("GROUP BY EMP.FIRSTNAME, EMP.LASTNAME, EMP.badgeid, EMPTYPE.DESCRIPTION, SHIFT.DESCRIPTION ");
-                queryFindInEmployeesByDate.append("ORDER BY EMPTYPE.DESCRIPTION, EMP.LASTNAME, EMP.firstname");
-                ps = conn.prepareStatement(queryFindInEmployeesByDate.toString());
-                ps.setTimestamp(1, sqlTimestamp);
-                ps.setDate(2, sqlDate);
-                if (departmentId != null){
-                    ps.setInt(3, departmentId);
-                }
-                hasResults = ps.execute();
-                if (hasResults) {
-                    rs = ps.getResultSet();
-                    addInEmployees(rs, employees);
-                }  
-                if (departmentId != null){
-                    queryFindOutEmployeesByDate.append("AND EMP.DEPARTMENTID = ? ");
-                    queryFindOutEmployeesByDate.append(") ");
-                    queryFindOutEmployeesByDate.append("AND DEPARTMENTID = ? ");
-                }
-                else{
-                    queryFindOutEmployeesByDate.append(") ");
-                }
-                queryFindOutEmployeesByDate.append("ORDER BY EMPLOYEETYPE.DESCRIPTION, EMPLOYEE.LASTNAME, EMPLOYEE.firstname");
-                ps = conn.prepareStatement(queryFindOutEmployeesByDate.toString());
-                ps.setTimestamp(1, sqlTimestamp);
-                ps.setDate(2, sqlDate);
-                if (departmentId != null){
-                    ps.setInt(3, departmentId);
-                    ps.setInt(4, departmentId);
-                }
-                hasResults = ps.execute();
-                if (hasResults) {
-                    rs = ps.getResultSet();
-                    addOutEmployees(rs, employees);
-                }
-                
+                fetchInEmployees(conn,sqlTimestamp, sqlDate, departmentId, employees);
+                fetchOutEmployees(conn,sqlTimestamp, sqlDate, departmentId, employees);       
             }
         } catch (Exception e) {
             e.printStackTrace();
-        } finally {
-            if (rs != null) { try { rs.close(); } catch (Exception e) { e.printStackTrace(); } }
-            if (ps != null) { try { ps.close(); } catch (Exception e) { e.printStackTrace(); } }
-        }
+        } 
         return Jsoner.serialize(employees);
         
     }
@@ -191,8 +139,8 @@ public class ReportDAO {
         boolean hasResults;
         if (deptId != null) {
             query.append("AND EMP.DEPARTMENTID = ? ");
-        }
-        query.append("GROUP BY EMP.FIRSTNAME, EMP.LASTNAME, EMP.badgeid, EMPTYPE.DESCRIPTION, SHIFT.DESCRIPTION ");
+        }  
+        query.append("GROUP BY EMP.FIRSTNAME, EMP.LASTNAME, EMP.badgeid, EMPTYPE.DESCRIPTION, shift_description ");
         query.append("ORDER BY EMPTYPE.DESCRIPTION, EMP.LASTNAME, EMP.firstname");
         try{
             ps = conn.prepareStatement(query.toString());
@@ -220,24 +168,29 @@ public class ReportDAO {
     private void fetchOutEmployees(Connection conn, Timestamp timestamp, java.sql.Date date, Integer deptId, JsonArray employees) {
         PreparedStatement ps = null;
         ResultSet rs = null;
-        StringBuilder query = new StringBuilder(queryFindInEmployeesByDate);
+        StringBuilder query = new StringBuilder(queryFindOutEmployeesByDate);
         boolean hasResults;
         if (deptId != null){
-            queryFindOutEmployeesByDate.append("AND EMP.DEPARTMENTID = ? ");
+            query.append("AND EMP.DEPARTMENTID = ? ");
+            query.append(") ");
+            query.append("AND DEPARTMENTID = ? ");
         }
-        queryFindOutEmployeesByDate.append("GROUP BY EMP.FIRSTNAME, EMP.LASTNAME, EMP.badgeid, EMPTYPE.DESCRIPTION, SHIFT.DESCRIPTION ");
-        queryFindOutEmployeesByDate.append("ORDER BY EMPTYPE.DESCRIPTION, EMP.LASTNAME, EMP.firstname");
+        else{
+            query.append(") ");
+        }
+        query.append("ORDER BY EMPLOYEETYPE.DESCRIPTION, EMPLOYEE.LASTNAME, EMPLOYEE.firstname");
         try{
             ps = conn.prepareStatement(query.toString());
             ps.setTimestamp(1, timestamp);
             ps.setDate(2, date);
             if (deptId != null) {
                 ps.setInt(3, deptId);
+                ps.setInt(4, deptId);
             }
             hasResults = ps.execute();
             if (hasResults) {
                 rs = ps.getResultSet();
-                addInEmployees(rs, employees);
+                addOutEmployees(rs, employees);
             }  
         }
         catch (SQLException e) {
@@ -289,7 +242,7 @@ public class ReportDAO {
                 String firstName = rs.getString("firstname");
                 String lastName = rs.getString("lastname");
                 String badgeId = rs.getString("badgeId");
-                String shiftDescription = rs.getString("shift.description");
+                String shiftDescription = rs.getString("SHIFT.DESCRIPTION");
                 String employeeType = rs.getString("EMPLOYEETYPE.DESCRIPTION");
                 employee.put("employeetype", employeeType);
                 employee.put("firstname", firstName);
