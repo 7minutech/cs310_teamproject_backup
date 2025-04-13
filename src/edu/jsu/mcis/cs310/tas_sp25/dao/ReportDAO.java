@@ -117,7 +117,6 @@ public class ReportDAO {
         PreparedStatement ps = null;
         ResultSet rs = null;
         JsonArray employees = new JsonArray();
-        StringBuilder employeesString = new StringBuilder();
         boolean hasResults;
         
         try {
