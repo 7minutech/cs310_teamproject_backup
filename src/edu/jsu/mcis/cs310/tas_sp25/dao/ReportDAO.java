@@ -106,6 +106,14 @@ public class ReportDAO {
     return json.toJson();
     }
     
+    /**
+     * Retrieves a list of employees that were clock in during the specified 
+     * timestamp and serializes the data to JSON
+     * @param timestamp The specified timestamp to search from
+     * @param departmentId The optional condition to search for a specific department
+     * @return A serialized JSON {@link String} of the employees who were in and 
+     * out during the specified timestamp
+     */
     public String getWhosInWhosOut(LocalDateTime timestamp, Integer departmentId){
         Timestamp sqlTimestamp = Timestamp.valueOf(timestamp);
         java.sql.Date sqlDate = java.sql.Date.valueOf(timestamp.toLocalDate());
