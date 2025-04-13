@@ -132,7 +132,6 @@ public class ReportDAO {
                 }
                 queryFindInEmployeesByDate.append("GROUP BY EMP.FIRSTNAME, EMP.LASTNAME, EMP.badgeid, EMPTYPE.DESCRIPTION, SHIFT.DESCRIPTION ");
                 queryFindInEmployeesByDate.append("ORDER BY EMPTYPE.DESCRIPTION, EMP.LASTNAME, EMP.firstname");
-                String f = queryFindInEmployeesByDate.toString();
                 ps = conn.prepareStatement(queryFindInEmployeesByDate.toString());
                 ps.setTimestamp(1, sqlTimestamp);
                 ps.setDate(2, sqlDate);
