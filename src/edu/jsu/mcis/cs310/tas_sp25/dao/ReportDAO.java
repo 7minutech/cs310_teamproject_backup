@@ -14,8 +14,8 @@ import java.util.Locale;
 public class ReportDAO {
 
      private StringBuilder queryFindInEmployeesByDate = new StringBuilder(
-            "SELECT EMP.FIRSTNAME, EMP.LASTNAME, EMP.badgeid, MIN(IN_EVT.timestamp) AS in_time, "
-            + "MAX(OUT_EVT.timestamp) AS out_time, EMPTYPE.DESCRIPTION AS employeetype_description, SHIFT.DESCRIPTION AS shift_description " +
+            "SELECT EMP.FIRSTNAME, EMP.LASTNAME, EMP.badgeid, MIN(IN_EVT.timestamp) AS IN_TIME, "
+            + "MAX(OUT_EVT.timestamp) AS OUT_TIME, EMPTYPE.DESCRIPTION, SHIFT.DESCRIPTION " +
             "FROM EMPLOYEE AS EMP " +
             "JOIN EVENT AS IN_EVT ON EMP.badgeid = IN_EVT.badgeid AND IN_EVT.eventtypeid = 1 " +
             "JOIN EVENT AS OUT_EVT ON EMP.badgeid = OUT_EVT.badgeid AND (OUT_EVT.eventtypeid = 0 OR OUT_EVT.eventtypeid = 2) " +
@@ -140,7 +140,7 @@ public class ReportDAO {
         if (deptId != null) {
             query.append("AND EMP.DEPARTMENTID = ? ");
         }  
-        query.append("GROUP BY EMP.FIRSTNAME, EMP.LASTNAME, EMP.badgeid, EMPTYPE.DESCRIPTION, shift_description ");
+        query.append("GROUP BY EMP.FIRSTNAME, EMP.LASTNAME, EMP.badgeid, EMPTYPE.DESCRIPTION, SHIFT.DESCRIPTION ");
         query.append("ORDER BY EMPTYPE.DESCRIPTION, EMP.LASTNAME, EMP.firstname");
         try{
             ps = conn.prepareStatement(query.toString());
@@ -210,13 +210,13 @@ public class ReportDAO {
                 String firstName = rs.getString("firstname");
                 String lastName = rs.getString("lastname");
                 String badgeId = rs.getString("badgeId");
-                Timestamp fetchedTimestamp = rs.getTimestamp("in_time");
+                Timestamp fetchedTimestamp = rs.getTimestamp("IN_TIME");
                 LocalDateTime dateTimeTimestamp = fetchedTimestamp.toLocalDateTime();
                 String dayOfWeek = dateTimeTimestamp.getDayOfWeek().getDisplayName(TextStyle.SHORT, Locale.ENGLISH);
                 SimpleDateFormat targetFormat = new SimpleDateFormat("MM/dd/yyyy HH:mm:ss");
                 String formattedDate = targetFormat.format(fetchedTimestamp);
-                String shiftDescription = rs.getString("shift_description");
-                String employeeType = rs.getString("employeetype_description");
+                String shiftDescription = rs.getString("SHIFT.DESCRIPTION");
+                String employeeType = rs.getString("EMPTYPE.DESCRIPTION");
                 employee.put("arrived", dayOfWeek.toUpperCase() + " " + formattedDate);
                 employee.put("employeetype", employeeType);
                 employee.put("firstname", firstName);
