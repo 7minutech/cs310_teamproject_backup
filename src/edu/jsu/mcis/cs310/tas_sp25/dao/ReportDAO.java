@@ -175,6 +175,15 @@ public class ReportDAO {
         
     }
     
+    private Connection ensureConnection() throws SQLException {
+        Connection conn = daoFactory.getConnection();
+        if (conn.isClosed()) {
+            daoFactory.createConnection();
+            conn = daoFactory.getConnection();
+        }
+        return conn;
+    }
+    
     private void fetchInEmployees(Connection conn, Timestamp timestamp, java.sql.Date date, Integer deptId, JsonArray employees) {
         PreparedStatement ps = null;
         ResultSet rs = null;
