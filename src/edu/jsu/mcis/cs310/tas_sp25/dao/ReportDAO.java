@@ -62,9 +62,9 @@ public class ReportDAO {
         "EMP.lastname, " +
         "EMP.badgeid, " +
         "EMP.active, " +
-        "DEP.description AS department_desc, " +
-        "EMP_TYPE.description AS type_desc, " +
-        "SHIFT.description AS shift_desc " +
+        "DEP.description AS departmentDesc, " +
+        "EMP_TYPE.description AS typeDesc, " +
+        "SHIFT.description AS shiftDesc " +
         "FROM employee AS EMP " +
         "JOIN department DEP ON EMP.departmentid = DEP.id " +
         "JOIN employeetype AS EMP_TYPE ON EMP.employeetypeid = EMP_TYPE.id " +
@@ -323,12 +323,12 @@ public class ReportDAO {
                         emp.put("firstname", rs.getString("firstname"));
                         emp.put("middlename", rs.getString("middlename"));
                         emp.put("lastname", rs.getString("lastname"));
-                        emp.put("employeetype", rs.getString("type_desc"));
+                        emp.put("employeetype", rs.getString("typeDesc"));
                         emp.put("badgeid", rs.getString("badgeid"));
                         emp.put("active", sdf.format(rs.getDate("active")));
-                        emp.put("department", rs.getString("department_desc"));
-                        emp.put("employeetype", rs.getString("type_desc"));
-                        emp.put("shift", rs.getString("shift_desc"));
+                        emp.put("department", rs.getString("departmentDesc"));
+                        emp.put("employeetype", rs.getString("typeDesc"));
+                        emp.put("shift", rs.getString("shiftDesc"));
 
                         employeeList.add(emp);
                     }
