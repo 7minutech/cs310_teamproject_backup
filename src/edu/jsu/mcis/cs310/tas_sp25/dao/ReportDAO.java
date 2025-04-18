@@ -321,7 +321,7 @@ public class ReportDAO {
             e.printStackTrace();
         }
 
-        // Convert to pretty JSON string
+        
         return Jsoner.prettyPrint(employeeList.toJson());
     }
 
