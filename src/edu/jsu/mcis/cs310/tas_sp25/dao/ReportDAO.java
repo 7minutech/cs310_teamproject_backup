@@ -20,40 +20,56 @@ import java.util.Locale;
  */
 public class ReportDAO {
 
-     private StringBuilder queryFindInEmployeesByDate = new StringBuilder(
-            "SELECT EMP.FIRSTNAME, EMP.LASTNAME, EMP.badgeid, MIN(IN_EVT.timestamp) AS IN_TIME, "
-            + "MAX(OUT_EVT.timestamp) AS OUT_TIME, EMPTYPE.DESCRIPTION, SHIFT.DESCRIPTION " +
-            "FROM EMPLOYEE AS EMP " +
-            "JOIN EVENT AS IN_EVT ON EMP.badgeid = IN_EVT.badgeid AND IN_EVT.eventtypeid = 1 " +
-            "JOIN EVENT AS OUT_EVT ON EMP.badgeid = OUT_EVT.badgeid AND (OUT_EVT.eventtypeid = 0 OR OUT_EVT.eventtypeid = 2) " +
-            "JOIN EMPLOYEETYPE AS EMPTYPE ON EMP.EMPLOYEETYPEID = EMPTYPE.ID " +
-            "JOIN SHIFT ON EMP.SHIFTID = SHIFT.ID " +
-            "WHERE ? BETWEEN IN_EVT.timestamp AND OUT_EVT.timestamp " +
-            "AND DATE(IN_EVT.timestamp) = DATE(OUT_EVT.timestamp) " +
-            "AND DATE(IN_EVT.timestamp) = ? ");
+    private StringBuilder queryFindInEmployeesByDate = new StringBuilder(
+           "SELECT EMP.FIRSTNAME, EMP.LASTNAME, EMP.badgeid, MIN(IN_EVT.timestamp) AS IN_TIME, "
+           + "MAX(OUT_EVT.timestamp) AS OUT_TIME, EMPTYPE.DESCRIPTION, SHIFT.DESCRIPTION " +
+           "FROM EMPLOYEE AS EMP " +
+           "JOIN EVENT AS IN_EVT ON EMP.badgeid = IN_EVT.badgeid AND IN_EVT.eventtypeid = 1 " +
+           "JOIN EVENT AS OUT_EVT ON EMP.badgeid = OUT_EVT.badgeid AND (OUT_EVT.eventtypeid = 0 OR OUT_EVT.eventtypeid = 2) " +
+           "JOIN EMPLOYEETYPE AS EMPTYPE ON EMP.EMPLOYEETYPEID = EMPTYPE.ID " +
+           "JOIN SHIFT ON EMP.SHIFTID = SHIFT.ID " +
+           "WHERE ? BETWEEN IN_EVT.timestamp AND OUT_EVT.timestamp " +
+           "AND DATE(IN_EVT.timestamp) = DATE(OUT_EVT.timestamp) " +
+           "AND DATE(IN_EVT.timestamp) = ? ");
 
     
-     private StringBuilder queryFindOutEmployeesByDate = new StringBuilder(
-            "SELECT EMPLOYEE.FIRSTNAME, EMPLOYEE.LASTNAME, EMPLOYEE.badgeid, EMPLOYEETYPE.DESCRIPTION, SHIFT.DESCRIPTION " +
-            "FROM EMPLOYEE " +
-            "JOIN EMPLOYEETYPE " +
-            "ON EMPLOYEE.EMPLOYEETYPEID = EMPLOYEETYPE.ID " +
-            "JOIN SHIFT " +
-            "ON EMPLOYEE.SHIFTID = SHIFT.ID " +
-            "WHERE EMPLOYEE.badgeid NOT IN( " +
-            "SELECT EMP.badgeid " +
-            "FROM EMPLOYEE AS EMP " +
-            "JOIN EVENT AS IN_EVT " +
-            "ON EMP.badgeid = IN_EVT.badgeid AND IN_EVT.eventtypeid = 1 " +
-            "JOIN EVENT AS OUT_EVT " +
-            "ON EMP.badgeid = OUT_EVT.badgeid AND (OUT_EVT.eventtypeid = 0 OR OUT_EVT.eventtypeid = 2) " +
-            "JOIN EMPLOYEETYPE AS EMPTYPE " +
-            "ON EMP.EMPLOYEETYPEID = EMPTYPE.ID " +
-            "JOIN SHIFT " +
-            "ON EMP.SHIFTID = SHIFT.ID " +
-            "WHERE ? BETWEEN IN_EVT.timestamp AND OUT_EVT.timestamp " +
-            "AND DATE(IN_EVT.timestamp) = DATE(OUT_EVT.timestamp) " +
-            "AND DATE(IN_EVT.timestamp) = ? ");             
+    private StringBuilder queryFindOutEmployeesByDate = new StringBuilder(
+           "SELECT EMPLOYEE.FIRSTNAME, EMPLOYEE.LASTNAME, EMPLOYEE.badgeid, EMPLOYEETYPE.DESCRIPTION, SHIFT.DESCRIPTION " +
+           "FROM EMPLOYEE " +
+           "JOIN EMPLOYEETYPE " +
+           "ON EMPLOYEE.EMPLOYEETYPEID = EMPLOYEETYPE.ID " +
+           "JOIN SHIFT " +
+           "ON EMPLOYEE.SHIFTID = SHIFT.ID " +
+           "WHERE EMPLOYEE.badgeid NOT IN( " +
+           "SELECT EMP.badgeid " +
+           "FROM EMPLOYEE AS EMP " +
+           "JOIN EVENT AS IN_EVT " +
+           "ON EMP.badgeid = IN_EVT.badgeid AND IN_EVT.eventtypeid = 1 " +
+           "JOIN EVENT AS OUT_EVT " +
+           "ON EMP.badgeid = OUT_EVT.badgeid AND (OUT_EVT.eventtypeid = 0 OR OUT_EVT.eventtypeid = 2) " +
+           "JOIN EMPLOYEETYPE AS EMPTYPE " +
+           "ON EMP.EMPLOYEETYPEID = EMPTYPE.ID " +
+           "JOIN SHIFT " +
+           "ON EMP.SHIFTID = SHIFT.ID " +
+           "WHERE ? BETWEEN IN_EVT.timestamp AND OUT_EVT.timestamp " +
+           "AND DATE(IN_EVT.timestamp) = DATE(OUT_EVT.timestamp) " +
+           "AND DATE(IN_EVT.timestamp) = ? ");
+    
+    private StringBuilder queryFindEmployeeSummary = new StringBuilder(
+        "SELECT " +
+        "EMP.firstname, " +
+        "EMP.middlename, " +
+        "EMP.lastname, " +
+        "EMP.badgeid, " +
+        "EMP.active, " +
+        "DEP.description AS department_desc, " +
+        "EMP_TYPE.description AS type_desc, " +
+        "SHIFT.description AS shift_desc " +
+        "FROM employee AS EMP " +
+        "JOIN department DEP ON EMP.departmentid = DEP.id " +
+        "JOIN employeetype AS EMP_TYPE ON EMP.employeetypeid = EMP_TYPE.id " +
+        "JOIN shift ON EMP.shiftid = SHIFT.id "
+    );
 
     /** DAO factory for managing database connections and cross-DAO access. */
     private final DAOFactory daoFactory;
@@ -288,21 +304,14 @@ public class ReportDAO {
         SimpleDateFormat sdf = new SimpleDateFormat("MM/dd/yyyy");
         PreparedStatement ps = null;
         ResultSet rs = null;
-
-        String query =
-            "SELECT e.first_name, e.middle_name, e.last_name, e.badge_id, e.start_date, " +
-            "d.description AS department_desc, t.description AS type_desc, s.description AS shift_desc " +
-            "FROM employee e " +
-            "JOIN department d ON e.department_id = d.id " +
-            "JOIN employee_type t ON e.type_id = t.id " +
-            "JOIN shift s ON e.shift_id = s.id " +
-            (departmentId != null ? "WHERE e.department_id = ? " : "") +
-            "ORDER BY d.description, e.first_name, e.last_name, e.middle_name";
-
+        if (departmentId != null) {
+            queryFindEmployeeSummary.append( "WHERE EMP.departmentid = ? ");
+        }
+        queryFindEmployeeSummary.append("ORDER BY DEP.description, EMP.firstname, EMP.lastname, EMP.middlename");
         try {
             Connection conn = daoFactory.getConnection();
             if (conn.isValid(0)){
-                ps = conn.prepareStatement(query);
+                ps = conn.prepareStatement(queryFindEmployeeSummary.toString());
                 if (departmentId != null) {
                     ps.setInt(1, departmentId);
                 }
@@ -311,13 +320,14 @@ public class ReportDAO {
                     rs = ps.getResultSet();
                     while (rs.next()) {
                         JsonObject emp = new JsonObject();
-                        emp.put("firstName", rs.getString("first_name"));
-                        emp.put("middleName", rs.getString("middle_name"));
-                        emp.put("lastName", rs.getString("last_name"));
-                        emp.put("badgeId", rs.getString("badge_id"));
-                        emp.put("startDate", sdf.format(rs.getDate("start_date")));
+                        emp.put("firstname", rs.getString("firstname"));
+                        emp.put("middlename", rs.getString("middlename"));
+                        emp.put("lastname", rs.getString("lastname"));
+                        emp.put("employeetype", rs.getString("type_desc"));
+                        emp.put("badgeid", rs.getString("badgeid"));
+                        emp.put("active", sdf.format(rs.getDate("active")));
                         emp.put("department", rs.getString("department_desc"));
-                        emp.put("type", rs.getString("type_desc"));
+                        emp.put("employeetype", rs.getString("type_desc"));
                         emp.put("shift", rs.getString("shift_desc"));
 
                         employeeList.add(emp);
