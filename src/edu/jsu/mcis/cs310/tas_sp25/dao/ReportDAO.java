@@ -286,6 +286,8 @@ public class ReportDAO {
      public String getEmployeeSummary(Integer departmentId) {
         JsonArray employeeList = new JsonArray();
         SimpleDateFormat sdf = new SimpleDateFormat("MM/dd/yyyy");
+        PreparedStatement ps = null;
+        ResultSet rs = null;
 
         String query =
             "SELECT e.first_name, e.middle_name, e.last_name, e.badge_id, e.start_date, " +
@@ -297,26 +299,35 @@ public class ReportDAO {
             (departmentId != null ? "WHERE e.department_id = ? " : "") +
             "ORDER BY d.description, e.first_name, e.last_name, e.middle_name";
 
-        try (PreparedStatement stmt = conn.prepareStatement(query)) {
-            if (departmentId != null) {
-                stmt.setInt(1, departmentId);
+        try {
+            Connection conn = daoFactory.getConnection();
+            if (conn.isValid(0)){
+                ps = conn.prepareStatement(query);
+                if (departmentId != null) {
+                    ps.setInt(1, departmentId);
+                }
+                boolean hasResults = ps.execute();
+                if (hasResults){
+                    rs = ps.getResultSet();
+                    while (rs.next()) {
+                        JsonObject emp = new JsonObject();
+                        emp.put("firstName", rs.getString("first_name"));
+                        emp.put("middleName", rs.getString("middle_name"));
+                        emp.put("lastName", rs.getString("last_name"));
+                        emp.put("badgeId", rs.getString("badge_id"));
+                        emp.put("startDate", sdf.format(rs.getDate("start_date")));
+                        emp.put("department", rs.getString("department_desc"));
+                        emp.put("type", rs.getString("type_desc"));
+                        emp.put("shift", rs.getString("shift_desc"));
+
+                        employeeList.add(emp);
+                    }
+                }
             }
+            
 
-            ResultSet rs = stmt.executeQuery();
 
-            while (rs.next()) {
-                JsonObject emp = new JsonObject();
-                emp.put("firstName", rs.getString("first_name"));
-                emp.put("middleName", rs.getString("middle_name"));
-                emp.put("lastName", rs.getString("last_name"));
-                emp.put("badgeId", rs.getString("badge_id"));
-                emp.put("startDate", sdf.format(rs.getDate("start_date")));
-                emp.put("department", rs.getString("department_desc"));
-                emp.put("type", rs.getString("type_desc"));
-                emp.put("shift", rs.getString("shift_desc"));
-
-                employeeList.add(emp);
-            }
+            
 
         } catch (SQLException e) {
             e.printStackTrace();
