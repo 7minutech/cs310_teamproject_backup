@@ -274,5 +274,55 @@ public class ReportDAO {
             if (rs != null) { try { rs.close(); } catch (Exception e) { e.printStackTrace(); } }
         }
     }
+    
+    
+     private Connection conn;
+
+    public ReportDAO(Connection conn) {
+        this.conn = conn;
+         this.daoFactory = null;
+    }
+     public String getEmployeeSummary(Integer departmentId) {
+        JsonArray employeeList = new JsonArray();
+        SimpleDateFormat sdf = new SimpleDateFormat("MM/dd/yyyy");
+
+        String query =
+            "SELECT e.first_name, e.middle_name, e.last_name, e.badge_id, e.start_date, " +
+            "d.description AS department_desc, t.description AS type_desc, s.description AS shift_desc " +
+            "FROM employee e " +
+            "JOIN department d ON e.department_id = d.id " +
+            "JOIN employee_type t ON e.type_id = t.id " +
+            "JOIN shift s ON e.shift_id = s.id " +
+            (departmentId != null ? "WHERE e.department_id = ? " : "") +
+            "ORDER BY d.description, e.first_name, e.last_name, e.middle_name";
+
+        try (PreparedStatement stmt = conn.prepareStatement(query)) {
+            if (departmentId != null) {
+                stmt.setInt(1, departmentId);
+            }
+
+            ResultSet rs = stmt.executeQuery();
+
+            while (rs.next()) {
+                JsonObject emp = new JsonObject();
+                emp.put("firstName", rs.getString("first_name"));
+                emp.put("middleName", rs.getString("middle_name"));
+                emp.put("lastName", rs.getString("last_name"));
+                emp.put("badgeId", rs.getString("badge_id"));
+                emp.put("startDate", sdf.format(rs.getDate("start_date")));
+                emp.put("department", rs.getString("department_desc"));
+                emp.put("type", rs.getString("type_desc"));
+                emp.put("shift", rs.getString("shift_desc"));
+
+                employeeList.add(emp);
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        // Convert to pretty JSON string
+        return Jsoner.prettyPrint(employeeList.toJson());
+    }
 
 }
