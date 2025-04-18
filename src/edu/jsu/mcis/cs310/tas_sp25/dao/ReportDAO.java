@@ -347,8 +347,5 @@ public class ReportDAO {
         return Jsoner.prettyPrint(employeeList.toJson());
     }
      
-    public String getHoursSummary(LocalDate time, Integer departmentId, EmployeeType type){
-        return "";
-    }
 
 }
