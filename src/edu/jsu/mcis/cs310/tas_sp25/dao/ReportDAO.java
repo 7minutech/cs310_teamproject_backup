@@ -5,6 +5,7 @@ import com.github.cliftonlabs.json_simple.JsonObject;
 import com.github.cliftonlabs.json_simple.Jsoner;
 import edu.jsu.mcis.cs310.tas_sp25.*;
 import java.time.LocalDateTime;
+import java.time.LocalDate;
 import java.sql.*;
 import java.util.Date;
 import java.text.SimpleDateFormat;
@@ -323,6 +324,10 @@ public class ReportDAO {
 
         
         return Jsoner.prettyPrint(employeeList.toJson());
+    }
+     
+    public String getHoursSummary(LocalDate time, Integer departmentId, EmployeeType type){
+        return "";
     }
 
 }
