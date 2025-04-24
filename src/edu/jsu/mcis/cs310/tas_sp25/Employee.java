@@ -53,33 +53,89 @@ public class Employee {
         this.employeeType = employeeType;
     }
 
+    // Getters
+
+    /**
+     * Gets the ID of the employee.
+     * 
+     * @return The ID of the employee.
+     */
     public int getId() {
         return this.id;
     }
+
+    /**
+     * Gets the first name of the employee.
+     * 
+     * @return The first name of the employee.
+     */
     public String getFirstname() {
         return this.firstname;
     }
+
+    /**
+     * Gets the middle name of the employee.
+     * 
+     * @return The middle name of the employee.
+     */
     public String getMiddlename() {
         return this.middlename;
     }
+
+    /**
+     * Gets the last name of the employee.
+     * 
+     * @return The last name of the employee.
+     */
     public String getLastname() {
         return this.lastname;
     }
+
+    /**
+     * Gets the active status of the employee.
+     * 
+     * @return A LocalDateTime representing the active status of the employee.
+     */
     public LocalDateTime getActive() {
         return this.active;
     }
+
+    /**
+     * Gets the badge associated with the employee.
+     * 
+     * @return The Badge object associated with the employee.
+     */
     public Badge getBadge() {
         return this.badge;
     }
+
+    /**
+     * Gets the department the employee belongs to.
+     * 
+     * @return The Department object the employee is assigned to.
+     */
     public Department getDepartment() {
         return this.department;
     }
+
+    /**
+     * Gets the shift assigned to the employee.
+     * 
+     * @return The Shift object the employee is assigned to.
+     */
     public Shift getShift() {
         return this.shift;
     }
+
+    /**
+     * Gets the employee type.
+     * 
+     * @return The EmployeeType object representing the employee's type.
+     */
     public EmployeeType getEmployeeType() {
         return this.employeeType;
     }
+
     
     /**
      * Returns a formatted string with the employee's ID, name, badge ID, type,
