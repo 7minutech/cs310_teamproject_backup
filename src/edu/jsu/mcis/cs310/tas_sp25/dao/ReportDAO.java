@@ -132,6 +132,7 @@ public class ReportDAO {
     /**
      * Retrieves a list of employees that were clock in during the specified 
      * timestamp and serializes the data to JSON
+     * 
      * @param timestamp The specified timestamp to search from
      * @param departmentId The optional condition to search for a specific department
      * @return A serialized JSON {@link String} of the employees who were in and 
@@ -292,13 +293,17 @@ public class ReportDAO {
         }
     }
     
-    
-     private Connection conn;
-
-    public ReportDAO(Connection conn) {
-        this.conn = conn;
-         this.daoFactory = null;
-    }
+    /**
+    * Retrieves a summary of employees from a specific department, or all employees if no department ID is provided.
+    * The employee summary includes details such as first name, middle name, last name, badge ID, active status, 
+    * department, employee type, and shift information. The results are returned in a JSON array format, sorted by 
+    * department description, first name, last name, and middle name.
+    * 
+    * @param departmentId The ID of the department to filter employees by. If null, employees from all departments 
+    * are included in the summary.
+    * @return A pretty-printed JSON string representing the list of employees, including their details as described above. 
+    * If no employees are found or an error occurs, an empty JSON array is returned.
+    */
      public String getEmployeeSummary(Integer departmentId) {
         JsonArray employeeList = new JsonArray();
         SimpleDateFormat sdf = new SimpleDateFormat("MM/dd/yyyy");
