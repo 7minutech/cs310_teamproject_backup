@@ -277,6 +277,17 @@ public class DAOUtility {
         return json;
     }
     
+    /**
+     * Computes the CRC32 hash of the given input string and returns it as a 
+     * hexadecimal string
+     * 
+     * @param input The string input for which the CRC32 hash is to be computed
+     * @param length The desired length of the returned hash string. 
+     * The hash will be padded with leading zeros if necessary to match this
+     * length 
+     * @return A hexadecimal string representing the CRC32 hash of the input,
+     * formatted to the specified length
+     */
     public static String getCRCHash(String input, int length) {
         CRC32 crc32 = new CRC32();
         crc32.update(input.getBytes(StandardCharsets.UTF_8));
