@@ -124,6 +124,12 @@ public class BadgeDAO {
 
         }
     
+    /**
+     * Deletes a record from the database using the provided badge ID
+     * 
+     * @param badgeId The badge ID of the record to be deleted
+     * @return `true` if the record was successfully deleted, `false` otherwise 
+     */
     public boolean delete(String badgeId) {
 
             boolean result = false;
