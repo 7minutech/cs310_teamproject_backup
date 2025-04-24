@@ -333,10 +333,20 @@ public class Punch {
         return (dayOfWeek.toString()).substring(0, 3);
     }
     
-        // Combine date and time to single string - Austin
+    // Combine date and time to single string - Austin
+    /**
+    * Formats the given timestamp into a string combining both date and time.
+    * 
+    * This method utilizes the {@code formattedDate} and {@code formattedTime} methods 
+    * to format the date and time portions separately, and then combines them into a 
+    * single string.
+    * 
+    * @param timestamp The {@link LocalDateTime} object representing the timestamp to be formatted.
+    * @return A string representation of the formatted timestamp in the form of "date time".
+    */
     public String formatTimestamp(LocalDateTime timestamp) {
         return formattedDate(timestamp) + " " + formattedTime(timestamp);
-}
+    }
     
     // Formats date w/ day abbreviation - Austin
     /**
